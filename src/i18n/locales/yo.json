@@ -21,5 +21,9 @@
   },
   "language": {
     "label": "Ede"
+  },
+  "voice": {
+    "readAloud": "Ka gbo akọsilẹ oju-iwe",
+    "stop": "Duro kika"
   }
 }

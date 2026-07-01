@@ -21,5 +21,9 @@
   },
   "language": {
     "label": "Language"
+  },
+  "voice": {
+    "readAloud": "Read screen aloud",
+    "stop": "Stop reading"
   }
 }
