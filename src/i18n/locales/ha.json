@@ -1,0 +1,25 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "Barka da zuwa AjoLedger",
+      "body": "Muna sabunta ajiyar al'umma da gaskiya, amana, da sauƙi, tare da kiyaye al'adun Ajo da kuka saba da ita."
+    },
+    "recorded": {
+      "title": "Kowace Biyan Kuɗi. Ana Rubuta Ta Atomatik.",
+      "body": "Babu ƙarin takardun lissafi ko rasit. Ana bin diddigin kowace biyan kuɗi ta atomatik, don ku ga ajiyarku a kowane lokaci."
+    },
+    "confidence": {
+      "title": "Bi Ajiyarku da Kwarin Gwiwa.",
+      "body": "San matsayin biyan kuɗinku, biyan kuɗin da ke zuwa, da ci gaban ajiyarku a cikin dashboard mai sauƙi da aka tsara ga kowa."
+    },
+    "continue": "Ci gaba",
+    "getStarted": "Fara"
+  },
+  "getStarted": {
+    "title": "Fara",
+    "subtitle": "Allon wucin gadi. Za mu gina tsarin shiga anan nan gaba."
+  },
+  "language": {
+    "label": "Harshe"
+  }
+}

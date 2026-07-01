@@ -1,0 +1,25 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to AjoLedger",
+      "body": "Modernizing community savings with transparency, trust, and simplicity while preserving the Ajo tradition you already know."
+    },
+    "recorded": {
+      "title": "Every Payment. Automatically Recorded.",
+      "body": "No more spreadsheets or payment receipts. Every contribution is tracked automatically, giving you a clear view of your savings anytime."
+    },
+    "confidence": {
+      "title": "Track Your Savings with Confidence.",
+      "body": "Know your contribution status, upcoming payouts, and savings progress all in one simple, accessible dashboard designed for everyone."
+    },
+    "continue": "Continue",
+    "getStarted": "Get Started"
+  },
+  "getStarted": {
+    "title": "Get Started",
+    "subtitle": "Placeholder screen. The authentication flow will be built here next."
+  },
+  "language": {
+    "label": "Language"
+  }
+}

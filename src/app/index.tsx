@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   Image,
@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Redirect, useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "../components/Button";
 import {
@@ -21,43 +22,61 @@ import {
 } from "../lib/onboardingStorage";
 import { useThemedStyles, type Theme } from "../theme";
 
+type SlideKey = "welcome" | "recorded" | "confidence";
+
 type Slide = {
-  key: string;
+  key: SlideKey;
   image: ImageSourcePropType;
+  titleKey: `onboarding.${SlideKey}.title`;
+  bodyKey: `onboarding.${SlideKey}.body`;
+};
+
+type ResolvedSlide = Slide & {
   title: string;
   body: string;
 };
 
-const slides: Slide[] = [
+const slideDefinitions: Slide[] = [
   {
     key: "welcome",
     image: require("../../assets/onboarding/onboarding-1.png"),
-    title: "Welcome to AjoLedger",
-    body: "Modernizing community savings with transparency, trust, and simplicity while preserving the Ajo tradition you already know.",
+    titleKey: "onboarding.welcome.title",
+    bodyKey: "onboarding.welcome.body",
   },
   {
     key: "recorded",
     image: require("../../assets/onboarding/onboarding-2.png"),
-    title: "Every Payment. Automatically Recorded.",
-    body: "No more spreadsheets or payment receipts. Every contribution is tracked automatically, giving you a clear view of your savings anytime.",
+    titleKey: "onboarding.recorded.title",
+    bodyKey: "onboarding.recorded.body",
   },
   {
     key: "confidence",
     image: require("../../assets/onboarding/onboarding-3.png"),
-    title: "Track Your Savings with Confidence.",
-    body: "Know your contribution status, upcoming payouts, and savings progress all in one simple, accessible dashboard designed for everyone.",
+    titleKey: "onboarding.confidence.title",
+    bodyKey: "onboarding.confidence.body",
   },
 ];
 
 export default function Onboarding() {
+  const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const router = useRouter();
-  const listRef = useRef<FlatList<Slide>>(null);
+  const listRef = useRef<FlatList<ResolvedSlide>>(null);
   const [index, setIndex] = useState(0);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<
     boolean | null
   >(null);
   const styles = useThemedStyles(createStyles);
+
+  const slides = useMemo(
+    () =>
+      slideDefinitions.map((slide) => ({
+        ...slide,
+        title: t(slide.titleKey),
+        body: t(slide.bodyKey),
+      })),
+    [t],
+  );
 
   useEffect(() => {
     getOnboardingCompleted()
@@ -92,7 +111,7 @@ export default function Onboarding() {
     });
   };
 
-  const renderItem = ({ item }: ListRenderItemInfo<Slide>) => (
+  const renderItem = ({ item }: ListRenderItemInfo<ResolvedSlide>) => (
     <View style={[styles.slide, { width }]}>
       <View style={styles.illustrationWrap}>
         <Image
@@ -125,7 +144,7 @@ export default function Onboarding() {
 
       <View style={styles.footer}>
         <Button
-          label={isLast ? "Get Started" : "Continue"}
+          label={isLast ? t("onboarding.getStarted") : t("onboarding.continue")}
           iconRight="arrow-forward"
           onPress={handleNext}
         />

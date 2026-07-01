@@ -1,0 +1,25 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "Kaabo si AjoLedger",
+      "body": "A n ṣe imudara ajọ-ọrọ ti eniyan pẹlu iwoye, igbagbọ, ati irọrun lai ni ki a pa aṣa Ajo ti o ti mọ tan."
+    },
+    "recorded": {
+      "title": "Gbogbo Owo Sisan. A N Ṣe Akọsilẹ Funra Rẹ.",
+      "body": "Ko si si iwe-ẹrọ tabi risiti owo mọ. Gbogbo owo rẹ a ṣe akọsilẹ funra rẹ, ki o le rii ipilẹṣẹ akoko rẹ nigbakugba."
+    },
+    "confidence": {
+      "title": "Ṣe Akiyesi Akoko Rẹ Pẹlu Igbagbọ.",
+      "body": "Mọ ipo owo rẹ, awọn owo ti n bọ, ati ilọsiwaju akoko rẹ ni dashboard kan ti o rọrun, ti a ṣe fun gbogbo eniyan."
+    },
+    "continue": "Tẹsiwaju",
+    "getStarted": "Bẹrẹ"
+  },
+  "getStarted": {
+    "title": "Bẹrẹ",
+    "subtitle": "Oju-iwe aṣẹ. A o kọ iṣẹ wiwọle nibi tó kàn."
+  },
+  "language": {
+    "label": "Ede"
+  }
+}

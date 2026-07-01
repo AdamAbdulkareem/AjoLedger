@@ -1,0 +1,25 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "Nnọọ na AjoLedger",
+      "body": "Anyị na melite nchekwa obodo site na ịkpughe ihe, ntụkwasị obi, na mfe, ka e nwee ike chebe omenala Ajo ị maara."
+    },
+    "recorded": {
+      "title": "Ịkwụ Ụgwọ ọ Bụla. A Na-edekọ Ya Akpakaonwe.",
+      "body": "Enweghị spreadsheets ma ọ bụ receipts. A na-edekọ ntinye ego ọ bụla akpakaonwe, ka ị hụ ọnọdụ nchekwa gị n'oge ọ bụla."
+    },
+    "confidence": {
+      "title": "Soro Nchekwa Gị N'obi Ike.",
+      "body": "Mata ọnọdụ ntinye gị, ụgwọ na-abịa, na ọganihu nchekwa gị na dashboard dị mfe ma mepụtara maka onye ọ bụla."
+    },
+    "continue": "Gaa n'ihu",
+    "getStarted": "Malite"
+  },
+  "getStarted": {
+    "title": "Malite",
+    "subtitle": "Ihuenyo nkwado. Anyị ga ewulite usoro nbanye ebe a na-esote."
+  },
+  "language": {
+    "label": "Asụsụ"
+  }
+}

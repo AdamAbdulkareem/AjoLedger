@@ -1,0 +1,25 @@
+{
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to AjoLedger",
+      "body": "We dey upgrade community savings with transparency, trust, and simplicity — we no dey change the Ajo tradition wey you don sabi."
+    },
+    "recorded": {
+      "title": "Every Payment. E Dey Record By Itself.",
+      "body": "No more spreadsheet or receipt wahala. Every contribution go record by itself, so you fit see your savings clear-clear anytime."
+    },
+    "confidence": {
+      "title": "Track Your Savings With Confidence.",
+      "body": "Know your contribution status, payout wey dey come, and savings progress — all inside one simple dashboard wey everybody fit use."
+    },
+    "continue": "Continue",
+    "getStarted": "Start"
+  },
+  "getStarted": {
+    "title": "Start",
+    "subtitle": "Placeholder screen. We go build the login flow here next."
+  },
+  "language": {
+    "label": "Language"
+  }
+}
