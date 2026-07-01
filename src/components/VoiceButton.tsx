@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -20,26 +20,52 @@ export function VoiceButton({ text, accessibilityLabel }: VoiceButtonProps) {
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const isMountedRef = useRef(true);
+  const speakGenerationRef = useRef(0);
 
   const language: LanguageCode = isLanguageCode(i18n.language)
     ? i18n.language
     : "en";
 
+  const setSpeakingIfMounted = (speaking: boolean) => {
+    if (isMountedRef.current) {
+      setIsSpeaking(speaking);
+    }
+  };
+
   useEffect(() => {
+    isMountedRef.current = true;
+
     return () => {
+      isMountedRef.current = false;
+      speakGenerationRef.current += 1;
       void stopSpeech();
     };
   }, []);
 
   const handlePress = async () => {
     if (isSpeaking) {
+      speakGenerationRef.current += 1;
       await stopSpeech();
-      setIsSpeaking(false);
+      setSpeakingIfMounted(false);
       return;
     }
 
-    setIsSpeaking(true);
-    speakText(text, language, () => setIsSpeaking(false));
+    const generation = speakGenerationRef.current + 1;
+    speakGenerationRef.current = generation;
+    setSpeakingIfMounted(true);
+
+    speakText(
+      text,
+      language,
+      () => {
+        if (!isMountedRef.current || speakGenerationRef.current !== generation) {
+          return;
+        }
+        setIsSpeaking(false);
+      },
+      () => isMountedRef.current && speakGenerationRef.current === generation,
+    );
   };
 
   return (
