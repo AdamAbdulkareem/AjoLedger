@@ -1,0 +1,92 @@
+import { type ComponentProps } from "react";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
+import { useTheme, useThemedStyles, type Theme } from "../theme";
+
+type ButtonVariant = "primary";
+
+type ButtonProps = {
+  label: string;
+  onPress?: PressableProps["onPress"];
+  variant?: ButtonVariant;
+  iconRight?: ComponentProps<typeof Ionicons>["name"];
+  disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
+};
+
+export function Button({
+  label,
+  onPress,
+  variant = "primary",
+  iconRight,
+  disabled = false,
+  style,
+  accessibilityLabel,
+}: ButtonProps) {
+  const theme = useTheme();
+  const styles = useThemedStyles(createStyles);
+
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled }}
+      style={({ pressed }) => [
+        styles.base,
+        styles[variant],
+        pressed && styles.pressed,
+        disabled && styles.disabled,
+        style,
+      ]}
+    >
+      <Text style={styles.label}>{label}</Text>
+      {iconRight ? (
+        <Ionicons
+          name={iconRight}
+          size={18}
+          color={theme.colors.textPrimary}
+          style={styles.icon}
+        />
+      ) : null}
+    </Pressable>
+  );
+}
+
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    base: {
+      height: 48,
+      borderRadius: theme.radius.button,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: theme.spacing.lg,
+    },
+    primary: {
+      backgroundColor: theme.colors.brand,
+    },
+    pressed: {
+      opacity: 0.85,
+    },
+    disabled: {
+      opacity: 0.5,
+    },
+    label: {
+      ...theme.typography.button,
+      color: theme.colors.textPrimary,
+    },
+    icon: {
+      marginLeft: theme.spacing.sm,
+    },
+  });
