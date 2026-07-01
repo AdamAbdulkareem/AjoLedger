@@ -21,5 +21,9 @@
   },
   "language": {
     "label": "Language"
+  },
+  "voice": {
+    "readAloud": "Make phone read am for you",
+    "stop": "Stop reading"
   }
 }
