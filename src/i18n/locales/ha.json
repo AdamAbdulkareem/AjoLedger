@@ -15,9 +15,45 @@
     "continue": "Ci gaba",
     "getStarted": "Fara"
   },
-  "getStarted": {
-    "title": "Fara",
-    "subtitle": "Allon wucin gadi. Za mu gina tsarin shiga anan nan gaba."
+  "auth": {
+    "signUpTitle": "Yi rajista da Imel",
+    "loginTitle": "Shiga da Imel",
+    "emailLabel": "Imel",
+    "emailPlaceholder": "Shigar da imel ɗinka",
+    "passwordLabel": "Kalmar sirri",
+    "passwordPlaceholder": "Shigar da kalmar sirri",
+    "signUp": "Yi rajista",
+    "logIn": "Shiga",
+    "logOut": "Fita",
+    "or": "KO",
+    "continueWithGoogle": "Ci gaba da Google",
+    "continueWithApple": "Ci gaba da Apple",
+    "alreadyHaveAccount": "Kana da asusu?",
+    "noAccount": "Ba ka da asusu?",
+    "signIn": "Shiga",
+    "continue": "Ci gaba",
+    "createPinTitle": "Ƙirƙiri PIN ɗinka mai lamba 4",
+    "createPinSubtitle": "Za ka yi amfani da wannan PIN don buɗe app.",
+    "confirmPinLabel": "Tabbatar da PIN",
+    "enterPinTitle": "Shigar da PIN ɗinka",
+    "enterPinSubtitle": "Shigar da PIN mai lamba 4 don ci gaba.",
+    "useAnotherAccount": "Yi amfani da wani asusu",
+    "mockModeHint": "Demo mode — auth runs locally without the backend.",
+    "socialComingSoonTitle": "Yana zuwa nan ba da jimawa ba",
+    "socialComingSoonBody": "Shiga ta Google da Apple za su kasance idan backend ya shirya.",
+    "errors": {
+      "invalidEmail": "Imel ba daidai ba ne. Sake gwadawa.",
+      "weakPassword": "Kalmar sirri dole ta kasance aƙalla haruffa 8. Sake gwadawa.",
+      "passwordRequired": "Ana buƙatar kalmar sirri.",
+      "pinLength": "PIN dole ya kasance lambobi 4.",
+      "pinMismatch": "PINs ba su dace ba. Sake gwadawa.",
+      "generic": "Wani abu ya faru. Sake gwadawa."
+    }
+  },
+  "home": {
+    "greeting": "Barka da zuwa AjoLedger",
+    "signedInAs": "An shiga a matsayin {{email}}",
+    "placeholderNote": "Za a gina allon dashboard anan nan gaba."
   },
   "language": {
     "label": "Harshe"

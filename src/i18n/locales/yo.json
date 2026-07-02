@@ -15,9 +15,45 @@
     "continue": "Tẹsiwaju",
     "getStarted": "Bẹrẹ"
   },
-  "getStarted": {
-    "title": "Bẹrẹ",
-    "subtitle": "Oju-iwe aṣẹ. A o kọ iṣẹ wiwọle nibi tó kàn."
+  "auth": {
+    "signUpTitle": "Forukọsilẹ pẹlu Imẹẹli",
+    "loginTitle": "Wọle pẹlu Imẹẹli",
+    "emailLabel": "Imẹẹli",
+    "emailPlaceholder": "Tẹ imẹẹli rẹ",
+    "passwordLabel": "Ọrọ aṣina",
+    "passwordPlaceholder": "Tẹ ọrọ aṣina rẹ",
+    "signUp": "Forukọsilẹ",
+    "logIn": "Wọle",
+    "logOut": "Jade",
+    "or": "TABI",
+    "continueWithGoogle": "Tẹsiwaju pẹlu Google",
+    "continueWithApple": "Tẹsiwaju pẹlu Apple",
+    "alreadyHaveAccount": "Ṣe o ti ni akọọlẹ?",
+    "noAccount": "Ko ni akọọlẹ?",
+    "signIn": "Wọle",
+    "continue": "Tẹsiwaju",
+    "createPinTitle": "Ṣẹda PIN oni-nọmba 4 rẹ",
+    "createPinSubtitle": "O yoo lo PIN yii lati ṣi app naa.",
+    "confirmPinLabel": "Jẹrisi PIN",
+    "enterPinTitle": "Tẹ PIN rẹ",
+    "enterPinSubtitle": "Tẹ PIN oni-nọmba 4 rẹ lati tẹsiwaju.",
+    "useAnotherAccount": "Lo akọọlẹ miiran",
+    "mockModeHint": "Demo mode — auth runs locally without the backend.",
+    "socialComingSoonTitle": "Nbọ laipe",
+    "socialComingSoonBody": "Wiwọle Google ati Apple yoo wa nigba ti backend ba setan.",
+    "errors": {
+      "invalidEmail": "Imẹẹli ko tọ. Jọwọ gbiyanju lẹkan si.",
+      "weakPassword": "Ọrọ aṣina gbọdọ ni o kere ju ẹyọ 8 lọ. Jọwọ gbiyanju lẹkan si.",
+      "passwordRequired": "A nilo ọrọ aṣina.",
+      "pinLength": "PIN gbọdọ jẹ oni-nọmba 4.",
+      "pinMismatch": "Awọn PIN ko ba ara wọn mu. Jọwọ gbiyanju lẹkan si.",
+      "generic": "Nkọkan kan ṣẹlẹ. Jọwọ gbiyanju lẹkan si."
+    }
+  },
+  "home": {
+    "greeting": "Kaabo si AjoLedger",
+    "signedInAs": "O ti wọle gẹgẹ bi {{email}}",
+    "placeholderNote": "Awọn oju-iwe dashboard yoo wa nibi laipe."
   },
   "language": {
     "label": "Ede"

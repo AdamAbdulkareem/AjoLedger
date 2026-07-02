@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "../components/Button";
 import { VoiceButton } from "../components/VoiceButton";
+import { useAuthStatus } from "../context/AuthProvider";
 import {
   getOnboardingCompleted,
   setOnboardingCompleted,
@@ -69,6 +70,7 @@ export default function Onboarding() {
     boolean | null
   >(null);
   const styles = useThemedStyles(createStyles);
+  const authStatus = useAuthStatus();
 
   const slides = useMemo(
     () =>
@@ -101,7 +103,19 @@ export default function Onboarding() {
   }
 
   if (hasCompletedOnboarding) {
-    return <Redirect href="/get-started" />;
+    if (authStatus === "booting") {
+      return <View style={styles.container} />;
+    }
+    if (authStatus === "authenticated") {
+      return <Redirect href="/(app)/home" />;
+    }
+    if (authStatus === "needsPinEntry") {
+      return <Redirect href="/enter-pin" />;
+    }
+    if (authStatus === "needsPinSetup") {
+      return <Redirect href="/setup-pin" />;
+    }
+    return <Redirect href="/register" />;
   }
 
   const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -112,7 +126,7 @@ export default function Onboarding() {
   const handleNext = async () => {
     if (isLast) {
       await setOnboardingCompleted();
-      router.replace("/get-started");
+      router.replace("/register");
       return;
     }
     listRef.current?.scrollToOffset({

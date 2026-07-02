@@ -9,6 +9,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { initI18n } from "../i18n";
+import { AuthProvider } from "../context/AuthProvider";
 import { ThemeProvider } from "../theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -37,7 +38,9 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <Stack screenOptions={{ headerShown: false }} />
+        <AuthProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

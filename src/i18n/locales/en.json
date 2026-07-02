@@ -15,9 +15,45 @@
     "continue": "Continue",
     "getStarted": "Get Started"
   },
-  "getStarted": {
-    "title": "Get Started",
-    "subtitle": "Placeholder screen. The authentication flow will be built here next."
+  "auth": {
+    "signUpTitle": "Sign Up with Email",
+    "loginTitle": "Log In with Email",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your Password",
+    "signUp": "Sign Up",
+    "logIn": "Log In",
+    "logOut": "Log out",
+    "or": "OR",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithApple": "Continue with Apple",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "signIn": "Sign In",
+    "continue": "Continue",
+    "createPinTitle": "Create your 4-digit PIN",
+    "createPinSubtitle": "You will use this PIN to unlock the app.",
+    "confirmPinLabel": "Confirm PIN",
+    "enterPinTitle": "Enter your PIN",
+    "enterPinSubtitle": "Enter your 4-digit PIN to continue.",
+    "useAnotherAccount": "Use another account",
+    "mockModeHint": "Demo mode — auth runs locally without the backend.",
+    "socialComingSoonTitle": "Coming soon",
+    "socialComingSoonBody": "Google and Apple sign-in will be available once the backend is ready.",
+    "errors": {
+      "invalidEmail": "Incorrect email. Please try again.",
+      "weakPassword": "Password must contain at least 8 characters. Please try again.",
+      "passwordRequired": "Password is required.",
+      "pinLength": "PIN must be 4 digits.",
+      "pinMismatch": "PINs do not match. Please try again.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "home": {
+    "greeting": "Welcome to AjoLedger",
+    "signedInAs": "Signed in as {{email}}",
+    "placeholderNote": "Dashboard screens will be built here next."
   },
   "language": {
     "label": "Language"
