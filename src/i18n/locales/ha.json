@@ -51,12 +51,64 @@
     }
   },
   "home": {
-    "greeting": "Barka da zuwa AjoLedger",
-    "signedInAs": "An shiga a matsayin {{email}}",
-    "placeholderNote": "Za a gina allon dashboard anan nan gaba."
+    "goodMorning": "Ina kwana, {{name}}",
+    "goodAfternoon": "Barka da rana, {{name}}",
+    "goodEvening": "Barka da yamma, {{name}}",
+    "overviewSubtitle": "Ga nan ne bayanin ajiyar ku",
+    "listen": "Saurara",
+    "groupActive": "Yana aiki",
+    "groupPending": "Ana jira",
+    "groupCompleted": "An gama",
+    "cycleMonthly": "Wata-wata",
+    "cycleWeekly": "Mako-mako",
+    "cycleAmount": "{{frequency}} • {{amount}} ga kowane memba",
+    "myProgress": "Ci Gabana",
+    "contributed": "{{paid}} cikin {{total}} an bada",
+    "nextPayout": "Biyan Kuɗi Mai Zuwa",
+    "daysToGo": "kwanaki {{count}} su rage",
+    "dayToGo": "kwana 1 ya rage",
+    "viewSavingsDetails": "Duba cikakken bayanin ajiya",
+    "nextContribution": "Biyan Kuɗi Mai Zuwa",
+    "howToPay": "Yadda ake biya",
+    "dueInDaysWithDate": "Za a yi biya cikin kwanaki {{count}} • {{date}}",
+    "dueTomorrowWithDate": "Za a yi biya gobe • {{date}}",
+    "dueTodayWithDate": "Za a yi biya yau • {{date}}",
+    "dueTodayShort": "Za a yi biya yau",
+    "recentActivity": "Ayyukan Kwanan Nan",
+    "viewAll": "Duba duka",
+    "accessibility": "Samun dama",
+    "loading": "Ana lodin dashboard ɗinku…",
+    "errors": {
+      "generic": "Wani abu ya faru. Da fatan za a sake gwadawa.",
+      "retry": "Sake gwadawa"
+    },
+    "comingSoonTitle": "Yana zuwa nan ba da jimawa ba",
+    "comingSoonBody": "Wannan allo zai kasance a sabuntawa mai zuwa.",
+    "tabs": {
+      "home": "Gida",
+      "groups": "Ƙungiyoyi",
+      "contributions": "Biyan Kuɗi",
+      "payouts": "Biyan Kuɗi",
+      "profile": "Bayani"
+    },
+    "activity": {
+      "paymentReceived": {
+        "title": "An karɓi biyan kuɗi",
+        "subtitle": "Ka biya {{amount}}"
+      },
+      "contributionReminder": {
+        "title": "Tunatarwar biyan kuɗi",
+        "subtitle": "Biyan kuɗinka na gaba ya yi lokaci"
+      },
+      "upcomingPayout": {
+        "title": "Biyan kuɗi mai zuwa",
+        "subtitle": "{{name}} zai karɓa"
+      }
+    }
   },
   "language": {
-    "label": "Harshe"
+    "label": "Harshe",
+    "cancel": "Soke"
   },
   "voice": {
     "readAloud": "Saurari allo",

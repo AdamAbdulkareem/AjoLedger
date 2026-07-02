@@ -51,12 +51,64 @@
     }
   },
   "home": {
-    "greeting": "Nnọọ na AjoLedger",
-    "signedInAs": "Abanyelarị dị ka {{email}}",
-    "placeholderNote": "A ga ewulite ihuenyo dashboard ebe a na-esote."
+    "goodMorning": "Ndewo, {{name}}",
+    "goodAfternoon": "Ndewo, {{name}}",
+    "goodEvening": "Ndewo, {{name}}",
+    "overviewSubtitle": "Nke a bụ nchịkọta nchekwa gị",
+    "listen": "Gee ntị",
+    "groupActive": "Na-arụ ọrụ",
+    "groupPending": "Na-eche",
+    "groupCompleted": "Emechaala",
+    "cycleMonthly": "Kwa ọnwa",
+    "cycleWeekly": "Kwa izu",
+    "cycleAmount": "{{frequency}} • {{amount}} kwa onye",
+    "myProgress": "Ọganihu M",
+    "contributed": "{{paid}} n'ime {{total}} e nyere",
+    "nextPayout": "Ịkwụ Ụgwọ Na-abịa",
+    "daysToGo": "ụbọchị {{count}} fọdụrụ",
+    "dayToGo": "ụbọchị 1 fọdụrụ",
+    "viewSavingsDetails": "Lelee nkọwa nchekwa m",
+    "nextContribution": "Ịkwụ Ụgwọ Na-abịa",
+    "howToPay": "Otu esi akwụ ụgwọ",
+    "dueInDaysWithDate": "Ga-erute n'ime ụbọchị {{count}} • {{date}}",
+    "dueTomorrowWithDate": "Ga-erute echi • {{date}}",
+    "dueTodayWithDate": "Ga-erute taa • {{date}}",
+    "dueTodayShort": "Ga-erute taa",
+    "recentActivity": "Ihe Omume Na-adịbeghị Anyụ",
+    "viewAll": "Lelee ha niile",
+    "accessibility": "Ịnweta",
+    "loading": "Na-ebubata dashboard gị…",
+    "errors": {
+      "generic": "Ihe adịghị mma. Biko nwaa ọzọ.",
+      "retry": "Nwaa ọzọ"
+    },
+    "comingSoonTitle": "Na-abịa n'oge na-adịghị anya",
+    "comingSoonBody": "Ihuenyo a ga-adị na mmelite na-abịa.",
+    "tabs": {
+      "home": "Ụlọ",
+      "groups": "Otu",
+      "contributions": "Ịkwụ Ụgwọ",
+      "payouts": "Ịkwụ Ụgwọ",
+      "profile": "Profaịlụ"
+    },
+    "activity": {
+      "paymentReceived": {
+        "title": "Anatara ugwo",
+        "subtitle": "Ị kwụrụ {{amount}}"
+      },
+      "contributionReminder": {
+        "title": "Ihe ncheta ugwo",
+        "subtitle": "Ugwo gị na-abịa erula"
+      },
+      "upcomingPayout": {
+        "title": "Ugwo na-abịa",
+        "subtitle": "{{name}} ga-anata"
+      }
+    }
   },
   "language": {
-    "label": "Asụsụ"
+    "label": "Asụsụ",
+    "cancel": "Kagbuo"
   },
   "voice": {
     "readAloud": "Gụọ ihuenyo",
