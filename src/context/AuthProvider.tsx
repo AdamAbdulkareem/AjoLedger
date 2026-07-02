@@ -60,20 +60,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     async function bootstrap() {
-      const [token, storedUser] = await Promise.all([
-        getAccessToken(),
-        getStoredUser(),
-      ]);
-      const pinConfigured = storedUser
-        ? await getPinConfigured(storedUser.id)
-        : false;
+      try {
+        const [token, storedUser] = await Promise.all([
+          getAccessToken(),
+          getStoredUser(),
+        ]);
+        const pinConfigured = storedUser
+          ? await getPinConfigured(storedUser.id)
+          : false;
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      setAccessTokenState(token);
-      setUser(storedUser);
-      setPinUnlocked(false);
-      setStatus(resolveStatus(token, pinConfigured, false));
+        setAccessTokenState(token);
+        setUser(storedUser);
+        setPinUnlocked(false);
+        setStatus(resolveStatus(token, pinConfigured, false));
+      } catch {
+        if (cancelled) return;
+
+        setAccessTokenState(null);
+        setUser(null);
+        setPinUnlocked(false);
+        setStatus(resolveStatus(null, false, false));
+      }
     }
 
     void bootstrap();
@@ -119,9 +128,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setupPin = useCallback(
     async (pin: string) => {
       if (!accessToken) throw new ApiError("You are not signed in.");
-
-      await setupTransactionPin(accessToken, pin);
       if (!user) throw new ApiError("You are not signed in.");
+
+      await setupTransactionPin(accessToken, pin, user.id);
       await setPinConfigured(user.id, true);
       setPinUnlocked(true);
       setStatus("authenticated");
@@ -132,12 +141,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const verifyPin = useCallback(
     async (pin: string) => {
       if (!accessToken) throw new ApiError("You are not signed in.");
+      if (!user) throw new ApiError("You are not signed in.");
 
-      await verifyTransactionPin(accessToken, pin);
+      await verifyTransactionPin(accessToken, pin, user.id);
       setPinUnlocked(true);
       setStatus("authenticated");
     },
-    [accessToken],
+    [accessToken, user],
   );
 
   const logout = useCallback(async () => {

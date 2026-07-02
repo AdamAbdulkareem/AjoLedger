@@ -8,7 +8,7 @@ export const colors = {
   inputBorder: "#DFE3E9",
   error: "#D32F2F",
   errorBorder: "#F75C5C",
-  link: "#FECB01",
+  link: "#8A7200",
 } as const;
 
 export const spacing = {

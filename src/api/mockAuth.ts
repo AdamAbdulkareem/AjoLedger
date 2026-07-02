@@ -7,6 +7,9 @@ type EmailPasswordPayload = {
 };
 
 const mockUsers = new Map<string, { password: string; user: User }>();
+const mockPins = new Map<string, string>();
+
+const INVALID_CREDENTIALS = "Invalid email or password.";
 
 function mockDelay() {
   return new Promise((resolve) => setTimeout(resolve, 300));
@@ -57,37 +60,45 @@ export async function mockLogin(
   const email = payload.email.trim().toLowerCase();
   const existing = mockUsers.get(email);
 
-  if (existing && existing.password !== payload.password) {
-    throw new ApiError("Invalid email or password.");
+  if (!existing) {
+    throw new ApiError(INVALID_CREDENTIALS);
   }
 
-  const user: User = existing?.user ?? {
-    id: `mock-${email.replace(/[^a-z0-9]/g, "-")}`,
-    email,
-  };
-
-  if (!existing) {
-    mockUsers.set(email, { password: payload.password, user });
+  if (existing.password !== payload.password) {
+    throw new ApiError(INVALID_CREDENTIALS);
   }
 
   return success("User logged in successfully", {
     accessToken: mockAccessToken(email),
-    user,
+    user: existing.user,
   });
 }
 
 export async function mockSetupTransactionPin(
+  userId: string,
   transactionPin: string,
 ): Promise<ApiEnvelope<null>> {
   await mockDelay();
   ensurePinLength(transactionPin);
+  mockPins.set(userId, transactionPin);
   return success("Transaction PIN set successfully", null);
 }
 
 export async function mockVerifyTransactionPin(
+  userId: string,
   transactionPin: string,
 ): Promise<ApiEnvelope<null>> {
   await mockDelay();
   ensurePinLength(transactionPin);
+
+  const storedPin = mockPins.get(userId);
+  if (!storedPin) {
+    throw new ApiError("Transaction PIN is not configured.");
+  }
+
+  if (storedPin !== transactionPin) {
+    throw new ApiError("Incorrect PIN. Please try again.");
+  }
+
   return success("Transaction PIN verified", null);
 }

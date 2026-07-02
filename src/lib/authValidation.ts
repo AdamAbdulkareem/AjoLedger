@@ -5,7 +5,8 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function isValidPassword(password: string): boolean {
-  return password.length >= 8;
+  const trimmed = password.trim();
+  return trimmed.length >= 8;
 }
 
 export function normalizeEmail(email: string): string {

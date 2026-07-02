@@ -38,8 +38,14 @@ export async function loginUser(payload: EmailPasswordPayload) {
 export async function setupTransactionPin(
   token: string,
   transactionPin: string,
+  userId?: string,
 ) {
-  if (USE_MOCK_AUTH) return mockSetupTransactionPin(transactionPin);
+  if (USE_MOCK_AUTH) {
+    if (!userId) {
+      throw new Error("userId is required for mock PIN setup.");
+    }
+    return mockSetupTransactionPin(userId, transactionPin);
+  }
 
   return apiRequest<null>("/auth/setup-transaction-pin", {
     method: "POST",
@@ -48,12 +54,21 @@ export async function setupTransactionPin(
   });
 }
 
-/** Backend endpoint for PIN unlock — confirm with Sherif if path differs. */
+/**
+ * PIN unlock endpoint — confirm path with backend before disabling mock auth.
+ * TODO(backend): verify `/auth/verify-transaction-pin` matches Sherif's contract.
+ */
 export async function verifyTransactionPin(
   token: string,
   transactionPin: string,
+  userId?: string,
 ) {
-  if (USE_MOCK_AUTH) return mockVerifyTransactionPin(transactionPin);
+  if (USE_MOCK_AUTH) {
+    if (!userId) {
+      throw new Error("userId is required for mock PIN verification.");
+    }
+    return mockVerifyTransactionPin(userId, transactionPin);
+  }
 
   return apiRequest<null>("/auth/verify-transaction-pin", {
     method: "POST",
