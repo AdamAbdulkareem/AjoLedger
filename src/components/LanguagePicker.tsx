@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { setStoredLanguage } from "../i18n/languageStorage";
 import {
+  resolveLanguageCode,
   SUPPORTED_LANGUAGES,
   type LanguageCode,
 } from "../i18n/languages";
@@ -11,7 +12,7 @@ import { useThemedStyles, type Theme } from "../theme";
 export function LanguagePicker() {
   const { i18n, t } = useTranslation();
   const styles = useThemedStyles(createStyles);
-  const activeLanguage = i18n.language as LanguageCode;
+  const activeLanguage = resolveLanguageCode(i18n.language);
 
   const handleSelect = async (code: LanguageCode) => {
     await setStoredLanguage(code);

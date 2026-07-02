@@ -51,12 +51,64 @@
     }
   },
   "home": {
-    "greeting": "Kaabo si AjoLedger",
-    "signedInAs": "O ti wọle gẹgẹ bi {{email}}",
-    "placeholderNote": "Awọn oju-iwe dashboard yoo wa nibi laipe."
+    "goodMorning": "E kaaro, {{name}}",
+    "goodAfternoon": "E kaasan, {{name}}",
+    "goodEvening": "E kaale, {{name}}",
+    "overviewSubtitle": "Nibi ni akopọ akoko rẹ",
+    "listen": "Gbo",
+    "groupActive": "Nṣiṣẹ",
+    "groupPending": "Nduro",
+    "groupCompleted": "Parí",
+    "cycleMonthly": "Oṣooṣu",
+    "cycleWeekly": "Ọsẹ",
+    "cycleAmount": "{{frequency}} • {{amount}} fun enikan",
+    "myProgress": "Ilọsiwaju Mi",
+    "contributed": "{{paid}} ninu {{total}} ti a fi sílẹ̀",
+    "nextPayout": "Owo Ti N Bo",
+    "daysToGo": "{{count}} ọjọ ku",
+    "dayToGo": "ọjọ 1 ku",
+    "viewSavingsDetails": "Wo alaye akoko mi",
+    "nextContribution": "Idapọ Ti N Bo",
+    "howToPay": "Bawo ni a ṣe san",
+    "dueInDaysWithDate": "Yoo pe ni ọjọ {{count}} • {{date}}",
+    "dueTomorrowWithDate": "Yoo pe lọla • {{date}}",
+    "dueTodayWithDate": "Yoo pe loni • {{date}}",
+    "dueTodayShort": "Yoo pe loni",
+    "recentActivity": "Iṣẹ Laipe",
+    "viewAll": "Wo gbogbo",
+    "accessibility": "Wiwọle",
+    "loading": "N gba dashboard rẹ…",
+    "errors": {
+      "generic": "Nkọkan kan ṣẹlẹ. Jọwọ gbiyanju lẹkan si.",
+      "retry": "Gbiyanju lẹkan si"
+    },
+    "comingSoonTitle": "Nbọ laipe",
+    "comingSoonBody": "Oju-iwe yii yoo wa ni imudojuiwọn iwaju.",
+    "tabs": {
+      "home": "Ilé",
+      "groups": "Awọn Ẹgbẹ",
+      "contributions": "Awọn Owo",
+      "payouts": "Awọn Owo Ti N Bo",
+      "profile": "Profaili"
+    },
+    "activity": {
+      "paymentReceived": {
+        "title": "A gba owo",
+        "subtitle": "O san {{amount}}"
+      },
+      "contributionReminder": {
+        "title": "Irannilétí owo",
+        "subtitle": "Owo rẹ ti n bọ"
+      },
+      "upcomingPayout": {
+        "title": "Owo ti n bọ",
+        "subtitle": "{{name}} yoo gba"
+      }
+    }
   },
   "language": {
-    "label": "Ede"
+    "label": "Ede",
+    "cancel": "Fagilee"
   },
   "voice": {
     "readAloud": "Ka gbo akọsilẹ oju-iwe",

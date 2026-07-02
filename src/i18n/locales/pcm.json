@@ -51,12 +51,64 @@
     }
   },
   "home": {
-    "greeting": "Welcome to AjoLedger",
-    "signedInAs": "You don sign in as {{email}}",
-    "placeholderNote": "Dashboard screens go show here next."
+    "goodMorning": "Good morning, {{name}}",
+    "goodAfternoon": "Good afternoon, {{name}}",
+    "goodEvening": "Good evening, {{name}}",
+    "overviewSubtitle": "Here be your savings overview",
+    "listen": "Listen",
+    "groupActive": "Dey active",
+    "groupPending": "Dey wait",
+    "groupCompleted": "Don finish",
+    "cycleMonthly": "Every month",
+    "cycleWeekly": "Every week",
+    "cycleAmount": "{{frequency}} • {{amount}} per member",
+    "myProgress": "My Progress",
+    "contributed": "{{paid}} out of {{total}} wey you don contribute",
+    "nextPayout": "Next Payout",
+    "daysToGo": "{{count}} days remain",
+    "dayToGo": "1 day remain",
+    "viewSavingsDetails": "See my savings details",
+    "nextContribution": "Next Contribution",
+    "howToPay": "How to pay",
+    "dueInDaysWithDate": "E go due in {{count}} days • {{date}}",
+    "dueTomorrowWithDate": "E go due tomorrow • {{date}}",
+    "dueTodayWithDate": "E go due today • {{date}}",
+    "dueTodayShort": "E go due today",
+    "recentActivity": "Recent Activity",
+    "viewAll": "See all",
+    "accessibility": "Accessibility",
+    "loading": "Dey load your dashboard…",
+    "errors": {
+      "generic": "Something go wrong. Abeg try again.",
+      "retry": "Try again"
+    },
+    "comingSoonTitle": "Dey come soon",
+    "comingSoonBody": "This screen go dey available for future update.",
+    "tabs": {
+      "home": "Home",
+      "groups": "Groups",
+      "contributions": "Contributions",
+      "payouts": "Payouts",
+      "profile": "Profile"
+    },
+    "activity": {
+      "paymentReceived": {
+        "title": "Dem don receive payment",
+        "subtitle": "You pay {{amount}}"
+      },
+      "contributionReminder": {
+        "title": "Contribution reminder",
+        "subtitle": "Your next contribution don dey due"
+      },
+      "upcomingPayout": {
+        "title": "Payout wey dey come",
+        "subtitle": "{{name}} go receive"
+      }
+    }
   },
   "language": {
-    "label": "Language"
+    "label": "Language",
+    "cancel": "Cancel"
   },
   "voice": {
     "readAloud": "Make phone read am for you",

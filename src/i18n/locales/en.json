@@ -51,12 +51,64 @@
     }
   },
   "home": {
-    "greeting": "Welcome to AjoLedger",
-    "signedInAs": "Signed in as {{email}}",
-    "placeholderNote": "Dashboard screens will be built here next."
+    "goodMorning": "Good morning, {{name}}",
+    "goodAfternoon": "Good afternoon, {{name}}",
+    "goodEvening": "Good evening, {{name}}",
+    "overviewSubtitle": "Here's your savings overview",
+    "listen": "Listen",
+    "groupActive": "Active",
+    "groupPending": "Pending",
+    "groupCompleted": "Completed",
+    "cycleMonthly": "Monthly",
+    "cycleWeekly": "Weekly",
+    "cycleAmount": "{{frequency}} • {{amount}} per member",
+    "myProgress": "My Progress",
+    "contributed": "{{paid}} of {{total}} contributed",
+    "nextPayout": "Next Payout",
+    "daysToGo": "{{count}} days to go",
+    "dayToGo": "1 day to go",
+    "viewSavingsDetails": "View my savings details",
+    "nextContribution": "Next Contribution",
+    "howToPay": "How to pay",
+    "dueInDaysWithDate": "Due in {{count}} days • {{date}}",
+    "dueTomorrowWithDate": "Due tomorrow • {{date}}",
+    "dueTodayWithDate": "Due today • {{date}}",
+    "dueTodayShort": "Due today",
+    "recentActivity": "Recent Activity",
+    "viewAll": "View all",
+    "accessibility": "Accessibility",
+    "loading": "Loading your dashboard…",
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "retry": "Try again"
+    },
+    "comingSoonTitle": "Coming soon",
+    "comingSoonBody": "This screen will be available in a future update.",
+    "tabs": {
+      "home": "Home",
+      "groups": "Groups",
+      "contributions": "Contributions",
+      "payouts": "Payouts",
+      "profile": "Profile"
+    },
+    "activity": {
+      "paymentReceived": {
+        "title": "Payment received",
+        "subtitle": "You paid {{amount}}"
+      },
+      "contributionReminder": {
+        "title": "Contribution reminder",
+        "subtitle": "Your next contribution is due"
+      },
+      "upcomingPayout": {
+        "title": "Upcoming payout",
+        "subtitle": "{{name}} will receive"
+      }
+    }
   },
   "language": {
-    "label": "Language"
+    "label": "Language",
+    "cancel": "Cancel"
   },
   "voice": {
     "readAloud": "Read screen aloud",
