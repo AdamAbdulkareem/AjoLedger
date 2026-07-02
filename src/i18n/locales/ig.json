@@ -15,9 +15,45 @@
     "continue": "Gaa n'ihu",
     "getStarted": "Malite"
   },
-  "getStarted": {
-    "title": "Malite",
-    "subtitle": "Ihuenyo nkwado. Anyị ga ewulite usoro nbanye ebe a na-esote."
+  "auth": {
+    "signUpTitle": "Debanye aha site na Email",
+    "loginTitle": "Banye site na Email",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Tinye email gị",
+    "passwordLabel": "Paswọọd",
+    "passwordPlaceholder": "Tinye paswọọd gị",
+    "signUp": "Debanye aha",
+    "logIn": "Banye",
+    "logOut": "Pụọ",
+    "or": "MA ọ BỤ",
+    "continueWithGoogle": "Gaa n'ihu na Google",
+    "continueWithApple": "Gaa n'ihu na Apple",
+    "alreadyHaveAccount": "Ị nwelarị akaụnt?",
+    "noAccount": "Ị nweghị akaụnt?",
+    "signIn": "Banye",
+    "continue": "Gaa n'ihu",
+    "createPinTitle": "Mepụta PIN gị nkeonụ 4",
+    "createPinSubtitle": "Ị ga-eji PIN a mepee app.",
+    "confirmPinLabel": "Kwenye PIN",
+    "enterPinTitle": "Tinye PIN gị",
+    "enterPinSubtitle": "Tinye PIN nkeonụ 4 iji gaa n'ihu.",
+    "useAnotherAccount": "Jiri akaụnt ọzọ",
+    "mockModeHint": "Demo mode — auth runs locally without the backend.",
+    "socialComingSoonTitle": "Na-abịa n'oge na-adịghị anya",
+    "socialComingSoonBody": "Nbanye Google na Apple ga-adị mgbe backend kwesịrị.",
+    "errors": {
+      "invalidEmail": "Email adịghị mma. Biko nwaa ọzọ.",
+      "weakPassword": "Paswọọd ga-abụrịrị opekata mpụ 8. Biko nwaa ọzọ.",
+      "passwordRequired": "A chọrọ paswọọd.",
+      "pinLength": "PIN ga-abụ nkeonụ 4.",
+      "pinMismatch": "PIN adịghị egosi otu. Biko nwaa ọzọ.",
+      "generic": "Ihe mehiere mere. Biko nwaa ọzọ."
+    }
+  },
+  "home": {
+    "greeting": "Nnọọ na AjoLedger",
+    "signedInAs": "Abanyelarị dị ka {{email}}",
+    "placeholderNote": "A ga ewulite ihuenyo dashboard ebe a na-esote."
   },
   "language": {
     "label": "Asụsụ"

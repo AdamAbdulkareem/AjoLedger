@@ -2,8 +2,13 @@ export const colors = {
   brand: "#FECB01",
   textPrimary: "#2C3138",
   textSecondary: "#404751",
+  textMuted: "#6D7888",
   surface: "#FFFFFF",
   dotInactive: "#E2E6EC",
+  inputBorder: "#DFE3E9",
+  error: "#D32F2F",
+  errorBorder: "#F75C5C",
+  link: "#FECB01",
 } as const;
 
 export const spacing = {
@@ -30,6 +35,11 @@ export const typography = {
     fontSize: 24,
     lineHeight: 28,
   },
+  title: {
+    fontFamily: fontFamily.semibold,
+    fontSize: 20,
+    lineHeight: 24,
+  },
   body: {
     fontFamily: fontFamily.regular,
     fontSize: 14,
@@ -38,6 +48,11 @@ export const typography = {
   button: {
     fontFamily: fontFamily.semibold,
     fontSize: 14,
+    lineHeight: 16,
+  },
+  caption: {
+    fontFamily: fontFamily.regular,
+    fontSize: 12,
     lineHeight: 16,
   },
 } as const;

@@ -11,7 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { useTheme, useThemedStyles, type Theme } from "../theme";
 
-type ButtonVariant = "primary";
+type ButtonVariant = "primary" | "secondary";
 
 type ButtonProps = {
   label: string;
@@ -75,6 +75,11 @@ const createStyles = (theme: Theme) =>
     },
     primary: {
       backgroundColor: theme.colors.brand,
+    },
+    secondary: {
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.inputBorder,
     },
     pressed: {
       opacity: 0.85,
