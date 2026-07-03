@@ -61,18 +61,18 @@
     "groupCompleted": "Emechaala",
     "cycleMonthly": "Kwa ọnwa",
     "cycleWeekly": "Kwa izu",
-    "cycleAmount": "{{frequency}} • {{amount}} kwa onye",
+    "cycleAmount": "{{frequency}} . {{amount}} kwa onye",
     "myProgress": "Ọganihu M",
-    "contributed": "{{paid}} n'ime {{total}} e nyere",
+    "memberCount": "{{count}} members",
+    "payoutProgress": "{{number}} payout  - {{paid}} out of {{total}}",
     "nextPayout": "Ịkwụ Ụgwọ Na-abịa",
     "daysToGo": "ụbọchị {{count}} fọdụrụ",
     "dayToGo": "ụbọchị 1 fọdụrụ",
     "viewSavingsDetails": "Lelee nkọwa nchekwa m",
-    "nextContribution": "Ịkwụ Ụgwọ Na-abịa",
-    "howToPay": "Otu esi akwụ ụgwọ",
-    "dueInDaysWithDate": "Ga-erute n'ime ụbọchị {{count}} • {{date}}",
-    "dueTomorrowWithDate": "Ga-erute echi • {{date}}",
-    "dueTodayWithDate": "Ga-erute taa • {{date}}",
+    "amountRemains": "Amount Remains",
+    "payNow": "Pay Now",
+    "dueInDaysDash": "Due in {{count}}days - {{date}}",
+    "dueTodayDash": "Due today - {{date}}",
     "dueTodayShort": "Ga-erute taa",
     "recentActivity": "Ihe Omume Na-adịbeghị Anyụ",
     "viewAll": "Lelee ha niile",
@@ -92,18 +92,86 @@
       "profile": "Profaịlụ"
     },
     "activity": {
-      "paymentReceived": {
-        "title": "Anatara ugwo",
+      "paymentPaid": {
+        "title": "A kwụrụ ugwo",
         "subtitle": "Ị kwụrụ {{amount}}"
       },
       "contributionReminder": {
         "title": "Ihe ncheta ugwo",
-        "subtitle": "Ugwo gị na-abịa erula"
+        "subtitle": "Your next contribution due next week"
       },
       "upcomingPayout": {
-        "title": "Ugwo na-abịa",
-        "subtitle": "{{name}} ga-anata"
+        "title": "Upcoming Payout",
+        "subtitle": "{{name}} will recieve payment next"
       }
+    },
+    "bankDetails": {
+      "title": "Input Your Account details",
+      "subtitle": "This account will be where you will receive your contribution payout",
+      "bankLabel": "Bank",
+      "bankPlaceholder": "Select your bank",
+      "accountLabel": "Account",
+      "accountPlaceholder": "Enter your Account number",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "errors": {
+        "bankRequired": "Please select a bank.",
+        "accountInvalid": "Enter a valid 10-digit account number."
+      }
+    }
+  },
+  "profile": {
+    "title": "Profaịlụ",
+    "defaultName": "Onye otu",
+    "sections": {
+      "account": "Akaụnt",
+      "security": "Nchekwa",
+      "preferences": "Mmasị",
+      "helpSupport": "Enyemaka & Nkwado"
+    },
+    "rows": {
+      "editProfile": "Dezie Profaịlụ",
+      "changePassword": "Gbanwee Paswọọd",
+      "biometrics": "Biometrics",
+      "privacyPolicy": "Iwu Nzuzo",
+      "bankDetails": "Nkọwa Bank",
+      "pushNotifications": "Ngosi Push",
+      "language": "Asụsụ",
+      "faq": "FAQ",
+      "contactSupport": "Kpọtụrụ Nkwado",
+      "deleteAccount": "Hichapụ Akaụnt"
+    },
+    "logoutTitle": "Pụọ",
+    "logoutMessage": "Ị ji n'aka na ị chọrọ ịpụ?",
+    "logoutConfirm": "Pụọ",
+    "logoutCancel": "Kagbuo",
+    "edit": {
+      "title": "Dezie Profaịlụ",
+      "changePhoto": "Gbanwee foto",
+      "fullNameLabel": "Aha Zuru Oke",
+      "emailLabel": "Adreesị Email",
+      "phoneLabel": "Nọmba Ekwentị",
+      "phonePlaceholder": "07063859232",
+      "saveChanges": "Chekwaa Mgbanwe",
+      "cancel": "Kagbuo",
+      "successMessage": "Emelitere profaịlụ nke ọma",
+      "errors": {
+        "fullNameRequired": "A chọrọ aha zuru oke.",
+        "invalidEmail": "Email adịghị mma. Biko nwaa ọzọ.",
+        "invalidPhone": "Tinye nọmba ekwentị Naịjirịa ziri ezi nke nwere digit 11."
+      }
+    },
+    "editPhoto": {
+      "title": "Dezie Foto Profaịlụ",
+      "chooseAvatar": "Họrọ Avatar",
+      "takePhoto": "See Foto",
+      "choosePhoto": "Họrọ Foto",
+      "deletePhoto": "Hichapụ Foto",
+      "cancel": "Kagbuo",
+      "permissionTitle": "Achọrọ ikike",
+      "permissionBody": "Biko nye ikike igwefoto ma ọ bụ ngalaba foto iji melite foto profaịlụ gị.",
+      "webUnavailable": "Inweta foto adịghị na weebụ na demo a.",
+      "updateFailed": "Enweghị ike imelite foto profaịlụ gị. Biko nwaa ọzọ."
     }
   },
   "language": {

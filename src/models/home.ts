@@ -13,10 +13,12 @@ export type SavingsGroupSummary = {
 
 export type ContributionProgress = {
   percent: number;
-  /** Amount in naira (major units). */
-  amountPaid: number;
-  /** Amount in naira (major units). */
-  expectedTotal: number;
+  memberCount: number;
+  payoutNumber: number;
+  /** Amount in naira already paid toward current payout cycle. */
+  payoutAmountPaid: number;
+  /** Total amount in naira for current payout cycle. */
+  payoutAmountTotal: number;
 };
 
 export type PayoutInfo = {
@@ -25,7 +27,7 @@ export type PayoutInfo = {
   daysRemaining: number;
 };
 
-export type NextContribution = {
+export type AmountRemains = {
   /** Amount in naira (major units). */
   amount: number;
   /** ISO date string. */
@@ -34,7 +36,7 @@ export type NextContribution = {
 };
 
 export type ActivityType =
-  | "payment_received"
+  | "payment_paid"
   | "contribution_reminder"
   | "upcoming_payout";
 
@@ -43,11 +45,10 @@ export type RecentActivityItem = {
   type: ActivityType;
   /** ISO date/time string for client-side formatting. */
   occurredAt: string;
-  /** Amount in naira when shown on the right. */
+  /** Amount in naira for payment items (shown in subtitle). */
   amount?: number;
   /** Recipient name for upcoming payout items. */
   recipientName?: string;
-  showChevron?: boolean;
 };
 
 /** Aggregated dashboard payload — backend may split these across endpoints later. */
@@ -57,7 +58,7 @@ export type HomeDashboard = {
   group: SavingsGroupSummary;
   progress: ContributionProgress;
   payout: PayoutInfo;
-  nextContribution: NextContribution;
+  amountRemains: AmountRemains;
   recentActivity: RecentActivityItem[];
 };
 

@@ -51,9 +51,9 @@
     }
   },
   "home": {
-    "goodMorning": "Good morning, {{name}}",
-    "goodAfternoon": "Good afternoon, {{name}}",
-    "goodEvening": "Good evening, {{name}}",
+    "goodMorning": "Good Morning, {{name}}",
+    "goodAfternoon": "Good Afternoon, {{name}}",
+    "goodEvening": "Good Evening, {{name}}",
     "overviewSubtitle": "Here's your savings overview",
     "listen": "Listen",
     "groupActive": "Active",
@@ -61,18 +61,19 @@
     "groupCompleted": "Completed",
     "cycleMonthly": "Monthly",
     "cycleWeekly": "Weekly",
-    "cycleAmount": "{{frequency}} • {{amount}} per member",
+    "cycleAmount": "{{frequency}} . {{amount}} per member",
     "myProgress": "My Progress",
-    "contributed": "{{paid}} of {{total}} contributed",
+    "memberCount": "{{count}} members",
+    "memberCount_one": "{{count}} member",
+    "payoutProgress": "{{number}} payout  - {{paid}} out of {{total}}",
     "nextPayout": "Next Payout",
     "daysToGo": "{{count}} days to go",
     "dayToGo": "1 day to go",
     "viewSavingsDetails": "View my savings details",
-    "nextContribution": "Next Contribution",
-    "howToPay": "How to pay",
-    "dueInDaysWithDate": "Due in {{count}} days • {{date}}",
-    "dueTomorrowWithDate": "Due tomorrow • {{date}}",
-    "dueTodayWithDate": "Due today • {{date}}",
+    "amountRemains": "Amount Remains",
+    "payNow": "Pay Now",
+    "dueInDaysDash": "Due in {{count}}days - {{date}}",
+    "dueTodayDash": "Due today - {{date}}",
     "dueTodayShort": "Due today",
     "recentActivity": "Recent Activity",
     "viewAll": "View all",
@@ -92,18 +93,86 @@
       "profile": "Profile"
     },
     "activity": {
-      "paymentReceived": {
-        "title": "Payment received",
+      "paymentPaid": {
+        "title": "Payment paid",
         "subtitle": "You paid {{amount}}"
       },
       "contributionReminder": {
         "title": "Contribution reminder",
-        "subtitle": "Your next contribution is due"
+        "subtitle": "Your next contribution due next week"
       },
       "upcomingPayout": {
-        "title": "Upcoming payout",
-        "subtitle": "{{name}} will receive"
+        "title": "Upcoming Payout",
+        "subtitle": "{{name}} will recieve payment next"
       }
+    },
+    "bankDetails": {
+      "title": "Input Your Account details",
+      "subtitle": "This account will be where you will receive your contribution payout",
+      "bankLabel": "Bank",
+      "bankPlaceholder": "Select your bank",
+      "accountLabel": "Account",
+      "accountPlaceholder": "Enter your Account number",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "errors": {
+        "bankRequired": "Please select a bank.",
+        "accountInvalid": "Enter a valid 10-digit account number."
+      }
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "defaultName": "Member",
+    "sections": {
+      "account": "Account",
+      "security": "Security",
+      "preferences": "Preferences",
+      "helpSupport": "Help & Support"
+    },
+    "rows": {
+      "editProfile": "Edit Profile",
+      "changePassword": "Change Password",
+      "biometrics": "Biometrics",
+      "privacyPolicy": "Privacy Policy",
+      "bankDetails": "Bank Details",
+      "pushNotifications": "Push Notifications",
+      "language": "Language",
+      "faq": "FAQ",
+      "contactSupport": "Contact Support",
+      "deleteAccount": "Delete Account"
+    },
+    "logoutTitle": "Log out",
+    "logoutMessage": "Are you sure you want to log out?",
+    "logoutConfirm": "Log Out",
+    "logoutCancel": "Cancel",
+    "edit": {
+      "title": "Edit Profile",
+      "changePhoto": "Change photo",
+      "fullNameLabel": "Full Name",
+      "emailLabel": "Email Address",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "07063859232",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "successMessage": "Profile has been changed successfully",
+      "errors": {
+        "fullNameRequired": "Full name is required.",
+        "invalidEmail": "Incorrect email. Please try again.",
+        "invalidPhone": "Enter a valid 11-digit Nigerian phone number."
+      }
+    },
+    "editPhoto": {
+      "title": "Edit Profile Picture",
+      "chooseAvatar": "Choose Avatar",
+      "takePhoto": "Take Photo",
+      "choosePhoto": "Choose Photo",
+      "deletePhoto": "Delete Photo",
+      "cancel": "Cancel",
+      "permissionTitle": "Permission needed",
+      "permissionBody": "Please allow camera or photo library access to update your profile picture.",
+      "webUnavailable": "Photo capture is not available on web in this demo.",
+      "updateFailed": "Could not update your profile picture. Please try again."
     }
   },
   "language": {

@@ -61,18 +61,18 @@
     "groupCompleted": "Don finish",
     "cycleMonthly": "Every month",
     "cycleWeekly": "Every week",
-    "cycleAmount": "{{frequency}} • {{amount}} per member",
+    "cycleAmount": "{{frequency}} . {{amount}} per member",
     "myProgress": "My Progress",
-    "contributed": "{{paid}} out of {{total}} wey you don contribute",
+    "memberCount": "{{count}} members",
+    "payoutProgress": "{{number}} payout  - {{paid}} out of {{total}}",
     "nextPayout": "Next Payout",
     "daysToGo": "{{count}} days remain",
     "dayToGo": "1 day remain",
     "viewSavingsDetails": "See my savings details",
-    "nextContribution": "Next Contribution",
-    "howToPay": "How to pay",
-    "dueInDaysWithDate": "E go due in {{count}} days • {{date}}",
-    "dueTomorrowWithDate": "E go due tomorrow • {{date}}",
-    "dueTodayWithDate": "E go due today • {{date}}",
+    "amountRemains": "Amount Remains",
+    "payNow": "Pay Now",
+    "dueInDaysDash": "Due in {{count}}days - {{date}}",
+    "dueTodayDash": "Due today - {{date}}",
     "dueTodayShort": "E go due today",
     "recentActivity": "Recent Activity",
     "viewAll": "See all",
@@ -92,18 +92,86 @@
       "profile": "Profile"
     },
     "activity": {
-      "paymentReceived": {
-        "title": "Dem don receive payment",
+      "paymentPaid": {
+        "title": "Payment paid",
         "subtitle": "You pay {{amount}}"
       },
       "contributionReminder": {
         "title": "Contribution reminder",
-        "subtitle": "Your next contribution don dey due"
+        "subtitle": "Your next contribution due next week"
       },
       "upcomingPayout": {
-        "title": "Payout wey dey come",
-        "subtitle": "{{name}} go receive"
+        "title": "Upcoming Payout",
+        "subtitle": "{{name}} go recieve payment next"
       }
+    },
+    "bankDetails": {
+      "title": "Input Your Account details",
+      "subtitle": "This account go be where you go receive your contribution payout",
+      "bankLabel": "Bank",
+      "bankPlaceholder": "Choose your bank",
+      "accountLabel": "Account",
+      "accountPlaceholder": "Enter your Account number",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "errors": {
+        "bankRequired": "Abeg choose bank.",
+        "accountInvalid": "Enter correct 10-digit account number."
+      }
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "defaultName": "Member",
+    "sections": {
+      "account": "Account",
+      "security": "Security",
+      "preferences": "Preferences",
+      "helpSupport": "Help & Support"
+    },
+    "rows": {
+      "editProfile": "Edit Profile",
+      "changePassword": "Change Password",
+      "biometrics": "Biometrics",
+      "privacyPolicy": "Privacy Policy",
+      "bankDetails": "Bank Details",
+      "pushNotifications": "Push Notifications",
+      "language": "Language",
+      "faq": "FAQ",
+      "contactSupport": "Contact Support",
+      "deleteAccount": "Delete Account"
+    },
+    "logoutTitle": "Log out",
+    "logoutMessage": "You sure say you wan log out?",
+    "logoutConfirm": "Log Out",
+    "logoutCancel": "Cancel",
+    "edit": {
+      "title": "Edit Profile",
+      "changePhoto": "Change photo",
+      "fullNameLabel": "Full Name",
+      "emailLabel": "Email Address",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "07063859232",
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "successMessage": "Profile don update successfully",
+      "errors": {
+        "fullNameRequired": "Full name dey required.",
+        "invalidEmail": "Email no correct. Try again.",
+        "invalidPhone": "Enter correct 11-digit Nigerian phone number."
+      }
+    },
+    "editPhoto": {
+      "title": "Edit Profile Picture",
+      "chooseAvatar": "Choose Avatar",
+      "takePhoto": "Take Photo",
+      "choosePhoto": "Choose Photo",
+      "deletePhoto": "Delete Photo",
+      "cancel": "Cancel",
+      "permissionTitle": "We need permission",
+      "permissionBody": "Allow camera or photo library access make you fit update your profile picture.",
+      "webUnavailable": "Photo capture no dey work for web for this demo.",
+      "updateFailed": "We no fit update your profile picture. Try again."
     }
   },
   "language": {

@@ -1,7 +1,7 @@
 import type { TFunction } from "i18next";
 
-import { formatActivityTimestamp } from "./formatDate";
-import { formatNaira } from "./formatMoney";
+import { formatActivityTimestamp, formatShortDate } from "./formatDate";
+import { formatNaira, formatPlainAmount } from "./formatMoney";
 import type { RecentActivityItem } from "../models/home";
 
 export type LocalizedActivityCopy = {
@@ -18,10 +18,10 @@ export function localizeActivityItem(
   const dateLabel = formatActivityTimestamp(item.occurredAt, locale);
 
   switch (item.type) {
-    case "payment_received":
+    case "payment_paid":
       return {
-        title: t("home.activity.paymentReceived.title"),
-        subtitle: t("home.activity.paymentReceived.subtitle", {
+        title: t("home.activity.paymentPaid.title"),
+        subtitle: t("home.activity.paymentPaid.subtitle", {
           amount: formatNaira(item.amount ?? 0),
         }),
         dateLabel,
@@ -41,4 +41,44 @@ export function localizeActivityItem(
         dateLabel,
       };
   }
+}
+
+function ordinalSuffix(n: number): string {
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 13) return "th";
+  switch (n % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+}
+
+export function formatPayoutProgressLabel(
+  t: TFunction,
+  payoutNumber: number,
+  payoutAmountPaid: number,
+  payoutAmountTotal: number,
+): string {
+  return t("home.payoutProgress", {
+    number: `${payoutNumber}${ordinalSuffix(payoutNumber)}`,
+    paid: formatPlainAmount(payoutAmountPaid),
+    total: formatPlainAmount(payoutAmountTotal),
+  });
+}
+
+export function formatAmountRemainsDue(
+  t: TFunction,
+  daysUntilDue: number,
+  dueDate: string,
+): string {
+  const date = formatShortDate(dueDate);
+  if (daysUntilDue <= 0) {
+    return t("home.dueTodayDash", { date });
+  }
+  return t("home.dueInDaysDash", { count: daysUntilDue, date });
 }

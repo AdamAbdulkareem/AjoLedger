@@ -10,6 +10,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { initI18n } from "../i18n";
 import { AuthProvider } from "../context/AuthProvider";
+import { ProfileProvider } from "../context/ProfileProvider";
 import { ThemeProvider } from "../theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -39,7 +40,9 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ThemeProvider>
         <AuthProvider>
-          <Stack screenOptions={{ headerShown: false }} />
+          <ProfileProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </ProfileProvider>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>

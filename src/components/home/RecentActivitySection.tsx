@@ -2,7 +2,6 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
-import { formatNaira } from "../../lib/formatMoney";
 import { localizeActivityItem } from "../../lib/localizeActivity";
 import type { ActivityType, RecentActivityItem } from "../../models/home";
 import { useThemedStyles, type Theme } from "../../theme";
@@ -14,30 +13,17 @@ type RecentActivitySectionProps = {
   viewAllLabel: string;
 };
 
-function activityIcon(type: ActivityType): {
+function activityIconStyle(type: ActivityType): {
   name: keyof typeof Ionicons.glyphMap;
-  color: string;
   bg: string;
 } {
   switch (type) {
-    case "payment_received":
-      return {
-        name: "checkmark",
-        color: "#00732E",
-        bg: "#D2FFDA",
-      };
+    case "payment_paid":
+      return { name: "checkmark", bg: "#00B04A" };
     case "contribution_reminder":
-      return {
-        name: "calendar-outline",
-        color: "#6B4FA0",
-        bg: "#EDE7F6",
-      };
+      return { name: "receipt-outline", bg: "#8FB1D7" };
     case "upcoming_payout":
-      return {
-        name: "calendar-outline",
-        color: "#C77700",
-        bg: "#FFECC9",
-      };
+      return { name: "receipt-outline", bg: "#FFD56F" };
   }
 }
 
@@ -47,7 +33,7 @@ export function RecentActivitySection({
   onItemPress,
   viewAllLabel,
 }: RecentActivitySectionProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const styles = useThemedStyles(createStyles);
 
   return (
@@ -65,8 +51,9 @@ export function RecentActivitySection({
 
       <View style={styles.list}>
         {items.map((item, index) => {
-          const icon = activityIcon(item.type);
-          const copy = localizeActivityItem(t, item);
+          const icon = activityIconStyle(item.type);
+          const copy = localizeActivityItem(t, item, i18n.language);
+          const isFirst = index === 0;
           const isLast = index === items.length - 1;
 
           return (
@@ -76,27 +63,27 @@ export function RecentActivitySection({
               accessibilityRole="button"
               style={({ pressed }) => [
                 styles.item,
-                !isLast && styles.itemBorder,
+                isFirst && styles.itemFirst,
+                isLast && styles.itemLast,
+                !isFirst && !isLast && styles.itemMiddle,
                 pressed && styles.pressed,
               ]}
             >
-              <View style={[styles.iconWrap, { backgroundColor: icon.bg }]}>
-                <Ionicons name={icon.name} size={18} color={icon.color} />
+              <View style={styles.itemContent}>
+                <View style={[styles.iconWrap, { backgroundColor: icon.bg }]}>
+                  <Ionicons name={icon.name} size={18} color="#FFFFFF" />
+                </View>
+
+                <View style={styles.itemBody}>
+                  <Text style={styles.itemTitle}>{copy.title}</Text>
+                  <View style={styles.itemMeta}>
+                    <Text style={styles.itemSubtitle}>{copy.subtitle}</Text>
+                    <Text style={styles.itemDate}>{copy.dateLabel}</Text>
+                  </View>
+                </View>
               </View>
 
-              <View style={styles.itemBody}>
-                <Text style={styles.itemTitle}>{copy.title}</Text>
-                <Text style={styles.itemSubtitle}>{copy.subtitle}</Text>
-                <Text style={styles.itemDate}>{copy.dateLabel}</Text>
-              </View>
-
-              {item.amount !== undefined ? (
-                <Text style={styles.itemAmount}>
-                  {formatNaira(item.amount)}
-                </Text>
-              ) : item.showChevron ? (
-                <Ionicons name="chevron-forward" size={18} color="#6D7888" />
-              ) : null}
+              <Ionicons name="chevron-forward" size={15} color="#2C3138" />
             </Pressable>
           );
         })}
@@ -108,70 +95,85 @@ export function RecentActivitySection({
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
     section: {
-      gap: theme.spacing.sm + 4,
+      gap: 10,
     },
     header: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
+      paddingHorizontal: 3,
     },
     title: {
-      ...theme.typography.subtitle,
-      color: theme.colors.textPrimary,
+      ...theme.typography.captionMedium,
+      color: theme.colors.figmaBlack,
     },
     viewAll: {
-      ...theme.typography.caption,
-      fontFamily: theme.fontFamily.semibold,
-      color: theme.colors.success,
+      ...theme.typography.captionMedium,
+      color: theme.colors.viewAllLink,
     },
     list: {
-      borderWidth: 1,
-      borderColor: theme.colors.inputBorder,
-      borderRadius: 12,
-      overflow: "hidden",
-      backgroundColor: theme.colors.surface,
-      ...theme.shadows.card,
+      gap: 0,
     },
     item: {
       flexDirection: "row",
       alignItems: "center",
-      gap: theme.spacing.sm + 4,
-      padding: theme.spacing.md,
+      justifyContent: "space-between",
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      borderColor: theme.colors.activityListBorder,
+      backgroundColor: theme.colors.surface,
     },
-    itemBorder: {
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.inputBorder,
+    itemFirst: {
+      borderWidth: 1,
+      borderBottomWidth: 0,
+      borderTopLeftRadius: 10,
+      borderTopRightRadius: 10,
+    },
+    itemMiddle: {
+      borderLeftWidth: 1,
+      borderRightWidth: 1,
+      borderColor: theme.colors.activityListBorder,
+    },
+    itemLast: {
+      borderWidth: 1,
+      borderTopWidth: 0,
+      borderBottomLeftRadius: 10,
+      borderBottomRightRadius: 10,
     },
     pressed: {
       opacity: 0.85,
     },
+    itemContent: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+    },
     iconWrap: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
+      padding: 6,
+      borderRadius: 30,
       alignItems: "center",
       justifyContent: "center",
     },
     itemBody: {
       flex: 1,
+      gap: 4,
+    },
+    itemMeta: {
       gap: 2,
     },
     itemTitle: {
-      ...theme.typography.caption,
-      fontFamily: theme.fontFamily.semibold,
-      color: theme.colors.textPrimary,
+      ...theme.typography.bodyMedium,
+      color: theme.colors.figmaBlack,
     },
     itemSubtitle: {
-      ...theme.typography.caption,
-      color: theme.colors.textSecondary,
+      ...theme.typography.micro,
+      fontFamily: theme.fontFamily.semibold,
+      color: theme.colors.figmaBlack,
     },
     itemDate: {
       ...theme.typography.micro,
-      color: theme.colors.textMuted,
-    },
-    itemAmount: {
-      ...theme.typography.caption,
       fontFamily: theme.fontFamily.semibold,
-      color: theme.colors.success,
+      color: theme.colors.figmaBlack,
     },
   });

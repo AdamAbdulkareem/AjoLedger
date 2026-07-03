@@ -35,6 +35,7 @@ type AuthContextValue = {
   setupPin: (pin: string) => Promise<void>;
   verifyPin: (pin: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateSessionUser: (nextUser: User) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -158,6 +159,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStatus("unauthenticated");
   }, []);
 
+  const updateSessionUser = useCallback(async (nextUser: User) => {
+    await setStoredUser(nextUser);
+    setUser(nextUser);
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       status,
@@ -168,8 +174,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setupPin,
       verifyPin,
       logout,
+      updateSessionUser,
     }),
-    [status, user, accessToken, register, login, setupPin, verifyPin, logout],
+    [
+      status,
+      user,
+      accessToken,
+      register,
+      login,
+      setupPin,
+      verifyPin,
+      logout,
+      updateSessionUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

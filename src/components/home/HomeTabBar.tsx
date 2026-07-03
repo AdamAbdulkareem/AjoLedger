@@ -1,9 +1,11 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { HomeTabKey } from "../../models/home";
+import { handleAppTabPress } from "../../lib/navigateAppTab";
 import { useThemedStyles, type Theme } from "../../theme";
 
 type HomeTabBarProps = {
@@ -54,8 +56,17 @@ export function HomeTabBar({
   onTabPress,
 }: HomeTabBarProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const styles = useThemedStyles(createStyles);
+
+  const handlePress = (tab: HomeTabKey) => {
+    if (onTabPress) {
+      onTabPress(tab);
+      return;
+    }
+    handleAppTabPress(tab, router, t);
+  };
 
   return (
     <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 8) }]}>
@@ -64,7 +75,7 @@ export function HomeTabBar({
         return (
           <Pressable
             key={tab.key}
-            onPress={() => onTabPress?.(tab.key)}
+            onPress={() => handlePress(tab.key)}
             accessibilityRole="button"
             accessibilityState={{ selected: isActive }}
             accessibilityLabel={t(tab.labelKey)}
