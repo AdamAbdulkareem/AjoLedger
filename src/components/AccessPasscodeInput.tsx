@@ -1,8 +1,12 @@
 import { StyleSheet, Text, TextInput, View } from "react-native";
 
+import {
+  ACCESS_PASSCODE_LENGTH,
+  normalizeAccessPasscode,
+} from "../lib/accessPasscodeStorage";
 import { useThemedStyles, type Theme } from "../theme";
 
-type PinInputProps = {
+type AccessPasscodeInputProps = {
   label: string;
   value: string;
   onChangeText: (text: string) => void;
@@ -10,20 +14,14 @@ type PinInputProps = {
   helperText?: string;
 };
 
-const PIN_LENGTH = 4;
-
-export function PinInput({
+export function AccessPasscodeInput({
   label,
   value,
   onChangeText,
   error,
   helperText,
-}: PinInputProps) {
+}: AccessPasscodeInputProps) {
   const styles = useThemedStyles(createStyles);
-
-  const handleChange = (text: string) => {
-    onChangeText(text.replace(/\D/g, "").slice(0, PIN_LENGTH));
-  };
 
   return (
     <View style={styles.container}>
@@ -31,10 +29,10 @@ export function PinInput({
       {helperText ? <Text style={styles.helper}>{helperText}</Text> : null}
       <TextInput
         value={value}
-        onChangeText={handleChange}
+        onChangeText={(text) => onChangeText(normalizeAccessPasscode(text))}
         keyboardType="number-pad"
         secureTextEntry
-        maxLength={PIN_LENGTH}
+        maxLength={ACCESS_PASSCODE_LENGTH}
         textContentType="oneTimeCode"
         autoComplete="one-time-code"
         style={[styles.input, error ? styles.inputError : null]}
@@ -49,7 +47,7 @@ export function PinInput({
   );
 }
 
-export { PIN_LENGTH };
+export { ACCESS_PASSCODE_LENGTH };
 
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
@@ -68,7 +66,7 @@ const createStyles = (theme: Theme) =>
       textAlign: "center",
     },
     input: {
-      width: 180,
+      width: 220,
       minHeight: 52,
       borderWidth: 1,
       borderColor: theme.colors.inputBorder,
@@ -76,7 +74,7 @@ const createStyles = (theme: Theme) =>
       textAlign: "center",
       fontFamily: theme.fontFamily.semibold,
       fontSize: 24,
-      letterSpacing: 12,
+      letterSpacing: 8,
       color: theme.colors.textPrimary,
       paddingVertical: theme.spacing.md,
     },

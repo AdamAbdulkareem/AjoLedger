@@ -17,6 +17,9 @@ export type ApiEnvelope<T> = {
 export type AuthStatus =
   | "booting"
   | "unauthenticated"
-  | "needsPinSetup"
-  | "needsPinEntry"
+  | "needsPasscodeSetup"
+  | "needsPasscodeEntry"
   | "authenticated";
+
+/** ApiError.message sentinel for failed local access-passcode verification. */
+export const INCORRECT_ACCESS_PASSCODE = "INCORRECT_ACCESS_PASSCODE";

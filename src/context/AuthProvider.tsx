@@ -4,28 +4,34 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { AppState, type AppStateStatus } from "react-native";
 
-import {
-  loginUser,
-  registerUser,
-  setupTransactionPin,
-  verifyTransactionPin,
-} from "../api/auth";
+import { loginUser, registerUser } from "../api/auth";
 import { ApiError } from "../api/client";
+import {
+  clearAccessPasscode,
+  hasAccessPasscode,
+  isValidAccessPasscode,
+  saveAccessPasscode,
+  verifyAccessPasscode,
+} from "../lib/accessPasscodeStorage";
 import {
   clearSessionStorage,
   getAccessToken,
-  getPinConfigured,
   getStoredUser,
   setAccessToken,
-  setPinConfigured,
   setStoredUser,
 } from "../lib/authStorage";
 import { isMockAccessToken, shouldUseLiveRegisterLogin } from "../config/api";
-import type { AuthStatus, User } from "../models/auth";
+import {
+  INCORRECT_ACCESS_PASSCODE,
+  type AuthStatus,
+  type User,
+} from "../models/auth";
 
 type AuthContextValue = {
   status: AuthStatus;
@@ -33,8 +39,8 @@ type AuthContextValue = {
   accessToken: string | null;
   register: (email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<AuthStatus>;
-  setupPin: (pin: string) => Promise<void>;
-  verifyPin: (pin: string) => Promise<void>;
+  setupAccessPasscode: (passcode: string) => Promise<void>;
+  verifyAccessPasscode: (passcode: string) => Promise<void>;
   logout: () => Promise<void>;
   updateSessionUser: (nextUser: User) => Promise<void>;
 };
@@ -43,12 +49,12 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 function resolveStatus(
   token: string | null,
-  pinConfigured: boolean,
-  pinUnlocked: boolean,
+  accessPasscodeConfigured: boolean,
+  accessPasscodeUnlocked: boolean,
 ): AuthStatus {
   if (!token) return "unauthenticated";
-  if (!pinConfigured) return "needsPinSetup";
-  if (!pinUnlocked) return "needsPinEntry";
+  if (!accessPasscodeConfigured) return "needsPasscodeSetup";
+  if (!accessPasscodeUnlocked) return "needsPasscodeEntry";
   return "authenticated";
 }
 
@@ -56,7 +62,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("booting");
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessTokenState] = useState<string | null>(null);
-  const [pinUnlocked, setPinUnlocked] = useState(false);
+  const [accessPasscodeConfigured, setAccessPasscodeConfigured] =
+    useState(false);
+  const [accessPasscodeUnlocked, setAccessPasscodeUnlocked] = useState(false);
+
+  const sessionRef = useRef({ accessToken, user, accessPasscodeConfigured });
+  sessionRef.current = { accessToken, user, accessPasscodeConfigured };
+
+  const lockAccess = useCallback(() => {
+    const {
+      accessToken: token,
+      user: currentUser,
+      accessPasscodeConfigured: configured,
+    } = sessionRef.current;
+
+    if (!token || !currentUser || !configured) return;
+
+    setAccessPasscodeUnlocked(false);
+    setStatus(resolveStatus(token, configured, false));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,31 +93,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ]);
 
         if (shouldUseLiveRegisterLogin() && isMockAccessToken(token)) {
+          if (storedUser) await clearAccessPasscode(storedUser.id);
           await clearSessionStorage();
           if (cancelled) return;
           setAccessTokenState(null);
           setUser(null);
-          setPinUnlocked(false);
+          setAccessPasscodeConfigured(false);
+          setAccessPasscodeUnlocked(false);
           setStatus("unauthenticated");
           return;
         }
 
-        const pinConfigured = storedUser
-          ? await getPinConfigured(storedUser.id)
+        const passcodeConfigured = storedUser
+          ? await hasAccessPasscode(storedUser.id)
           : false;
 
         if (cancelled) return;
 
         setAccessTokenState(token);
         setUser(storedUser);
-        setPinUnlocked(false);
-        setStatus(resolveStatus(token, pinConfigured, false));
+        setAccessPasscodeConfigured(passcodeConfigured);
+        setAccessPasscodeUnlocked(false);
+        setStatus(resolveStatus(token, passcodeConfigured, false));
       } catch {
         if (cancelled) return;
 
         setAccessTokenState(null);
         setUser(null);
-        setPinUnlocked(false);
+        setAccessPasscodeConfigured(false);
+        setAccessPasscodeUnlocked(false);
         setStatus(resolveStatus(null, false, false));
       }
     }
@@ -105,11 +133,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    let appWasBackgrounded = false;
+
+    const handleAppStateChange = (nextState: AppStateStatus) => {
+      if (nextState === "background") {
+        appWasBackgrounded = true;
+        return;
+      }
+
+      if (nextState !== "active" || !appWasBackgrounded) return;
+
+      appWasBackgrounded = false;
+
+      const {
+        accessToken: token,
+        user: currentUser,
+        accessPasscodeConfigured: configured,
+      } = sessionRef.current;
+
+      if (token && currentUser && configured) {
+        lockAccess();
+      }
+    };
+
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange,
+    );
+    return () => subscription.remove();
+  }, [lockAccess]);
+
   const persistSession = useCallback(async (token: string, nextUser: User) => {
     await Promise.all([setAccessToken(token), setStoredUser(nextUser)]);
     setAccessTokenState(token);
     setUser(nextUser);
-    setPinUnlocked(false);
+    setAccessPasscodeUnlocked(false);
   }, []);
 
   const register = useCallback(
@@ -118,8 +177,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!data) throw new ApiError("Registration failed. Please try again.");
 
       await persistSession(data.accessToken, data.user);
-      await setPinConfigured(data.user.id, false);
-      setStatus("needsPinSetup");
+      setAccessPasscodeConfigured(false);
+      setStatus("needsPasscodeSetup");
     },
     [persistSession],
   );
@@ -130,46 +189,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!data) throw new ApiError("Login failed. Please try again.");
 
       await persistSession(data.accessToken, data.user);
-      const pinConfigured = await getPinConfigured(data.user.id);
-      const nextStatus = resolveStatus(data.accessToken, pinConfigured, false);
+      const passcodeConfigured = await hasAccessPasscode(data.user.id);
+      setAccessPasscodeConfigured(passcodeConfigured);
+      const nextStatus = resolveStatus(
+        data.accessToken,
+        passcodeConfigured,
+        false,
+      );
       setStatus(nextStatus);
       return nextStatus;
     },
     [persistSession],
   );
 
-  const setupPin = useCallback(
-    async (pin: string) => {
-      if (!accessToken) throw new ApiError("You are not signed in.");
+  const setupAccessPasscode = useCallback(
+    async (passcode: string) => {
       if (!user) throw new ApiError("You are not signed in.");
 
-      await setupTransactionPin(accessToken, pin, user.id);
-      await setPinConfigured(user.id, true);
-      setPinUnlocked(true);
+      if (!isValidAccessPasscode(passcode)) {
+        throw new ApiError("Access passcode must be 6 digits.");
+      }
+
+      await saveAccessPasscode(user.id, passcode);
+      setAccessPasscodeConfigured(true);
+      setAccessPasscodeUnlocked(true);
       setStatus("authenticated");
     },
-    [accessToken, user],
+    [user],
   );
 
-  const verifyPin = useCallback(
-    async (pin: string) => {
-      if (!accessToken) throw new ApiError("You are not signed in.");
+  const verifyAccessPasscodeEntry = useCallback(
+    async (passcode: string) => {
       if (!user) throw new ApiError("You are not signed in.");
 
-      await verifyTransactionPin(accessToken, pin, user.id);
-      setPinUnlocked(true);
+      if (!isValidAccessPasscode(passcode)) {
+        throw new ApiError("Access passcode must be 6 digits.");
+      }
+
+      const valid = await verifyAccessPasscode(user.id, passcode);
+      if (!valid) {
+        throw new ApiError(INCORRECT_ACCESS_PASSCODE);
+      }
+
+      setAccessPasscodeUnlocked(true);
       setStatus("authenticated");
     },
-    [accessToken, user],
+    [user],
   );
 
   const logout = useCallback(async () => {
+    if (user) await clearAccessPasscode(user.id);
     await clearSessionStorage();
     setAccessTokenState(null);
     setUser(null);
-    setPinUnlocked(false);
+    setAccessPasscodeConfigured(false);
+    setAccessPasscodeUnlocked(false);
     setStatus("unauthenticated");
-  }, []);
+  }, [user]);
 
   const updateSessionUser = useCallback(async (nextUser: User) => {
     await setStoredUser(nextUser);
@@ -183,8 +259,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       accessToken,
       register,
       login,
-      setupPin,
-      verifyPin,
+      setupAccessPasscode,
+      verifyAccessPasscode: verifyAccessPasscodeEntry,
       logout,
       updateSessionUser,
     }),
@@ -194,8 +270,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       accessToken,
       register,
       login,
-      setupPin,
-      verifyPin,
+      setupAccessPasscode,
+      verifyAccessPasscodeEntry,
       logout,
       updateSessionUser,
     ],

@@ -7,7 +7,6 @@ type EmailPasswordPayload = {
 };
 
 const mockUsers = new Map<string, { password: string; user: User }>();
-const mockPins = new Map<string, string>();
 
 export function mockUpdateUserEmail(userId: string, newEmail: string): User {
   for (const [key, entry] of mockUsers.entries()) {
@@ -38,12 +37,6 @@ function mockAccessToken(email: string): string {
 
 function success<T>(message: string, data: T): ApiEnvelope<T> {
   return { success: true, message, data };
-}
-
-function ensurePinLength(pin: string) {
-  if (!/^\d{4}$/.test(pin)) {
-    throw new ApiError("PIN must be 4 digits.");
-  }
 }
 
 export async function mockRegister(
@@ -89,33 +82,4 @@ export async function mockLogin(
     accessToken: mockAccessToken(email),
     user: existing.user,
   });
-}
-
-export async function mockSetupTransactionPin(
-  userId: string,
-  transactionPin: string,
-): Promise<ApiEnvelope<null>> {
-  await mockDelay();
-  ensurePinLength(transactionPin);
-  mockPins.set(userId, transactionPin);
-  return success("Transaction PIN set successfully", null);
-}
-
-export async function mockVerifyTransactionPin(
-  userId: string,
-  transactionPin: string,
-): Promise<ApiEnvelope<null>> {
-  await mockDelay();
-  ensurePinLength(transactionPin);
-
-  const storedPin = mockPins.get(userId);
-  if (!storedPin) {
-    throw new ApiError("Transaction PIN is not configured.");
-  }
-
-  if (storedPin !== transactionPin) {
-    throw new ApiError("Incorrect PIN. Please try again.");
-  }
-
-  return success("Transaction PIN verified", null);
 }

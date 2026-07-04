@@ -7,10 +7,6 @@ import type { User } from "../models/auth";
 const ACCESS_TOKEN_KEY = "auth_access_token";
 const USER_KEY = "auth_user";
 
-function pinConfiguredKey(userId: string) {
-  return `auth_pin_configured_${userId}`;
-}
-
 async function setSecureItem(key: string, value: string): Promise<void> {
   if (Platform.OS === "web") {
     await AsyncStorage.setItem(key, value);
@@ -63,30 +59,6 @@ export async function getStoredUser(): Promise<User | null> {
 export async function setStoredUser(user: User): Promise<void> {
   try {
     await setSecureItem(USER_KEY, JSON.stringify(user));
-  } catch {
-    // Storage unavailable — skip silently.
-  }
-}
-
-export async function getPinConfigured(userId: string): Promise<boolean> {
-  try {
-    const value = await getSecureItem(pinConfiguredKey(userId));
-    return value === "true";
-  } catch {
-    return false;
-  }
-}
-
-export async function setPinConfigured(
-  userId: string,
-  configured: boolean,
-): Promise<void> {
-  try {
-    if (configured) {
-      await setSecureItem(pinConfiguredKey(userId), "true");
-    } else {
-      await deleteSecureItem(pinConfiguredKey(userId));
-    }
   } catch {
     // Storage unavailable — skip silently.
   }

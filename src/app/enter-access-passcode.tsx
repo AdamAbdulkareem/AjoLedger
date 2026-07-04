@@ -4,22 +4,24 @@ import { Redirect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import {
+  ACCESS_PASSCODE_LENGTH,
+  AccessPasscodeInput,
+} from "../components/AccessPasscodeInput";
 import { Button } from "../components/Button";
-import { PIN_LENGTH, PinInput } from "../components/PinInput";
 import { useAuth } from "../context/AuthProvider";
 import { ApiError } from "../api/client";
+import { INCORRECT_ACCESS_PASSCODE } from "../models/auth";
 import { useThemedStyles, type Theme } from "../theme";
 
-export default function SetupPinScreen() {
+export default function EnterAccessPasscodeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { status, setupPin } = useAuth();
+  const { status, verifyAccessPasscode, logout } = useAuth();
   const styles = useThemedStyles(createStyles);
 
-  const [pin, setPin] = useState("");
-  const [confirmPin, setConfirmPin] = useState("");
-  const [pinError, setPinError] = useState<string>();
-  const [confirmError, setConfirmError] = useState<string>();
+  const [passcode, setPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState<string>();
   const [formError, setFormError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
 
@@ -28,74 +30,59 @@ export default function SetupPinScreen() {
   }
 
   if (status === "unauthenticated") {
-    return <Redirect href="/register" />;
+    return <Redirect href="/login" />;
+  }
+
+  if (status === "needsPasscodeSetup") {
+    return <Redirect href="/setup-access-passcode" />;
   }
 
   if (status === "authenticated") {
     return <Redirect href="/(app)/home" />;
   }
 
-  if (status === "needsPinEntry") {
-    return <Redirect href="/enter-pin" />;
-  }
-
-  const validate = () => {
-    let valid = true;
-    setPinError(undefined);
-    setConfirmError(undefined);
+  const handleSubmit = async () => {
+    setPasscodeError(undefined);
     setFormError(undefined);
 
-    if (pin.length !== PIN_LENGTH) {
-      setPinError(t("auth.errors.pinLength"));
-      valid = false;
+    if (passcode.length !== ACCESS_PASSCODE_LENGTH) {
+      setPasscodeError(t("auth.errors.accessPasscodeLength"));
+      return;
     }
-
-    if (confirmPin.length !== PIN_LENGTH) {
-      setConfirmError(t("auth.errors.pinLength"));
-      valid = false;
-    } else if (pin !== confirmPin) {
-      setConfirmError(t("auth.errors.pinMismatch"));
-      valid = false;
-    }
-
-    return valid;
-  };
-
-  const handleSubmit = async () => {
-    if (!validate()) return;
 
     setSubmitting(true);
-    setFormError(undefined);
 
     try {
-      await setupPin(pin);
+      await verifyAccessPasscode(passcode);
       router.replace("/(app)/home");
     } catch (error) {
       const message =
-        error instanceof ApiError
-          ? error.message
-          : t("auth.errors.generic");
+        error instanceof ApiError &&
+        error.message === INCORRECT_ACCESS_PASSCODE
+          ? t("auth.errors.incorrectAccessPasscode")
+          : error instanceof ApiError
+            ? error.message
+            : t("auth.errors.generic");
       setFormError(message);
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleUseAnotherAccount = async () => {
+    await logout();
+    router.replace("/login");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <PinInput
-          label={t("auth.createPinTitle")}
-          helperText={t("auth.createPinSubtitle")}
-          value={pin}
-          onChangeText={setPin}
-          error={pinError}
-        />
-        <PinInput
-          label={t("auth.confirmPinLabel")}
-          value={confirmPin}
-          onChangeText={setConfirmPin}
-          error={confirmError}
+        <AccessPasscodeInput
+          label={t("auth.enterAccessPasscodeTitle")}
+          helperText={t("auth.enterAccessPasscodeSubtitle")}
+          value={passcode}
+          onChangeText={setPasscode}
+          error={passcodeError}
         />
         {formError ? (
           <Text style={styles.formError} accessibilityLiveRegion="polite">
@@ -106,6 +93,11 @@ export default function SetupPinScreen() {
           label={t("auth.continue")}
           onPress={handleSubmit}
           disabled={submitting}
+        />
+        <Button
+          label={t("auth.useAnotherAccount")}
+          onPress={handleUseAnotherAccount}
+          variant="secondary"
         />
       </View>
     </SafeAreaView>

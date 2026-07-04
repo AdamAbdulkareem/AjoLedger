@@ -109,11 +109,11 @@ export default function Onboarding() {
     if (authStatus === "authenticated") {
       return <Redirect href="/(app)/home" />;
     }
-    if (authStatus === "needsPinEntry") {
-      return <Redirect href="/enter-pin" />;
+    if (authStatus === "needsPasscodeEntry") {
+      return <Redirect href="/enter-access-passcode" />;
     }
-    if (authStatus === "needsPinSetup") {
-      return <Redirect href="/setup-pin" />;
+    if (authStatus === "needsPasscodeSetup") {
+      return <Redirect href="/setup-access-passcode" />;
     }
     return <Redirect href="/register" />;
   }
