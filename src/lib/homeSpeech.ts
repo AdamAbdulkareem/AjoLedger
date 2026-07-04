@@ -10,6 +10,7 @@ export function buildHomeSpeechText(
   t: TFunction,
   greetingKey: "goodMorning" | "goodAfternoon" | "goodEvening",
   dashboard: HomeDashboard,
+  locale?: string,
 ): string {
   const parts = [
     t(`home.${greetingKey}`, { name: dashboard.displayName }),
@@ -23,7 +24,7 @@ export function buildHomeSpeechText(
       ),
       amount: formatNaira(dashboard.group.amountPerMember),
     }),
-    `${t("home.myProgress")}. ${dashboard.progress.percent}%. ${t("home.memberCount", { count: dashboard.progress.memberCount })}. ${formatPayoutProgressLabel(t, dashboard.progress.payoutNumber, dashboard.progress.payoutAmountPaid, dashboard.progress.payoutAmountTotal)}`,
+    `${t("home.myProgress")}. ${dashboard.progress.percent}%. ${t("home.memberCount", { count: dashboard.progress.memberCount })}. ${formatPayoutProgressLabel(t, dashboard.progress.payoutNumber, dashboard.progress.payoutAmountPaid, dashboard.progress.payoutAmountTotal, locale)}`,
     `${t("home.nextPayout")}. ${formatShortDate(dashboard.payout.date)}. ${formatDaysToGo(t, dashboard.payout.daysRemaining)}.`,
     `${t("home.amountRemains")}. ${formatNaira(dashboard.amountRemains.amount)}. ${formatAmountRemainsDue(t, dashboard.amountRemains.daysUntilDue, dashboard.amountRemains.dueDate)}.`,
   ];

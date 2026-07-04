@@ -41,7 +41,7 @@ export default function HomeScreen() {
     saving: savingPayoutAccount,
     error: payoutAccountError,
     save: savePayoutAccount,
-  } = usePayoutAccountGate(accessToken, user?.id);
+  } = usePayoutAccountGate();
 
   const showComingSoon = () => {
     Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));

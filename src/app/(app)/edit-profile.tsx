@@ -34,7 +34,7 @@ export default function EditProfileScreen() {
   const styles = useThemedStyles(createStyles);
   const { user } = useAuth();
   const { profile, loading, saving, updateProfile } = useProfile();
-  const photoModal = useEditProfilePictureModal();
+  const photoModal = useEditProfilePictureModal({ deferChanges: true });
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -52,6 +52,7 @@ export default function EditProfileScreen() {
   }, [profile, user]);
 
   const handleCancel = () => {
+    photoModal.discardPendingAvatar();
     router.back();
   };
 
@@ -76,6 +77,7 @@ export default function EditProfileScreen() {
     }
 
     try {
+      await photoModal.commitPendingAvatar();
       await updateProfile({
         fullName: fullName.trim(),
         email: email.trim(),

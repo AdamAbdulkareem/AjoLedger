@@ -1,8 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 
-import { useThemedStyles, type Theme } from "../../theme";
+import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 type SubScreenHeaderProps = {
   title: string;
@@ -11,6 +12,8 @@ type SubScreenHeaderProps = {
 
 export function SubScreenHeader({ title, onBackPress }: SubScreenHeaderProps) {
   const router = useRouter();
+  const { t } = useTranslation();
+  const theme = useTheme();
   const styles = useThemedStyles(createStyles);
 
   const handleBack = () => {
@@ -26,10 +29,10 @@ export function SubScreenHeader({ title, onBackPress }: SubScreenHeaderProps) {
       <Pressable
         onPress={handleBack}
         accessibilityRole="button"
-        accessibilityLabel="Go back"
+        accessibilityLabel={t("common.goBack")}
         style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
       >
-        <Ionicons name="arrow-back" size={24} color="#1C1C1C" />
+        <Ionicons name="arrow-back" size={24} color={theme.colors.textPrimary} />
       </Pressable>
       <Text style={styles.title}>{title}</Text>
       <View style={styles.spacer} />
@@ -57,7 +60,7 @@ const createStyles = (theme: Theme) =>
       fontSize: 20,
       lineHeight: 24,
       fontWeight: "700",
-      color: "#1C1C1C",
+      color: theme.colors.textPrimary,
       textAlign: "center",
     },
     spacer: {

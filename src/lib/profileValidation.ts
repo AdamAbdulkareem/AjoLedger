@@ -3,9 +3,9 @@ import { isValidEmail } from "./authValidation";
 const PHONE_PATTERN = /^0\d{10}$/;
 
 export function isValidPhoneNumber(phone: string): boolean {
-  const trimmed = phone.trim();
-  if (!trimmed) return true;
-  return PHONE_PATTERN.test(trimmed);
+  const normalized = normalizePhoneNumber(phone);
+  if (!normalized) return true;
+  return PHONE_PATTERN.test(normalized);
 }
 
 export function normalizePhoneNumber(phone: string): string {

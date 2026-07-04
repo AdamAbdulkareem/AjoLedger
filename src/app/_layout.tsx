@@ -10,6 +10,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { initI18n } from "../i18n";
 import { AuthProvider } from "../context/AuthProvider";
+import { PayoutAccountProvider } from "../context/PayoutAccountProvider";
 import { ProfileProvider } from "../context/ProfileProvider";
 import { ThemeProvider } from "../theme";
 
@@ -41,7 +42,9 @@ export default function RootLayout() {
       <ThemeProvider>
         <AuthProvider>
           <ProfileProvider>
-            <Stack screenOptions={{ headerShown: false }} />
+            <PayoutAccountProvider>
+              <Stack screenOptions={{ headerShown: false }} />
+            </PayoutAccountProvider>
           </ProfileProvider>
         </AuthProvider>
       </ThemeProvider>

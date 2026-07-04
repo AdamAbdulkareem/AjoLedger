@@ -50,15 +50,40 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       const data = await getUserProfile(accessToken, user.id, user.email);
       setProfile(data);
     } catch {
-      setProfile(null);
+      // Keep the last known profile on transient fetch failures.
     } finally {
       setLoading(false);
     }
   }, [accessToken, user, status]);
 
   useEffect(() => {
-    void refreshProfile();
-  }, [refreshProfile]);
+    let cancelled = false;
+
+    void (async () => {
+      if (!accessToken || !user || status !== "authenticated") {
+        if (cancelled) return;
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const data = await getUserProfile(accessToken, user.id, user.email);
+        if (cancelled) return;
+        setProfile(data);
+      } catch {
+        if (cancelled) return;
+        // Keep the last known profile on transient fetch failures.
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, user, status]);
 
   const updateProfile = useCallback(
     async (payload: UpdateProfilePayload) => {

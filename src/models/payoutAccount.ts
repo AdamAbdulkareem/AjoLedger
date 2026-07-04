@@ -4,11 +4,7 @@ export type PayoutAccount = {
   accountNumber: string;
 };
 
-export type SavePayoutAccountPayload = {
-  bankCode: string;
-  bankName: string;
-  accountNumber: string;
-};
+export type SavePayoutAccountPayload = PayoutAccount;
 
 export type PayoutAccountStatus = {
   configured: boolean;

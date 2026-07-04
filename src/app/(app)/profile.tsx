@@ -27,7 +27,7 @@ import { deriveDisplayName } from "../../lib/greeting";
 import { setStoredLanguage } from "../../i18n/languageStorage";
 import { getLanguageLabel } from "../../i18n/languages";
 import { showLanguagePicker } from "../../lib/showLanguagePicker";
-import { useThemedStyles, type Theme } from "../../theme";
+import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
@@ -35,6 +35,7 @@ export default function ProfileScreen() {
   const { user, accessToken, logout } = useAuth();
   const { profile, pendingUpdateSuccess, consumePendingUpdateSuccess } =
     useProfile();
+  const theme = useTheme();
   const styles = useThemedStyles(createStyles);
   const photoModal = useEditProfilePictureModal();
 
@@ -55,7 +56,7 @@ export default function ProfileScreen() {
     saving: savingPayoutAccount,
     error: payoutAccountError,
     save: savePayoutAccount,
-  } = usePayoutAccountGate(accessToken, user?.id);
+  } = usePayoutAccountGate();
 
   const showComingSoon = useCallback(() => {
     Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
@@ -117,7 +118,7 @@ export default function ProfileScreen() {
         <View style={styles.sections}>
           <ProfileSection title={t("profile.sections.account")}>
             <ProfileMenuRow
-              icon={<Ionicons name="person-outline" size={20} color="#2C3138" />}
+              icon={<Ionicons name="person-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.editProfile")}
               showChevron
               onPress={() => router.push("/(app)/edit-profile")}
@@ -126,25 +127,25 @@ export default function ProfileScreen() {
 
           <ProfileSection title={t("profile.sections.security")}>
             <ProfileMenuRow
-              icon={<Ionicons name="lock-closed-outline" size={20} color="#2C3138" />}
+              icon={<Ionicons name="lock-closed-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.changePassword")}
               showChevron
               onPress={showComingSoon}
             />
             <ProfileMenuRow
-              icon={<Ionicons name="shield-checkmark-outline" size={20} color="#2C3138" />}
+              icon={<Ionicons name="shield-checkmark-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.biometrics")}
               toggleValue={biometricsEnabled}
               onToggleChange={setBiometricsEnabled}
             />
             <ProfileMenuRow
-              icon={<Ionicons name="eye-outline" size={20} color="#2C3138" />}
+              icon={<Ionicons name="eye-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.privacyPolicy")}
               showChevron
               onPress={showComingSoon}
             />
             <ProfileMenuRow
-              icon={<Ionicons name="card-outline" size={20} color="#374B60" />}
+              icon={<Ionicons name="card-outline" size={20} color={theme.colors.bankMenuIcon} />}
               label={t("profile.rows.bankDetails")}
               showChevron
               onPress={() => setBankModalVisible(true)}
@@ -153,13 +154,13 @@ export default function ProfileScreen() {
 
           <ProfileSection title={t("profile.sections.preferences")}>
             <ProfileMenuRow
-              icon={<Ionicons name="notifications-outline" size={20} color="#2C3138" />}
+              icon={<Ionicons name="notifications-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.pushNotifications")}
               toggleValue={pushEnabled}
               onToggleChange={setPushEnabled}
             />
             <ProfileMenuRow
-              icon={<Ionicons name="language-outline" size={20} color="#2C3138" />}
+              icon={<Ionicons name="language-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.language")}
               showChevron
               onPress={handleLanguagePress}
@@ -174,13 +175,13 @@ export default function ProfileScreen() {
             titleStyle="subtitle"
           >
             <ProfileMenuRow
-              icon={<Ionicons name="help-circle-outline" size={20} color="#2C3138" />}
+              icon={<Ionicons name="help-circle-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.faq")}
               showChevron
               onPress={showComingSoon}
             />
             <ProfileMenuRow
-              icon={<Ionicons name="call-outline" size={20} color="#2C3138" />}
+              icon={<Ionicons name="call-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.contactSupport")}
               showChevron
               onPress={showComingSoon}
@@ -189,7 +190,7 @@ export default function ProfileScreen() {
         </View>
 
         <ProfileMenuRow
-          icon={<Ionicons name="trash-outline" size={20} color="#2C3138" />}
+          icon={<Ionicons name="trash-outline" size={20} color={theme.colors.textPrimary} />}
           label={t("profile.rows.deleteAccount")}
           showChevron
           onPress={showComingSoon}
@@ -239,7 +240,7 @@ const createStyles = (theme: Theme) =>
     },
     languageValue: {
       ...theme.typography.body,
-      color: "#181C21",
+      color: theme.colors.textPrimary,
     },
     logoutButton: {
       alignItems: "center",

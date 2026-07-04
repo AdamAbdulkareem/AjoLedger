@@ -26,7 +26,11 @@ export const colors = {
   activityPaidBg: "#00B04A",
   activityPayoutBg: "#FFD56F",
   avatarOnline: "#43B75D",
-  figmaBlack: "#000000",
+  bankMenuIcon: "#374B60",
+  toastSuccessBorder: "#73B18E",
+  toastSuccessBg: "#FEFFFF",
+  toastSuccessIcon: "#73B18E",
+  toastSuccessText: "#0C0C0C",
 } as const;
 
 export const shadows = {

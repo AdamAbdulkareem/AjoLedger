@@ -1,4 +1,7 @@
 {
+  "common": {
+    "goBack": "Go back"
+  },
   "onboarding": {
     "welcome": {
       "title": "Welcome to AjoLedger",
@@ -64,14 +67,14 @@
     "myProgress": "My Progress",
     "memberCount": "{{count}} members",
     "memberCount_one": "{{count}} member",
-    "payoutProgress": "{{number}} payout  - {{paid}} out of {{total}}",
+    "payoutProgress": "{{number}} payout - {{paid}} out of {{total}}",
     "nextPayout": "Next Payout",
     "daysToGo": "{{count}} days to go",
     "dayToGo": "1 day to go",
     "viewSavingsDetails": "View my savings details",
     "amountRemains": "Amount Remains",
     "payNow": "Pay Now",
-    "dueInDaysDash": "Due in {{count}}days - {{date}}",
+    "dueInDaysDash": "Due in {{count}} days - {{date}}",
     "dueTodayDash": "Due today - {{date}}",
     "dueTodayShort": "Due today",
     "recentActivity": "Recent Activity",
@@ -102,7 +105,7 @@
       },
       "upcomingPayout": {
         "title": "Upcoming Payout",
-        "subtitle": "{{name}} will recieve payment next"
+        "subtitle": "{{name}} will receive payment next"
       }
     },
     "bankDetails": {

@@ -82,7 +82,7 @@ const createStyles = (theme: Theme) =>
     },
     headerLabel: {
       ...theme.typography.amountRemainsLabel,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     divider: {
       height: 1,
@@ -105,7 +105,7 @@ const createStyles = (theme: Theme) =>
     due: {
       ...theme.typography.micro,
       fontFamily: theme.fontFamily.semibold,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     payButton: {
       minWidth: 74,
@@ -120,6 +120,6 @@ const createStyles = (theme: Theme) =>
     },
     payLabel: {
       ...theme.typography.captionMedium,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
   });

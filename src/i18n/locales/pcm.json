@@ -1,4 +1,7 @@
 {
+  "common": {
+    "goBack": "Go back"
+  },
   "onboarding": {
     "welcome": {
       "title": "Welcome to AjoLedger",

@@ -1,4 +1,7 @@
 {
+  "common": {
+    "goBack": "Padà"
+  },
   "onboarding": {
     "welcome": {
       "title": "Kaabo si AjoLedger",

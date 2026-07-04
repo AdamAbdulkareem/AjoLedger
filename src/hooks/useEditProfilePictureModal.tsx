@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 
@@ -7,10 +7,26 @@ import { useProfile } from "../context/ProfileProvider";
 import { DEFAULT_AVATAR_URI, hasCustomAvatar } from "../lib/avatarSource";
 import { pickProfileImage } from "../lib/pickProfileImage";
 
-export function useEditProfilePictureModal() {
+type UseEditProfilePictureModalOptions = {
+  /** When true, avatar changes stay local until commitPendingAvatar is called. */
+  deferChanges?: boolean;
+};
+
+export function useEditProfilePictureModal(
+  options: UseEditProfilePictureModalOptions = {},
+) {
+  const { deferChanges = false } = options;
   const { t } = useTranslation();
   const { profile, setAvatarUri, deleteAvatar, saving } = useProfile();
   const [visible, setVisible] = useState(false);
+  const [pendingAvatarUri, setPendingAvatarUri] = useState<string | null>(
+    profile?.avatarUri ?? null,
+  );
+
+  useEffect(() => {
+    if (!deferChanges) return;
+    setPendingAvatarUri(profile?.avatarUri ?? null);
+  }, [deferChanges, profile?.avatarUri]);
 
   const open = useCallback(() => setVisible(true), []);
   const close = useCallback(() => setVisible(false), []);
@@ -27,15 +43,33 @@ export function useEditProfilePictureModal() {
     [close, t],
   );
 
+  const applyAvatarChange = useCallback(
+    async (nextUri: string | null, mode: "set" | "delete" = "set") => {
+      if (deferChanges) {
+        setPendingAvatarUri(nextUri);
+        close();
+        return;
+      }
+
+      if (mode === "delete") {
+        await runAvatarAction(() => deleteAvatar());
+        return;
+      }
+
+      await runAvatarAction(() => setAvatarUri(nextUri));
+    },
+    [close, deferChanges, deleteAvatar, runAvatarAction, setAvatarUri],
+  );
+
   const handleChooseAvatar = () => {
-    void runAvatarAction(() => setAvatarUri(DEFAULT_AVATAR_URI));
+    void applyAvatarChange(DEFAULT_AVATAR_URI);
   };
 
   const handleTakePhoto = () => {
     void (async () => {
       const uri = await pickProfileImage({ t, source: "camera" });
       if (!uri) return;
-      await runAvatarAction(() => setAvatarUri(uri));
+      await applyAvatarChange(uri);
     })();
   };
 
@@ -43,18 +77,50 @@ export function useEditProfilePictureModal() {
     void (async () => {
       const uri = await pickProfileImage({ t, source: "library" });
       if (!uri) return;
-      await runAvatarAction(() => setAvatarUri(uri));
+      await applyAvatarChange(uri);
     })();
   };
 
   const handleDeletePhoto = () => {
-    void runAvatarAction(() => deleteAvatar());
+    if (deferChanges) {
+      void applyAvatarChange(DEFAULT_AVATAR_URI);
+      return;
+    }
+
+    void applyAvatarChange(DEFAULT_AVATAR_URI, "delete");
   };
+
+  const commitPendingAvatar = useCallback(async () => {
+    if (!deferChanges) return;
+
+    const savedUri = profile?.avatarUri ?? null;
+    if (pendingAvatarUri === savedUri) return;
+
+    if (!hasCustomAvatar(pendingAvatarUri)) {
+      await deleteAvatar();
+      return;
+    }
+
+    await setAvatarUri(pendingAvatarUri);
+  }, [
+    deferChanges,
+    deleteAvatar,
+    pendingAvatarUri,
+    profile?.avatarUri,
+    setAvatarUri,
+  ]);
+
+  const discardPendingAvatar = useCallback(() => {
+    if (!deferChanges) return;
+    setPendingAvatarUri(profile?.avatarUri ?? null);
+  }, [deferChanges, profile?.avatarUri]);
 
   const modal = (
     <EditProfilePictureModal
       visible={visible}
-      hasCustomPhoto={hasCustomAvatar(profile?.avatarUri)}
+      hasCustomPhoto={hasCustomAvatar(
+        deferChanges ? pendingAvatarUri : profile?.avatarUri,
+      )}
       onClose={close}
       onChooseAvatar={handleChooseAvatar}
       onTakePhoto={handleTakePhoto}
@@ -68,6 +134,10 @@ export function useEditProfilePictureModal() {
     close,
     modal,
     saving,
-    avatarUri: profile?.avatarUri ?? null,
+    avatarUri: deferChanges
+      ? pendingAvatarUri
+      : (profile?.avatarUri ?? null),
+    commitPendingAvatar,
+    discardPendingAvatar,
   };
 }

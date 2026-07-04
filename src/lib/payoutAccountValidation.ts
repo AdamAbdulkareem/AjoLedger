@@ -1,7 +1,7 @@
 const NUBAN_LENGTH = 10;
 
 export function isValidNuban(accountNumber: string): boolean {
-  return /^\d{10}$/.test(accountNumber.trim());
+  return /^\d{10}$/.test(normalizeAccountNumber(accountNumber));
 }
 
 export function normalizeAccountNumber(value: string): string {

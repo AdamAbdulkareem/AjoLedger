@@ -58,14 +58,22 @@ function ordinalSuffix(n: number): string {
   }
 }
 
+function formatPayoutNumber(payoutNumber: number, locale?: string): string {
+  if (!locale || locale.startsWith("en")) {
+    return `${payoutNumber}${ordinalSuffix(payoutNumber)}`;
+  }
+  return String(payoutNumber);
+}
+
 export function formatPayoutProgressLabel(
   t: TFunction,
   payoutNumber: number,
   payoutAmountPaid: number,
   payoutAmountTotal: number,
+  locale?: string,
 ): string {
   return t("home.payoutProgress", {
-    number: `${payoutNumber}${ordinalSuffix(payoutNumber)}`,
+    number: formatPayoutNumber(payoutNumber, locale),
     paid: formatPlainAmount(payoutAmountPaid),
     total: formatPlainAmount(payoutAmountTotal),
   });
