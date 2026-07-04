@@ -4,20 +4,23 @@ import { Redirect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AccessPasscodeInput } from "../components/AccessPasscodeInput";
+import { ACCESS_PASSCODE_LENGTH } from "../lib/accessPasscodeStorage";
 import { Button } from "../components/Button";
-import { PIN_LENGTH, PinInput } from "../components/PinInput";
+import { AjoLedgerLogo } from "../components/AjoLedgerLogo";
 import { useAuth } from "../context/AuthProvider";
 import { ApiError } from "../api/client";
+import { INCORRECT_ACCESS_PASSCODE } from "../models/auth";
 import { useThemedStyles, type Theme } from "../theme";
 
-export default function EnterPinScreen() {
+export default function EnterAccessPasscodeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { status, verifyPin, logout } = useAuth();
+  const { status, verifyAccessPasscode, logout } = useAuth();
   const styles = useThemedStyles(createStyles);
 
-  const [pin, setPin] = useState("");
-  const [pinError, setPinError] = useState<string>();
+  const [passcode, setPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState<string>();
   const [formError, setFormError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
 
@@ -29,8 +32,8 @@ export default function EnterPinScreen() {
     return <Redirect href="/login" />;
   }
 
-  if (status === "needsPinSetup") {
-    return <Redirect href="/setup-pin" />;
+  if (status === "needsPasscodeSetup") {
+    return <Redirect href="/setup-access-passcode" />;
   }
 
   if (status === "authenticated") {
@@ -38,24 +41,27 @@ export default function EnterPinScreen() {
   }
 
   const handleSubmit = async () => {
-    setPinError(undefined);
+    setPasscodeError(undefined);
     setFormError(undefined);
 
-    if (pin.length !== PIN_LENGTH) {
-      setPinError(t("auth.errors.pinLength"));
+    if (passcode.length !== ACCESS_PASSCODE_LENGTH) {
+      setPasscodeError(t("auth.errors.accessPasscodeLength"));
       return;
     }
 
     setSubmitting(true);
 
     try {
-      await verifyPin(pin);
+      await verifyAccessPasscode(passcode);
       router.replace("/(app)/home");
     } catch (error) {
       const message =
-        error instanceof ApiError
-          ? error.message
-          : t("auth.errors.generic");
+        error instanceof ApiError &&
+        error.message === INCORRECT_ACCESS_PASSCODE
+          ? t("auth.errors.incorrectAccessPasscode")
+          : error instanceof ApiError
+            ? error.message
+            : t("auth.errors.generic");
       setFormError(message);
     } finally {
       setSubmitting(false);
@@ -69,13 +75,14 @@ export default function EnterPinScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AjoLedgerLogo style={styles.logo} />
       <View style={styles.content}>
-        <PinInput
-          label={t("auth.enterPinTitle")}
-          helperText={t("auth.enterPinSubtitle")}
-          value={pin}
-          onChangeText={setPin}
-          error={pinError}
+        <AccessPasscodeInput
+          label={t("auth.enterAccessPasscodeTitle")}
+          helperText={t("auth.enterAccessPasscodeSubtitle")}
+          value={passcode}
+          onChangeText={setPasscode}
+          error={passcodeError}
         />
         {formError ? (
           <Text style={styles.formError} accessibilityLiveRegion="polite">
@@ -102,10 +109,15 @@ const createStyles = (theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.surface,
-      padding: theme.spacing.lg,
-      justifyContent: "center",
+      paddingHorizontal: theme.spacing.lg,
+      paddingBottom: theme.spacing.lg,
+    },
+    logo: {
+      marginTop: theme.spacing.sm,
     },
     content: {
+      flex: 1,
+      justifyContent: "center",
       gap: theme.spacing.lg,
     },
     formError: {

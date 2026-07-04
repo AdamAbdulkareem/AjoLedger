@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import { useThemedStyles, type Theme } from "../../theme";
+import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 type ProfileSuccessToastProps = {
   message: string;
@@ -17,6 +17,7 @@ export function ProfileSuccessToast({
   onDismiss,
   durationMs = 3500,
 }: ProfileSuccessToastProps) {
+  const theme = useTheme();
   const styles = useThemedStyles(createStyles);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export function ProfileSuccessToast({
 
   return (
     <View style={styles.container} accessibilityLiveRegion="polite">
-      <Ionicons name="checkmark-circle-outline" size={20} color="#73B18E" />
+      <Ionicons name="checkmark-circle-outline" size={20} color={theme.colors.toastSuccessIcon} />
       <Text style={styles.message}>{message}</Text>
     </View>
   );
@@ -47,9 +48,9 @@ const createStyles = (theme: Theme) =>
       marginBottom: theme.spacing.sm,
       paddingVertical: 19,
       paddingHorizontal: theme.spacing.md,
-      backgroundColor: "#FEFFFF",
+      backgroundColor: theme.colors.toastSuccessBg,
       borderWidth: 1,
-      borderColor: "#73B18E",
+      borderColor: theme.colors.toastSuccessBorder,
       borderRadius: 12,
       ...theme.shadows.card,
     },
@@ -58,7 +59,7 @@ const createStyles = (theme: Theme) =>
       fontFamily: theme.fontFamily.semibold,
       fontSize: 16,
       lineHeight: 20,
-      color: "#0C0C0C",
+      color: theme.colors.toastSuccessText,
       textAlign: "center",
     },
   });

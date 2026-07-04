@@ -1,4 +1,7 @@
 {
+  "common": {
+    "goBack": "Go back"
+  },
   "onboarding": {
     "welcome": {
       "title": "Welcome to AjoLedger",
@@ -32,11 +35,11 @@
     "noAccount": "Don't have an account?",
     "signIn": "Sign In",
     "continue": "Continue",
-    "createPinTitle": "Create your 4-digit PIN",
-    "createPinSubtitle": "You will use this PIN to unlock the app.",
-    "confirmPinLabel": "Confirm PIN",
-    "enterPinTitle": "Enter your PIN",
-    "enterPinSubtitle": "Enter your 4-digit PIN to continue.",
+    "createAccessPasscodeTitle": "Create your 6-digit access passcode",
+    "createAccessPasscodeSubtitle": "You will use this passcode to unlock the app.",
+    "confirmAccessPasscodeLabel": "Confirm access passcode",
+    "enterAccessPasscodeTitle": "Enter your access passcode",
+    "enterAccessPasscodeSubtitle": "Enter your 6-digit access passcode to continue.",
     "useAnotherAccount": "Use another account",
     "socialComingSoonTitle": "Coming soon",
     "socialComingSoonBody": "Google and Apple sign-in will be available once the backend is ready.",
@@ -44,8 +47,9 @@
       "invalidEmail": "Incorrect email. Please try again.",
       "weakPassword": "Password must contain at least 8 characters. Please try again.",
       "passwordRequired": "Password is required.",
-      "pinLength": "PIN must be 4 digits.",
-      "pinMismatch": "PINs do not match. Please try again.",
+      "accessPasscodeLength": "Access passcode must be 6 digits.",
+      "accessPasscodeMismatch": "Passcodes do not match. Please try again.",
+      "incorrectAccessPasscode": "Incorrect passcode. Please try again.",
       "generic": "Something went wrong. Please try again."
     }
   },
@@ -64,14 +68,15 @@
     "myProgress": "My Progress",
     "memberCount": "{{count}} members",
     "memberCount_one": "{{count}} member",
-    "payoutProgress": "{{number}} payout  - {{paid}} out of {{total}}",
+    "payoutProgress": "{{number}} payout - {{paid}} out of {{total}}",
     "nextPayout": "Next Payout",
     "daysToGo": "{{count}} days to go",
     "dayToGo": "1 day to go",
     "viewSavingsDetails": "View my savings details",
     "amountRemains": "Amount Remains",
     "payNow": "Pay Now",
-    "dueInDaysDash": "Due in {{count}}days - {{date}}",
+    "dueInDayDash": "Due in 1 day - {{date}}",
+    "dueInDaysDash": "Due in {{count}} days - {{date}}",
     "dueTodayDash": "Due today - {{date}}",
     "dueTodayShort": "Due today",
     "recentActivity": "Recent Activity",
@@ -102,7 +107,7 @@
       },
       "upcomingPayout": {
         "title": "Upcoming Payout",
-        "subtitle": "{{name}} will recieve payment next"
+        "subtitle": "{{name}} will receive payment next"
       }
     },
     "bankDetails": {
@@ -161,6 +166,7 @@
         "invalidPhone": "Enter a valid 11-digit Nigerian phone number."
       }
     },
+    "avatarImageLabel": "Profile picture",
     "editPhoto": {
       "title": "Edit Profile Picture",
       "chooseAvatar": "Choose Avatar",

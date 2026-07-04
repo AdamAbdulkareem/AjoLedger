@@ -1,4 +1,7 @@
 {
+  "common": {
+    "goBack": "Padà"
+  },
   "onboarding": {
     "welcome": {
       "title": "Kaabo si AjoLedger",
@@ -32,11 +35,11 @@
     "noAccount": "Ko ni akọọlẹ?",
     "signIn": "Wọle",
     "continue": "Tẹsiwaju",
-    "createPinTitle": "Ṣẹda PIN oni-nọmba 4 rẹ",
-    "createPinSubtitle": "O yoo lo PIN yii lati ṣi app naa.",
-    "confirmPinLabel": "Jẹrisi PIN",
-    "enterPinTitle": "Tẹ PIN rẹ",
-    "enterPinSubtitle": "Tẹ PIN oni-nọmba 4 rẹ lati tẹsiwaju.",
+    "createAccessPasscodeTitle": "Ṣẹda koodu iwọle app oni-nọmba 6 rẹ",
+    "createAccessPasscodeSubtitle": "O yoo lo koodu yii lati ṣi app naa.",
+    "confirmAccessPasscodeLabel": "Jẹrisi koodu iwọle",
+    "enterAccessPasscodeTitle": "Tẹ koodu iwọle app rẹ",
+    "enterAccessPasscodeSubtitle": "Tẹ koodu iwọle oni-nọmba 6 rẹ lati tẹsiwaju.",
     "useAnotherAccount": "Lo akọọlẹ miiran",
     "socialComingSoonTitle": "Nbọ laipe",
     "socialComingSoonBody": "Wiwọle Google ati Apple yoo wa nigba ti backend ba setan.",
@@ -44,8 +47,9 @@
       "invalidEmail": "Imẹẹli ko tọ. Jọwọ gbiyanju lẹkan si.",
       "weakPassword": "Ọrọ aṣina gbọdọ ni o kere ju ẹyọ 8 lọ. Jọwọ gbiyanju lẹkan si.",
       "passwordRequired": "A nilo ọrọ aṣina.",
-      "pinLength": "PIN gbọdọ jẹ oni-nọmba 4.",
-      "pinMismatch": "Awọn PIN ko ba ara wọn mu. Jọwọ gbiyanju lẹkan si.",
+      "accessPasscodeLength": "Koodu iwọle gbọdọ jẹ oni-nọmba 6.",
+      "accessPasscodeMismatch": "Awọn koodu ko ba ara wọn mu. Jọwọ gbiyanju lẹkan si.",
+      "incorrectAccessPasscode": "Koodu ko tọ. Jọwọ gbiyanju lẹkan si.",
       "generic": "Nkọkan kan ṣẹlẹ. Jọwọ gbiyanju lẹkan si."
     }
   },

@@ -4,21 +4,23 @@ import { Redirect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AccessPasscodeInput } from "../components/AccessPasscodeInput";
+import { ACCESS_PASSCODE_LENGTH } from "../lib/accessPasscodeStorage";
 import { Button } from "../components/Button";
-import { PIN_LENGTH, PinInput } from "../components/PinInput";
+import { AjoLedgerLogo } from "../components/AjoLedgerLogo";
 import { useAuth } from "../context/AuthProvider";
 import { ApiError } from "../api/client";
 import { useThemedStyles, type Theme } from "../theme";
 
-export default function SetupPinScreen() {
+export default function SetupAccessPasscodeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { status, setupPin } = useAuth();
+  const { status, setupAccessPasscode } = useAuth();
   const styles = useThemedStyles(createStyles);
 
-  const [pin, setPin] = useState("");
-  const [confirmPin, setConfirmPin] = useState("");
-  const [pinError, setPinError] = useState<string>();
+  const [passcode, setPasscode] = useState("");
+  const [confirmPasscode, setConfirmPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState<string>();
   const [confirmError, setConfirmError] = useState<string>();
   const [formError, setFormError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
@@ -35,26 +37,26 @@ export default function SetupPinScreen() {
     return <Redirect href="/(app)/home" />;
   }
 
-  if (status === "needsPinEntry") {
-    return <Redirect href="/enter-pin" />;
+  if (status === "needsPasscodeEntry") {
+    return <Redirect href="/enter-access-passcode" />;
   }
 
   const validate = () => {
     let valid = true;
-    setPinError(undefined);
+    setPasscodeError(undefined);
     setConfirmError(undefined);
     setFormError(undefined);
 
-    if (pin.length !== PIN_LENGTH) {
-      setPinError(t("auth.errors.pinLength"));
+    if (passcode.length !== ACCESS_PASSCODE_LENGTH) {
+      setPasscodeError(t("auth.errors.accessPasscodeLength"));
       valid = false;
     }
 
-    if (confirmPin.length !== PIN_LENGTH) {
-      setConfirmError(t("auth.errors.pinLength"));
+    if (confirmPasscode.length !== ACCESS_PASSCODE_LENGTH) {
+      setConfirmError(t("auth.errors.accessPasscodeLength"));
       valid = false;
-    } else if (pin !== confirmPin) {
-      setConfirmError(t("auth.errors.pinMismatch"));
+    } else if (passcode !== confirmPasscode) {
+      setConfirmError(t("auth.errors.accessPasscodeMismatch"));
       valid = false;
     }
 
@@ -68,7 +70,7 @@ export default function SetupPinScreen() {
     setFormError(undefined);
 
     try {
-      await setupPin(pin);
+      await setupAccessPasscode(passcode);
       router.replace("/(app)/home");
     } catch (error) {
       const message =
@@ -83,18 +85,19 @@ export default function SetupPinScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AjoLedgerLogo style={styles.logo} />
       <View style={styles.content}>
-        <PinInput
-          label={t("auth.createPinTitle")}
-          helperText={t("auth.createPinSubtitle")}
-          value={pin}
-          onChangeText={setPin}
-          error={pinError}
+        <AccessPasscodeInput
+          label={t("auth.createAccessPasscodeTitle")}
+          helperText={t("auth.createAccessPasscodeSubtitle")}
+          value={passcode}
+          onChangeText={setPasscode}
+          error={passcodeError}
         />
-        <PinInput
-          label={t("auth.confirmPinLabel")}
-          value={confirmPin}
-          onChangeText={setConfirmPin}
+        <AccessPasscodeInput
+          label={t("auth.confirmAccessPasscodeLabel")}
+          value={confirmPasscode}
+          onChangeText={setConfirmPasscode}
           error={confirmError}
         />
         {formError ? (
@@ -117,10 +120,15 @@ const createStyles = (theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.surface,
-      padding: theme.spacing.lg,
-      justifyContent: "center",
+      paddingHorizontal: theme.spacing.lg,
+      paddingBottom: theme.spacing.lg,
+    },
+    logo: {
+      marginTop: theme.spacing.sm,
     },
     content: {
+      flex: 1,
+      justifyContent: "center",
       gap: theme.spacing.lg,
     },
     formError: {

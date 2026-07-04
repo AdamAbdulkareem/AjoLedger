@@ -54,7 +54,9 @@ export default function LoginScreen() {
     try {
       const nextStatus = await login(normalizeEmail(email), password);
       router.replace(
-        nextStatus === "needsPinSetup" ? "/setup-pin" : "/enter-pin",
+        nextStatus === "needsPasscodeSetup"
+          ? "/setup-access-passcode"
+          : "/enter-access-passcode",
       );
     } catch (error) {
       const message =

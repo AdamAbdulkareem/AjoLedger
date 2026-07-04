@@ -1,4 +1,7 @@
 {
+  "common": {
+    "goBack": "Koma baya"
+  },
   "onboarding": {
     "welcome": {
       "title": "Barka da zuwa AjoLedger",
@@ -32,11 +35,11 @@
     "noAccount": "Ba ka da asusu?",
     "signIn": "Shiga",
     "continue": "Ci gaba",
-    "createPinTitle": "Ƙirƙiri PIN ɗinka mai lamba 4",
-    "createPinSubtitle": "Za ka yi amfani da wannan PIN don buɗe app.",
-    "confirmPinLabel": "Tabbatar da PIN",
-    "enterPinTitle": "Shigar da PIN ɗinka",
-    "enterPinSubtitle": "Shigar da PIN mai lamba 4 don ci gaba.",
+    "createAccessPasscodeTitle": "Ƙirƙiri lambar shiga ta app mai lamba 6",
+    "createAccessPasscodeSubtitle": "Za ka yi amfani da wannan lambar shiga don buɗe app.",
+    "confirmAccessPasscodeLabel": "Tabbatar da lambar shiga",
+    "enterAccessPasscodeTitle": "Shigar da lambar shigar app",
+    "enterAccessPasscodeSubtitle": "Shigar da lambar shiga mai lamba 6 don ci gaba.",
     "useAnotherAccount": "Yi amfani da wani asusu",
     "socialComingSoonTitle": "Yana zuwa nan ba da jimawa ba",
     "socialComingSoonBody": "Shiga ta Google da Apple za su kasance idan backend ya shirya.",
@@ -44,8 +47,9 @@
       "invalidEmail": "Imel ba daidai ba ne. Sake gwadawa.",
       "weakPassword": "Kalmar sirri dole ta kasance aƙalla haruffa 8. Sake gwadawa.",
       "passwordRequired": "Ana buƙatar kalmar sirri.",
-      "pinLength": "PIN dole ya kasance lambobi 4.",
-      "pinMismatch": "PINs ba su dace ba. Sake gwadawa.",
+      "accessPasscodeLength": "Lambar shiga dole ta kasance lambobi 6.",
+      "accessPasscodeMismatch": "Lambobin shiga ba su dace ba. Sake gwadawa.",
+      "incorrectAccessPasscode": "Lambar shiga ba daidai ba ce. Sake gwadawa.",
       "generic": "Wani abu ya faru. Sake gwadawa."
     }
   },
@@ -62,16 +66,17 @@
     "cycleWeekly": "Mako-mako",
     "cycleAmount": "{{frequency}} . {{amount}} ga kowane memba",
     "myProgress": "Ci Gabana",
-    "memberCount": "{{count}} members",
-    "payoutProgress": "{{number}} payout  - {{paid}} out of {{total}}",
+    "memberCount": "{{count}} mambobi",
+    "memberCount_one": "{{count}} memba",
+    "payoutProgress": "{{number}} biyan kuɗi - {{paid}} cikin {{total}}",
     "nextPayout": "Biyan Kuɗi Mai Zuwa",
     "daysToGo": "kwanaki {{count}} su rage",
     "dayToGo": "kwana 1 ya rage",
     "viewSavingsDetails": "Duba cikakken bayanin ajiya",
-    "amountRemains": "Amount Remains",
-    "payNow": "Pay Now",
-    "dueInDaysDash": "Due in {{count}}days - {{date}}",
-    "dueTodayDash": "Due today - {{date}}",
+    "amountRemains": "Adadin da ya rage",
+    "payNow": "Biya yanzu",
+    "dueInDaysDash": "Za a yi biya cikin kwanaki {{count}} - {{date}}",
+    "dueTodayDash": "Za a yi biya yau - {{date}}",
     "dueTodayShort": "Za a yi biya yau",
     "recentActivity": "Ayyukan Kwanan Nan",
     "viewAll": "Duba duka",
@@ -97,25 +102,25 @@
       },
       "contributionReminder": {
         "title": "Tunatarwar biyan kuɗi",
-        "subtitle": "Your next contribution due next week"
+        "subtitle": "Biyan kuɗin ku na gaba zai yi mako mai zuwa"
       },
       "upcomingPayout": {
-        "title": "Upcoming Payout",
-        "subtitle": "{{name}} will recieve payment next"
+        "title": "Biyan Kuɗi Mai Zuwa",
+        "subtitle": "{{name}} zai karɓi biyan kuɗi na gaba"
       }
     },
     "bankDetails": {
-      "title": "Input Your Account details",
-      "subtitle": "This account will be where you will receive your contribution payout",
-      "bankLabel": "Bank",
-      "bankPlaceholder": "Select your bank",
-      "accountLabel": "Account",
-      "accountPlaceholder": "Enter your Account number",
-      "continue": "Continue",
-      "cancel": "Cancel",
+      "title": "Shigar da bayanan asusun ku",
+      "subtitle": "Wannan asusun ne za ku karɓa biyan kuɗin ajiyar ku",
+      "bankLabel": "Banki",
+      "bankPlaceholder": "Zaɓi bankin ku",
+      "accountLabel": "Asusu",
+      "accountPlaceholder": "Shigar da lambar asusun ku",
+      "continue": "Ci gaba",
+      "cancel": "Soke",
       "errors": {
-        "bankRequired": "Please select a bank.",
-        "accountInvalid": "Enter a valid 10-digit account number."
+        "bankRequired": "Da fatan za a zaɓi banki.",
+        "accountInvalid": "Shigar da lambar asusu mai inganci mai lamba 10."
       }
     }
   },

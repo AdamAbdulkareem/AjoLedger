@@ -51,11 +51,11 @@ const createStyles = (theme: Theme) =>
     },
     greeting: {
       ...theme.typography.subtitle,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     subtitle: {
       ...theme.typography.caption,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     avatarWrap: {
       width: 40,

@@ -1,4 +1,7 @@
 {
+  "common": {
+    "goBack": "Laghachi"
+  },
   "onboarding": {
     "welcome": {
       "title": "Nnọọ na AjoLedger",
@@ -32,11 +35,11 @@
     "noAccount": "Ị nweghị akaụnt?",
     "signIn": "Banye",
     "continue": "Gaa n'ihu",
-    "createPinTitle": "Mepụta PIN gị nkeonụ 4",
-    "createPinSubtitle": "Ị ga-eji PIN a mepee app.",
-    "confirmPinLabel": "Kwenye PIN",
-    "enterPinTitle": "Tinye PIN gị",
-    "enterPinSubtitle": "Tinye PIN nkeonụ 4 iji gaa n'ihu.",
+    "createAccessPasscodeTitle": "Mepụta koodu nnweta gị nkeonụ 6",
+    "createAccessPasscodeSubtitle": "Ị ga-eji koodu a mepee app.",
+    "confirmAccessPasscodeLabel": "Kwenye koodu nnweta",
+    "enterAccessPasscodeTitle": "Tinye koodu nnweta gị",
+    "enterAccessPasscodeSubtitle": "Tinye koodu nnweta nkeonụ 6 iji gaa n'ihu.",
     "useAnotherAccount": "Jiri akaụnt ọzọ",
     "socialComingSoonTitle": "Na-abịa n'oge na-adịghị anya",
     "socialComingSoonBody": "Nbanye Google na Apple ga-adị mgbe backend kwesịrị.",
@@ -44,8 +47,9 @@
       "invalidEmail": "Email adịghị mma. Biko nwaa ọzọ.",
       "weakPassword": "Paswọọd ga-abụrịrị opekata mpụ 8. Biko nwaa ọzọ.",
       "passwordRequired": "A chọrọ paswọọd.",
-      "pinLength": "PIN ga-abụ nkeonụ 4.",
-      "pinMismatch": "PIN adịghị egosi otu. Biko nwaa ọzọ.",
+      "accessPasscodeLength": "Koodu nnweta ga-abụ nkeonụ 6.",
+      "accessPasscodeMismatch": "Koodu adịghị egosi otu. Biko nwaa ọzọ.",
+      "incorrectAccessPasscode": "Koodu ezighi ezi. Biko nwaa ọzọ.",
       "generic": "Ihe mehiere mere. Biko nwaa ọzọ."
     }
   },
@@ -62,16 +66,17 @@
     "cycleWeekly": "Kwa izu",
     "cycleAmount": "{{frequency}} . {{amount}} kwa onye",
     "myProgress": "Ọganihu M",
-    "memberCount": "{{count}} members",
-    "payoutProgress": "{{number}} payout  - {{paid}} out of {{total}}",
+    "memberCount": "{{count}} ndị otu",
+    "memberCount_one": "{{count}} onye otu",
+    "payoutProgress": "{{number}} ịkwụ ụgwọ - {{paid}} n'ime {{total}}",
     "nextPayout": "Ịkwụ Ụgwọ Na-abịa",
     "daysToGo": "ụbọchị {{count}} fọdụrụ",
     "dayToGo": "ụbọchị 1 fọdụrụ",
     "viewSavingsDetails": "Lelee nkọwa nchekwa m",
-    "amountRemains": "Amount Remains",
-    "payNow": "Pay Now",
-    "dueInDaysDash": "Due in {{count}}days - {{date}}",
-    "dueTodayDash": "Due today - {{date}}",
+    "amountRemains": "Ego fọdụrụ",
+    "payNow": "Kwụọ ugbu a",
+    "dueInDaysDash": "Ga-erute n'ụbọchị {{count}} - {{date}}",
+    "dueTodayDash": "Ga-erute taa - {{date}}",
     "dueTodayShort": "Ga-erute taa",
     "recentActivity": "Ihe Omume Na-adịbeghị Anyụ",
     "viewAll": "Lelee ha niile",
@@ -97,25 +102,25 @@
       },
       "contributionReminder": {
         "title": "Ihe ncheta ugwo",
-        "subtitle": "Your next contribution due next week"
+        "subtitle": "Ugwo gị na-abịa ga-erute n'izu na-abịa"
       },
       "upcomingPayout": {
-        "title": "Upcoming Payout",
-        "subtitle": "{{name}} will recieve payment next"
+        "title": "Ịkwụ Ụgwọ Na-abịa",
+        "subtitle": "{{name}} ga-enweta ugwo na-abịa"
       }
     },
     "bankDetails": {
-      "title": "Input Your Account details",
-      "subtitle": "This account will be where you will receive your contribution payout",
-      "bankLabel": "Bank",
-      "bankPlaceholder": "Select your bank",
-      "accountLabel": "Account",
-      "accountPlaceholder": "Enter your Account number",
-      "continue": "Continue",
-      "cancel": "Cancel",
+      "title": "Tinye ozi akaụnt gị",
+      "subtitle": "Akaụnt a bụ ebe ị ga-enweta ugwo nchekwa gị",
+      "bankLabel": "Ụlọ akụ",
+      "bankPlaceholder": "Họrọ ụlọ akụ gị",
+      "accountLabel": "Akaụnt",
+      "accountPlaceholder": "Tinye nọmba akaụnt gị",
+      "continue": "Gaa n'ihu",
+      "cancel": "Kagbuo",
       "errors": {
-        "bankRequired": "Please select a bank.",
-        "accountInvalid": "Enter a valid 10-digit account number."
+        "bankRequired": "Biko họrọ ụlọ akụ.",
+        "accountInvalid": "Tinye nọmba akaụnt ziri ezi nke digiti 10."
       }
     }
   },

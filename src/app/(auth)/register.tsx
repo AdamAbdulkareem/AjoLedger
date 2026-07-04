@@ -53,7 +53,7 @@ export default function RegisterScreen() {
 
     try {
       await register(normalizeEmail(email), password);
-      router.replace("/setup-pin");
+      router.replace("/setup-access-passcode");
     } catch (error) {
       const message =
         error instanceof ApiError

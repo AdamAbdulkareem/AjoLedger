@@ -13,12 +13,12 @@ export default function AppLayout() {
     return <Redirect href="/register" />;
   }
 
-  if (status === "needsPinSetup") {
-    return <Redirect href="/setup-pin" />;
+  if (status === "needsPasscodeSetup") {
+    return <Redirect href="/setup-access-passcode" />;
   }
 
-  if (status === "needsPinEntry") {
-    return <Redirect href="/enter-pin" />;
+  if (status === "needsPasscodeEntry") {
+    return <Redirect href="/enter-access-passcode" />;
   }
 
   return <Stack screenOptions={{ headerShown: false }} />;

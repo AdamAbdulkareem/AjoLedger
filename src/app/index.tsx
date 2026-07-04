@@ -16,6 +16,7 @@ import { Redirect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "../components/Button";
+import { AjoLedgerLogo } from "../components/AjoLedgerLogo";
 import { VoiceButton } from "../components/VoiceButton";
 import { useAuthStatus } from "../context/AuthProvider";
 import {
@@ -109,11 +110,11 @@ export default function Onboarding() {
     if (authStatus === "authenticated") {
       return <Redirect href="/(app)/home" />;
     }
-    if (authStatus === "needsPinEntry") {
-      return <Redirect href="/enter-pin" />;
+    if (authStatus === "needsPasscodeEntry") {
+      return <Redirect href="/enter-access-passcode" />;
     }
-    if (authStatus === "needsPinSetup") {
-      return <Redirect href="/setup-pin" />;
+    if (authStatus === "needsPasscodeSetup") {
+      return <Redirect href="/setup-access-passcode" />;
     }
     return <Redirect href="/register" />;
   }
@@ -155,6 +156,8 @@ export default function Onboarding() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <AjoLedgerLogo style={styles.logo} />
+
       <FlatList
         ref={listRef}
         data={slides}
@@ -164,6 +167,7 @@ export default function Onboarding() {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScrollEnd}
+        style={styles.list}
       />
 
       <View style={styles.footer}>
@@ -196,6 +200,12 @@ const createStyles = (theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.surface,
+    },
+    logo: {
+      marginTop: theme.spacing.xs,
+    },
+    list: {
+      flex: 1,
     },
     slide: {
       flex: 1,

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { localizeActivityItem } from "../../lib/localizeActivity";
 import type { ActivityType, RecentActivityItem } from "../../models/home";
-import { useThemedStyles, type Theme } from "../../theme";
+import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 type RecentActivitySectionProps = {
   items: RecentActivityItem[];
@@ -13,17 +13,20 @@ type RecentActivitySectionProps = {
   viewAllLabel: string;
 };
 
-function activityIconStyle(type: ActivityType): {
+function activityIconStyle(
+  type: ActivityType,
+  colors: Theme["colors"],
+): {
   name: keyof typeof Ionicons.glyphMap;
   bg: string;
 } {
   switch (type) {
     case "payment_paid":
-      return { name: "checkmark", bg: "#00B04A" };
+      return { name: "checkmark", bg: colors.activityPaidBg };
     case "contribution_reminder":
-      return { name: "receipt-outline", bg: "#8FB1D7" };
+      return { name: "receipt-outline", bg: colors.activityReminderBg };
     case "upcoming_payout":
-      return { name: "receipt-outline", bg: "#FFD56F" };
+      return { name: "receipt-outline", bg: colors.activityPayoutBg };
   }
 }
 
@@ -34,6 +37,7 @@ export function RecentActivitySection({
   viewAllLabel,
 }: RecentActivitySectionProps) {
   const { t, i18n } = useTranslation();
+  const theme = useTheme();
   const styles = useThemedStyles(createStyles);
 
   return (
@@ -51,10 +55,11 @@ export function RecentActivitySection({
 
       <View style={styles.list}>
         {items.map((item, index) => {
-          const icon = activityIconStyle(item.type);
+          const icon = activityIconStyle(item.type, theme.colors);
           const copy = localizeActivityItem(t, item, i18n.language);
           const isFirst = index === 0;
           const isLast = index === items.length - 1;
+          const isOnly = isFirst && isLast;
 
           return (
             <Pressable
@@ -63,9 +68,13 @@ export function RecentActivitySection({
               accessibilityRole="button"
               style={({ pressed }) => [
                 styles.item,
-                isFirst && styles.itemFirst,
-                isLast && styles.itemLast,
-                !isFirst && !isLast && styles.itemMiddle,
+                isOnly
+                  ? styles.itemOnly
+                  : isFirst
+                    ? styles.itemFirst
+                    : isLast
+                      ? styles.itemLast
+                      : styles.itemMiddle,
                 pressed && styles.pressed,
               ]}
             >
@@ -83,7 +92,11 @@ export function RecentActivitySection({
                 </View>
               </View>
 
-              <Ionicons name="chevron-forward" size={15} color="#2C3138" />
+              <Ionicons
+                name="chevron-forward"
+                size={15}
+                color={theme.colors.textPrimary}
+              />
             </Pressable>
           );
         })}
@@ -105,7 +118,7 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       ...theme.typography.captionMedium,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     viewAll: {
       ...theme.typography.captionMedium,
@@ -122,6 +135,10 @@ const createStyles = (theme: Theme) =>
       paddingHorizontal: 10,
       borderColor: theme.colors.activityListBorder,
       backgroundColor: theme.colors.surface,
+    },
+    itemOnly: {
+      borderWidth: 1,
+      borderRadius: 10,
     },
     itemFirst: {
       borderWidth: 1,
@@ -164,16 +181,16 @@ const createStyles = (theme: Theme) =>
     },
     itemTitle: {
       ...theme.typography.bodyMedium,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     itemSubtitle: {
       ...theme.typography.micro,
       fontFamily: theme.fontFamily.semibold,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     itemDate: {
       ...theme.typography.micro,
       fontFamily: theme.fontFamily.semibold,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
   });

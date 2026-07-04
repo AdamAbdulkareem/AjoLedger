@@ -40,7 +40,8 @@
         "expo-image-picker",
         {
           "photosPermission": "Allow AjoLedger to access your photos to update your profile picture.",
-          "cameraPermission": "Allow AjoLedger to use the camera to take your profile picture."
+          "cameraPermission": "Allow AjoLedger to use the camera to take your profile picture.",
+          "microphonePermission": false
         }
       ]
     ],

@@ -8,7 +8,7 @@ import { formatNaira } from "../../lib/formatMoney";
 import { formatDaysToGo, groupStatusKey } from "../../lib/homeSpeech";
 import { formatPayoutProgressLabel } from "../../lib/localizeActivity";
 import type { HomeDashboard } from "../../models/home";
-import { useThemedStyles, type Theme } from "../../theme";
+import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 type SavingsOverviewCardProps = {
   group: HomeDashboard["group"];
@@ -25,7 +25,8 @@ export function SavingsOverviewCard({
   onGroupPress,
   onDetailsPress,
 }: SavingsOverviewCardProps) {
-  const { t } = useTranslation();
+  const theme = useTheme();
+  const { t, i18n } = useTranslation();
   const styles = useThemedStyles(createStyles);
   const fillWidth = `${Math.min(Math.max(progress.percent, 0), 100)}%`;
   const frequencyLabel =
@@ -60,7 +61,7 @@ export function SavingsOverviewCard({
             </Text>
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={19} color="#2C3138" />
+        <Ionicons name="chevron-forward" size={19} color={theme.colors.textPrimary} />
       </Pressable>
 
       <View style={styles.statsRow}>
@@ -87,6 +88,7 @@ export function SavingsOverviewCard({
               progress.payoutNumber,
               progress.payoutAmountPaid,
               progress.payoutAmountTotal,
+              i18n.language,
             )}
           </Text>
         </View>
@@ -96,7 +98,7 @@ export function SavingsOverviewCard({
         <View style={styles.payoutCol}>
           <Text style={styles.label}>{t("home.nextPayout")}</Text>
           <View style={styles.payoutIconWrap}>
-            <Ionicons name="receipt-outline" size={24} color="#2C3138" />
+            <Ionicons name="receipt-outline" size={24} color={theme.colors.textPrimary} />
           </View>
           <Text style={styles.payoutDate}>{formatShortDate(payout.date)}</Text>
           <Text style={styles.payoutCountdown}>
@@ -112,12 +114,12 @@ export function SavingsOverviewCard({
         style={({ pressed }) => [styles.detailsRow, pressed && styles.pressed]}
       >
         <View style={styles.detailsLeft}>
-          <Ionicons name="document-text-outline" size={20} color="#2C3138" />
+          <Ionicons name="document-text-outline" size={20} color={theme.colors.textPrimary} />
           <Text style={styles.detailsText}>
             {t("home.viewSavingsDetails")}
           </Text>
         </View>
-        <Ionicons name="chevron-forward" size={12} color="#2C3138" />
+        <Ionicons name="chevron-forward" size={12} color={theme.colors.textPrimary} />
       </Pressable>
     </View>
   );
@@ -160,7 +162,7 @@ const createStyles = (theme: Theme) =>
     },
     groupName: {
       ...theme.typography.subtitle,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     badge: {
       paddingHorizontal: 8,
@@ -174,7 +176,7 @@ const createStyles = (theme: Theme) =>
     },
     cycle: {
       ...theme.typography.caption,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     statsRow: {
       flexDirection: "row",
@@ -198,7 +200,7 @@ const createStyles = (theme: Theme) =>
     },
     label: {
       ...theme.typography.captionMedium,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     stat: {
       ...theme.typography.progressStat,
@@ -217,12 +219,12 @@ const createStyles = (theme: Theme) =>
     },
     memberCount: {
       ...theme.typography.captionMedium,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     payoutProgress: {
       ...theme.typography.micro,
       fontFamily: theme.fontFamily.semibold,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     payoutIconWrap: {
       alignSelf: "flex-start",
@@ -232,11 +234,11 @@ const createStyles = (theme: Theme) =>
     },
     payoutDate: {
       ...theme.typography.captionMedium,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     payoutCountdown: {
       ...theme.typography.caption,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
     detailsRow: {
       flexDirection: "row",
@@ -255,6 +257,6 @@ const createStyles = (theme: Theme) =>
     detailsText: {
       ...theme.typography.micro,
       fontFamily: theme.fontFamily.semibold,
-      color: theme.colors.figmaBlack,
+      color: theme.colors.textPrimary,
     },
   });

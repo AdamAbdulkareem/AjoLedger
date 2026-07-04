@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -11,7 +14,10 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "../Button";
 import { TextField } from "../TextField";
-import { normalizeAccountNumber } from "../../lib/payoutAccountValidation";
+import {
+  isValidNuban,
+  normalizeAccountNumber,
+} from "../../lib/payoutAccountValidation";
 import { showBankPicker } from "../../lib/showBankPicker";
 import {
   findBankByCode,
@@ -21,7 +27,7 @@ import type {
   PayoutAccount,
   SavePayoutAccountPayload,
 } from "../../models/payoutAccount";
-import { useThemedStyles, type Theme } from "../../theme";
+import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 type BankDetailsModalProps = {
   visible: boolean;
@@ -44,6 +50,7 @@ export function BankDetailsModal({
   initialAccount,
 }: BankDetailsModalProps) {
   const { t } = useTranslation();
+  const theme = useTheme();
   const styles = useThemedStyles(createStyles);
 
   const [selectedBank, setSelectedBank] = useState<NigerianBank | null>(null);
@@ -94,7 +101,7 @@ export function BankDetailsModal({
     }
 
     const normalized = normalizeAccountNumber(accountNumber);
-    if (!/^\d{10}$/.test(normalized)) {
+    if (!isValidNuban(normalized)) {
       setAccountError(t("home.bankDetails.errors.accountInvalid"));
       valid = false;
     }
@@ -112,6 +119,76 @@ export function BankDetailsModal({
     }
   };
 
+  const form = (
+    <ScrollView
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.formContent}
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>{t("home.bankDetails.title")}</Text>
+        <Text style={styles.subtitle}>{t("home.bankDetails.subtitle")}</Text>
+      </View>
+
+      <View style={styles.fieldGroup}>
+        <Text style={styles.fieldLabel}>{t("home.bankDetails.bankLabel")}</Text>
+        <Pressable
+          onPress={handleBankPress}
+          accessibilityRole="button"
+          accessibilityLabel={t("home.bankDetails.bankLabel")}
+          style={({ pressed }) => [
+            styles.bankRow,
+            bankError && styles.fieldError,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Text
+            style={[
+              styles.bankValue,
+              !selectedBank && styles.bankPlaceholder,
+            ]}
+          >
+            {selectedBank?.name ?? t("home.bankDetails.bankPlaceholder")}
+          </Text>
+          <Ionicons name="chevron-down" size={18} color={theme.colors.textPrimary} />
+        </Pressable>
+        {bankError ? <Text style={styles.errorText}>{bankError}</Text> : null}
+      </View>
+
+      <TextField
+        label={t("home.bankDetails.accountLabel")}
+        value={accountNumber}
+        onChangeText={(text) => {
+          setAccountNumber(normalizeAccountNumber(text));
+          setAccountError(undefined);
+        }}
+        placeholder={t("home.bankDetails.accountPlaceholder")}
+        error={accountError}
+        keyboardType="number-pad"
+        autoComplete="off"
+        textContentType="none"
+      />
+
+      {error ? <Text style={styles.formError}>{error}</Text> : null}
+
+      <Button
+        label={t("home.bankDetails.continue")}
+        onPress={() => void handleSubmit()}
+        disabled={saving}
+        style={styles.submitButton}
+      />
+
+      {dismissible ? (
+        <Button
+          label={t("home.bankDetails.cancel")}
+          onPress={handleClose}
+          variant="secondary"
+          disabled={saving}
+        />
+      ) : null}
+    </ScrollView>
+  );
+
   return (
     <Modal
       visible={visible}
@@ -119,91 +196,34 @@ export function BankDetailsModal({
       animationType="fade"
       onRequestClose={dismissible ? handleClose : undefined}
     >
-      {dismissible ? (
-        <Pressable style={styles.overlay} onPress={handleClose}>
-          <Pressable style={styles.card} onPress={(event) => event.stopPropagation()}>
-            {renderForm()}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        {dismissible ? (
+          <Pressable style={styles.overlay} onPress={handleClose}>
+            <Pressable
+              style={styles.card}
+              onPress={(event) => event.stopPropagation()}
+            >
+              {form}
+            </Pressable>
           </Pressable>
-        </Pressable>
-      ) : (
-        <View style={styles.overlay}>
-          <View style={styles.card}>{renderForm()}</View>
-        </View>
-      )}
+        ) : (
+          <View style={styles.overlay}>
+            <View style={styles.card}>{form}</View>
+          </View>
+        )}
+      </KeyboardAvoidingView>
     </Modal>
   );
-
-  function renderForm() {
-    return (
-      <>
-          <View style={styles.header}>
-            <Text style={styles.title}>{t("home.bankDetails.title")}</Text>
-            <Text style={styles.subtitle}>{t("home.bankDetails.subtitle")}</Text>
-          </View>
-
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>{t("home.bankDetails.bankLabel")}</Text>
-            <Pressable
-              onPress={handleBankPress}
-              accessibilityRole="button"
-              accessibilityLabel={t("home.bankDetails.bankLabel")}
-              style={({ pressed }) => [
-                styles.bankRow,
-                bankError && styles.fieldError,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.bankValue,
-                  !selectedBank && styles.bankPlaceholder,
-                ]}
-              >
-                {selectedBank?.name ?? t("home.bankDetails.bankPlaceholder")}
-              </Text>
-              <Ionicons name="chevron-down" size={18} color="#2C3138" />
-            </Pressable>
-            {bankError ? <Text style={styles.errorText}>{bankError}</Text> : null}
-          </View>
-
-          <TextField
-            label={t("home.bankDetails.accountLabel")}
-            value={accountNumber}
-            onChangeText={(text) => {
-              setAccountNumber(normalizeAccountNumber(text));
-              setAccountError(undefined);
-            }}
-            placeholder={t("home.bankDetails.accountPlaceholder")}
-            error={accountError}
-            keyboardType="number-pad"
-            autoComplete="off"
-            textContentType="none"
-          />
-
-          {error ? <Text style={styles.formError}>{error}</Text> : null}
-
-          <Button
-            label={t("home.bankDetails.continue")}
-            onPress={() => void handleSubmit()}
-            disabled={saving}
-            style={styles.submitButton}
-          />
-
-          {dismissible ? (
-            <Button
-              label={t("home.bankDetails.cancel")}
-              onPress={handleClose}
-              variant="secondary"
-              disabled={saving}
-            />
-          ) : null}
-      </>
-    );
-  }
 }
 
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
+    keyboardAvoid: {
+      flex: 1,
+    },
     overlay: {
       flex: 1,
       backgroundColor: "rgba(223, 227, 233, 0.7)",
@@ -216,6 +236,9 @@ const createStyles = (theme: Theme) =>
       paddingHorizontal: theme.spacing.lg,
       paddingTop: theme.spacing.lg,
       paddingBottom: theme.spacing.lg,
+      maxHeight: "90%",
+    },
+    formContent: {
       gap: theme.spacing.md,
     },
     header: {

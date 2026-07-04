@@ -34,7 +34,7 @@ const createStyles = (theme: Theme) =>
       ...theme.typography.title,
       fontFamily: theme.fontFamily.semibold,
       fontWeight: "700",
-      color: "#181C21",
+      color: theme.colors.textPrimary,
       textAlign: "center",
     },
   });
