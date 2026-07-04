@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -34,6 +35,7 @@ const PayoutAccountContext = createContext<PayoutAccountContextValue | null>(
 export function PayoutAccountProvider({ children }: { children: ReactNode }) {
   const { accessToken, user } = useAuth();
   const userId = user?.id;
+  const requestIdRef = useRef(0);
 
   const [hasPayoutAccount, setHasPayoutAccount] = useState<boolean | null>(null);
   const [account, setAccount] = useState<PayoutAccount | null>(null);
@@ -42,7 +44,10 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
+
     if (!accessToken || !userId) {
+      if (requestId !== requestIdRef.current) return;
       setHasPayoutAccount(null);
       setAccount(null);
       setLoading(false);
@@ -54,9 +59,11 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
 
     try {
       const status = await getPayoutAccountStatus(accessToken, userId);
+      if (requestId !== requestIdRef.current) return;
       setHasPayoutAccount(status.configured);
       setAccount(status.account);
     } catch (err) {
+      if (requestId !== requestIdRef.current) return;
       setHasPayoutAccount(null);
       setError(
         err instanceof ApiError
@@ -64,47 +71,14 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
           : "Something went wrong. Please try again.",
       );
     } finally {
+      if (requestId !== requestIdRef.current) return;
       setLoading(false);
     }
   }, [accessToken, userId]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      if (!accessToken || !userId) {
-        if (cancelled) return;
-        setHasPayoutAccount(null);
-        setAccount(null);
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const status = await getPayoutAccountStatus(accessToken, userId);
-        if (cancelled) return;
-        setHasPayoutAccount(status.configured);
-        setAccount(status.account);
-      } catch (err) {
-        if (cancelled) return;
-        setHasPayoutAccount(null);
-        setError(
-          err instanceof ApiError
-            ? err.message
-            : "Something went wrong. Please try again.",
-        );
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken, userId]);
+    void refresh();
+  }, [refresh]);
 
   const save = useCallback(
     async (payload: SavePayoutAccountPayload): Promise<boolean> => {
@@ -114,9 +88,9 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       try {
-        await savePayoutAccount(accessToken, userId, payload);
+        const savedAccount = await savePayoutAccount(accessToken, userId, payload);
         setHasPayoutAccount(true);
-        setAccount(payload);
+        setAccount(savedAccount);
         return true;
       } catch (err) {
         setError(

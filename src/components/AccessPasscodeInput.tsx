@@ -47,8 +47,6 @@ export function AccessPasscodeInput({
   );
 }
 
-export { ACCESS_PASSCODE_LENGTH };
-
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {

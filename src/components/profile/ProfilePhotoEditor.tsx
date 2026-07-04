@@ -22,7 +22,7 @@ export function ProfilePhotoEditor({
     <View style={styles.container}>
       <AvatarWithEditBadge
         avatarUri={avatarUri}
-        imageAccessibilityLabel={t("profile.editPhoto.title")}
+        imageAccessibilityLabel={t("profile.avatarImageLabel")}
         editAccessibilityLabel={t("profile.editPhoto.title")}
         onEditPress={onEditPhotoPress}
       />

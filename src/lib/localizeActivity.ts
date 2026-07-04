@@ -59,7 +59,7 @@ function ordinalSuffix(n: number): string {
 }
 
 function formatPayoutNumber(payoutNumber: number, locale?: string): string {
-  if (!locale || locale.startsWith("en")) {
+  if (!locale || locale.toLowerCase().startsWith("en")) {
     return `${payoutNumber}${ordinalSuffix(payoutNumber)}`;
   }
   return String(payoutNumber);
@@ -87,6 +87,9 @@ export function formatAmountRemainsDue(
   const date = formatShortDate(dueDate);
   if (daysUntilDue <= 0) {
     return t("home.dueTodayDash", { date });
+  }
+  if (daysUntilDue === 1) {
+    return t("home.dueInDayDash", { date });
   }
   return t("home.dueInDaysDash", { count: daysUntilDue, date });
 }

@@ -1,8 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { pbkdf2 } from "@noble/hashes/pbkdf2.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { bytesToHex, hexToBytes, utf8ToBytes } from "@noble/hashes/utils.js";
+import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 export const ACCESS_PASSCODE_LENGTH = 6;
+
+const PBKDF2_ITERATIONS = 100_000;
+const PBKDF2_DK_LEN = 32;
 
 const ACCESS_PASSCODE_HASH_PREFIX = "auth_access_passcode_hash_";
 const ACCESS_PASSCODE_SALT_PREFIX = "auth_access_passcode_salt_";
@@ -72,12 +79,13 @@ async function readStoredCredentials(userId: string): Promise<{
   };
 }
 
-function createSalt(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+async function createSalt(): Promise<string> {
+  const bytes = await Crypto.getRandomBytesAsync(16);
+  return bytesToHex(bytes);
 }
 
-/** Deterministic salted hash for local app-unlock verification. */
-export function hashAccessPasscode(passcode: string, salt: string): string {
+/** @deprecated Pre-PBKDF2 verifier kept for existing local passcodes. */
+function hashAccessPasscodeLegacy(passcode: string, salt: string): string {
   const input = `${salt}:${passcode}`;
   let h1 = 0x811c9dc5;
   let h2 = 0x01000193;
@@ -91,12 +99,20 @@ export function hashAccessPasscode(passcode: string, salt: string): string {
   return `${(h1 >>> 0).toString(16).padStart(8, "0")}${(h2 >>> 0).toString(16).padStart(8, "0")}`;
 }
 
+function hashAccessPasscode(passcode: string, saltHex: string): string {
+  const derived = pbkdf2(sha256, utf8ToBytes(passcode), hexToBytes(saltHex), {
+    c: PBKDF2_ITERATIONS,
+    dkLen: PBKDF2_DK_LEN,
+  });
+  return bytesToHex(derived);
+}
+
 export function normalizeAccessPasscode(input: string): string {
   return input.replace(/\D/g, "").slice(0, ACCESS_PASSCODE_LENGTH);
 }
 
 export function isValidAccessPasscode(passcode: string): boolean {
-  return /^\d{6}$/.test(passcode);
+  return new RegExp(`^\\d{${ACCESS_PASSCODE_LENGTH}}$`).test(passcode);
 }
 
 export async function hasAccessPasscode(userId: string): Promise<boolean> {
@@ -116,7 +132,7 @@ export async function saveAccessPasscode(
     throw new Error("Access passcode must be 6 digits.");
   }
 
-  const salt = createSalt();
+  const salt = await createSalt();
   const hash = hashAccessPasscode(passcode, salt);
 
   await Promise.all([
@@ -137,7 +153,12 @@ export async function verifyAccessPasscode(
   try {
     const { hash: storedHash, salt } = await readStoredCredentials(userId);
     if (!storedHash || !salt) return false;
-    return hashAccessPasscode(passcode, salt) === storedHash;
+
+    if (storedHash.length === PBKDF2_DK_LEN * 2) {
+      return hashAccessPasscode(passcode, salt) === storedHash;
+    }
+
+    return hashAccessPasscodeLegacy(passcode, salt) === storedHash;
   } catch {
     return false;
   }

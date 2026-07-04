@@ -4,11 +4,10 @@ import { Redirect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import {
-  ACCESS_PASSCODE_LENGTH,
-  AccessPasscodeInput,
-} from "../components/AccessPasscodeInput";
+import { AccessPasscodeInput } from "../components/AccessPasscodeInput";
+import { ACCESS_PASSCODE_LENGTH } from "../lib/accessPasscodeStorage";
 import { Button } from "../components/Button";
+import { AjoLedgerLogo } from "../components/AjoLedgerLogo";
 import { useAuth } from "../context/AuthProvider";
 import { ApiError } from "../api/client";
 import { useThemedStyles, type Theme } from "../theme";
@@ -86,6 +85,7 @@ export default function SetupAccessPasscodeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AjoLedgerLogo style={styles.logo} />
       <View style={styles.content}>
         <AccessPasscodeInput
           label={t("auth.createAccessPasscodeTitle")}
@@ -120,10 +120,15 @@ const createStyles = (theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.surface,
-      padding: theme.spacing.lg,
-      justifyContent: "center",
+      paddingHorizontal: theme.spacing.lg,
+      paddingBottom: theme.spacing.lg,
+    },
+    logo: {
+      marginTop: theme.spacing.sm,
     },
     content: {
+      flex: 1,
+      justifyContent: "center",
       gap: theme.spacing.lg,
     },
     formError: {

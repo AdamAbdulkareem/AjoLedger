@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AjoLedgerLogo } from "./AjoLedgerLogo";
 import { LanguagePicker } from "./LanguagePicker";
 import { useThemedStyles, type Theme } from "../theme";
 
@@ -29,6 +30,7 @@ export function AuthScreenLayout({ children, footer }: AuthScreenLayoutProps) {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
+          <AjoLedgerLogo style={styles.logo} />
           <View style={styles.content}>{children}</View>
           {footer}
         </ScrollView>
@@ -52,9 +54,11 @@ const createStyles = (theme: Theme) =>
     scrollContent: {
       flexGrow: 1,
       paddingHorizontal: theme.spacing.md,
-      paddingTop: theme.spacing.xl,
+      paddingTop: theme.spacing.sm,
       paddingBottom: theme.spacing.lg,
-      justifyContent: "center",
+    },
+    logo: {
+      marginBottom: theme.spacing.lg,
     },
     content: {
       gap: theme.spacing.lg,

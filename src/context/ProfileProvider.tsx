@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -34,56 +35,39 @@ const ProfileContext = createContext<ProfileContextValue | null>(null);
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user, accessToken, status, updateSessionUser } = useAuth();
+  const requestIdRef = useRef(0);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [pendingUpdateSuccess, setPendingUpdateSuccess] = useState(false);
 
   const refreshProfile = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
+
     if (!accessToken || !user || status !== "authenticated") {
+      if (requestId !== requestIdRef.current) return;
       setProfile(null);
+      setLoading(false);
       return;
     }
 
     setLoading(true);
     try {
       const data = await getUserProfile(accessToken, user.id, user.email);
+      if (requestId !== requestIdRef.current) return;
       setProfile(data);
     } catch {
+      if (requestId !== requestIdRef.current) return;
       // Keep the last known profile on transient fetch failures.
     } finally {
+      if (requestId !== requestIdRef.current) return;
       setLoading(false);
     }
   }, [accessToken, user, status]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      if (!accessToken || !user || status !== "authenticated") {
-        if (cancelled) return;
-        setProfile(null);
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const data = await getUserProfile(accessToken, user.id, user.email);
-        if (cancelled) return;
-        setProfile(data);
-      } catch {
-        if (cancelled) return;
-        // Keep the last known profile on transient fetch failures.
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken, user, status]);
+    void refreshProfile();
+  }, [refreshProfile]);
 
   const updateProfile = useCallback(
     async (payload: UpdateProfilePayload) => {

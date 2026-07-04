@@ -75,6 +75,7 @@
     "viewSavingsDetails": "View my savings details",
     "amountRemains": "Amount Remains",
     "payNow": "Pay Now",
+    "dueInDayDash": "Due in 1 day - {{date}}",
     "dueInDaysDash": "Due in {{count}} days - {{date}}",
     "dueTodayDash": "Due today - {{date}}",
     "dueTodayShort": "Due today",
@@ -165,6 +166,7 @@
         "invalidPhone": "Enter a valid 11-digit Nigerian phone number."
       }
     },
+    "avatarImageLabel": "Profile picture",
     "editPhoto": {
       "title": "Edit Profile Picture",
       "chooseAvatar": "Choose Avatar",
