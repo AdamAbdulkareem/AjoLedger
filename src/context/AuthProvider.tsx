@@ -24,6 +24,7 @@ import {
   setPinConfigured,
   setStoredUser,
 } from "../lib/authStorage";
+import { isMockAccessToken, shouldUseLiveRegisterLogin } from "../config/api";
 import type { AuthStatus, User } from "../models/auth";
 
 type AuthContextValue = {
@@ -35,6 +36,7 @@ type AuthContextValue = {
   setupPin: (pin: string) => Promise<void>;
   verifyPin: (pin: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateSessionUser: (nextUser: User) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -65,6 +67,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           getAccessToken(),
           getStoredUser(),
         ]);
+
+        if (shouldUseLiveRegisterLogin() && isMockAccessToken(token)) {
+          await clearSessionStorage();
+          if (cancelled) return;
+          setAccessTokenState(null);
+          setUser(null);
+          setPinUnlocked(false);
+          setStatus("unauthenticated");
+          return;
+        }
+
         const pinConfigured = storedUser
           ? await getPinConfigured(storedUser.id)
           : false;
@@ -158,6 +171,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStatus("unauthenticated");
   }, []);
 
+  const updateSessionUser = useCallback(async (nextUser: User) => {
+    await setStoredUser(nextUser);
+    setUser(nextUser);
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       status,
@@ -168,8 +186,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setupPin,
       verifyPin,
       logout,
+      updateSessionUser,
     }),
-    [status, user, accessToken, register, login, setupPin, verifyPin, logout],
+    [
+      status,
+      user,
+      accessToken,
+      register,
+      login,
+      setupPin,
+      verifyPin,
+      logout,
+      updateSessionUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

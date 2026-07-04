@@ -16,6 +16,17 @@ export const colors = {
   payoutIcon: "#C77700",
   divider: "#A0ACBE",
   cardFooterBg: "#FAFBFC",
+  savingsCardBg: "#FFF5E6",
+  cardBorderMuted: "#BFC7D3",
+  activityListBorder: "#DDE6F2",
+  viewAllLink: "#5D7C9D",
+  amountDue: "#E72424",
+  payoutIconBgAlt: "#FFDF9C",
+  activityReminderBg: "#8FB1D7",
+  activityPaidBg: "#00B04A",
+  activityPayoutBg: "#FFD56F",
+  avatarOnline: "#43B75D",
+  figmaBlack: "#000000",
 } as const;
 
 export const shadows = {
@@ -70,6 +81,26 @@ export const typography = {
   caption: {
     fontFamily: fontFamily.regular,
     fontSize: 12,
+    lineHeight: 16,
+  },
+  captionMedium: {
+    fontFamily: fontFamily.semibold,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  bodyMedium: {
+    fontFamily: fontFamily.semibold,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  progressStat: {
+    fontFamily: fontFamily.semibold,
+    fontSize: 18,
+    lineHeight: 28,
+  },
+  amountRemainsLabel: {
+    fontFamily: fontFamily.semibold,
+    fontSize: 14,
     lineHeight: 16,
   },
   subtitle: {

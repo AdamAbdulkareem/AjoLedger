@@ -22,7 +22,7 @@ export function AjoLedgerLogoMark({
         {
           width: size,
           height: size,
-          borderRadius: variant === "circle" ? size / 2 : 8,
+          borderRadius: variant === "circle" ? size / 2 : 6,
         },
       ]}
     >

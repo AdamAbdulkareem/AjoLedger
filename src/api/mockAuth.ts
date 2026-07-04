@@ -9,6 +9,23 @@ type EmailPasswordPayload = {
 const mockUsers = new Map<string, { password: string; user: User }>();
 const mockPins = new Map<string, string>();
 
+export function mockUpdateUserEmail(userId: string, newEmail: string): User {
+  for (const [key, entry] of mockUsers.entries()) {
+    if (entry.user.id !== userId) continue;
+
+    if (key !== newEmail && mockUsers.has(newEmail)) {
+      throw new ApiError("An account with this email already exists.");
+    }
+
+    const updatedUser: User = { ...entry.user, email: newEmail };
+    mockUsers.delete(key);
+    mockUsers.set(newEmail, { ...entry, user: updatedUser });
+    return updatedUser;
+  }
+
+  throw new ApiError("User not found.");
+}
+
 const INVALID_CREDENTIALS = "Invalid email or password.";
 
 function mockDelay() {

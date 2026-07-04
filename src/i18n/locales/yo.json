@@ -38,7 +38,6 @@
     "enterPinTitle": "Tẹ PIN rẹ",
     "enterPinSubtitle": "Tẹ PIN oni-nọmba 4 rẹ lati tẹsiwaju.",
     "useAnotherAccount": "Lo akọọlẹ miiran",
-    "mockModeHint": "Demo mode — auth runs locally without the backend.",
     "socialComingSoonTitle": "Nbọ laipe",
     "socialComingSoonBody": "Wiwọle Google ati Apple yoo wa nigba ti backend ba setan.",
     "errors": {
@@ -61,18 +60,18 @@
     "groupCompleted": "Parí",
     "cycleMonthly": "Oṣooṣu",
     "cycleWeekly": "Ọsẹ",
-    "cycleAmount": "{{frequency}} • {{amount}} fun enikan",
+    "cycleAmount": "{{frequency}} . {{amount}} fun enikan",
     "myProgress": "Ilọsiwaju Mi",
-    "contributed": "{{paid}} ninu {{total}} ti a fi sílẹ̀",
+    "memberCount": "{{count}} members",
+    "payoutProgress": "{{number}} payout  - {{paid}} out of {{total}}",
     "nextPayout": "Owo Ti N Bo",
     "daysToGo": "{{count}} ọjọ ku",
     "dayToGo": "ọjọ 1 ku",
     "viewSavingsDetails": "Wo alaye akoko mi",
-    "nextContribution": "Idapọ Ti N Bo",
-    "howToPay": "Bawo ni a ṣe san",
-    "dueInDaysWithDate": "Yoo pe ni ọjọ {{count}} • {{date}}",
-    "dueTomorrowWithDate": "Yoo pe lọla • {{date}}",
-    "dueTodayWithDate": "Yoo pe loni • {{date}}",
+    "amountRemains": "Amount Remains",
+    "payNow": "Pay Now",
+    "dueInDaysDash": "Due in {{count}}days - {{date}}",
+    "dueTodayDash": "Due today - {{date}}",
     "dueTodayShort": "Yoo pe loni",
     "recentActivity": "Iṣẹ Laipe",
     "viewAll": "Wo gbogbo",
@@ -92,18 +91,86 @@
       "profile": "Profaili"
     },
     "activity": {
-      "paymentReceived": {
-        "title": "A gba owo",
+      "paymentPaid": {
+        "title": "A san owo",
         "subtitle": "O san {{amount}}"
       },
       "contributionReminder": {
         "title": "Irannilétí owo",
-        "subtitle": "Owo rẹ ti n bọ"
+        "subtitle": "Your next contribution due next week"
       },
       "upcomingPayout": {
-        "title": "Owo ti n bọ",
-        "subtitle": "{{name}} yoo gba"
+        "title": "Upcoming Payout",
+        "subtitle": "{{name}} will recieve payment next"
       }
+    },
+    "bankDetails": {
+      "title": "Input Your Account details",
+      "subtitle": "This account will be where you will receive your contribution payout",
+      "bankLabel": "Bank",
+      "bankPlaceholder": "Select your bank",
+      "accountLabel": "Account",
+      "accountPlaceholder": "Enter your Account number",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "errors": {
+        "bankRequired": "Please select a bank.",
+        "accountInvalid": "Enter a valid 10-digit account number."
+      }
+    }
+  },
+  "profile": {
+    "title": "Profaili",
+    "defaultName": "Omọ ẹgbẹ",
+    "sections": {
+      "account": "Akọọlẹ",
+      "security": "Aabo",
+      "preferences": "Awọn ayanfẹ",
+      "helpSupport": "Iranlọwọ & Atilẹyin"
+    },
+    "rows": {
+      "editProfile": "Ṣatunkọ Profaili",
+      "changePassword": "Yi Password Padà",
+      "biometrics": "Biometrics",
+      "privacyPolicy": "Ilana Asiri",
+      "bankDetails": "Alaye Banki",
+      "pushNotifications": "Awọn Ifitonileti",
+      "language": "Ede",
+      "faq": "FAQ",
+      "contactSupport": "Kan si Atileyin",
+      "deleteAccount": "Pa Akọọlẹ"
+    },
+    "logoutTitle": "Jade",
+    "logoutMessage": "Ṣe o da ọ loju pe o fẹ jade?",
+    "logoutConfirm": "Jade",
+    "logoutCancel": "Fagilee",
+    "edit": {
+      "title": "Ṣatunkọ Profaili",
+      "changePhoto": "Yi aworan pada",
+      "fullNameLabel": "Orukọ Kikun",
+      "emailLabel": "Adirẹsi Imẹẹli",
+      "phoneLabel": "Nọmba Foonu",
+      "phonePlaceholder": "07063859232",
+      "saveChanges": "Fi Awọn Ayipada Pamọ",
+      "cancel": "Fagilee",
+      "successMessage": "A ti ṣatunkọ profaili ni aṣeyọri",
+      "errors": {
+        "fullNameRequired": "Orukọ kikun jẹ dandan.",
+        "invalidEmail": "Imẹẹli ko tọ. Jọwọ gbiyanju lẹkan si.",
+        "invalidPhone": "Tẹ nọmba foonu Naijiria ti o tọ 11-digit."
+      }
+    },
+    "editPhoto": {
+      "title": "Ṣatunkọ Aworan Profaili",
+      "chooseAvatar": "Yan Avatar",
+      "takePhoto": "Ya Aworan",
+      "choosePhoto": "Yan Aworan",
+      "deletePhoto": "Pa Aworan",
+      "cancel": "Fagilee",
+      "permissionTitle": "A nilo igbanilaaye",
+      "permissionBody": "Jọwọ gba iraye si kamẹra tabi awọn aworan lati ṣatunkọ aworan profaili rẹ.",
+      "webUnavailable": "Aworan ko si lori wẹẹbu ninu demo yii.",
+      "updateFailed": "Ko le ṣatunkọ aworan profaili rẹ. Jọwọ gbiyanju lẹkan si."
     }
   },
   "language": {

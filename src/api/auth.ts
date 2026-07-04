@@ -1,4 +1,4 @@
-import { USE_MOCK_AUTH } from "../config/api";
+import { shouldUseLiveRegisterLogin, USE_MOCK_AUTH } from "../config/api";
 import { apiRequest } from "./client";
 import {
   mockLogin,
@@ -18,7 +18,7 @@ type TransactionPinPayload = {
 };
 
 export async function registerUser(payload: EmailPasswordPayload) {
-  if (USE_MOCK_AUTH) return mockRegister(payload);
+  if (!shouldUseLiveRegisterLogin()) return mockRegister(payload);
 
   return apiRequest<AuthData>("/auth/register", {
     method: "POST",
@@ -27,7 +27,7 @@ export async function registerUser(payload: EmailPasswordPayload) {
 }
 
 export async function loginUser(payload: EmailPasswordPayload) {
-  if (USE_MOCK_AUTH) return mockLogin(payload);
+  if (!shouldUseLiveRegisterLogin()) return mockLogin(payload);
 
   return apiRequest<AuthData>("/auth/login", {
     method: "POST",

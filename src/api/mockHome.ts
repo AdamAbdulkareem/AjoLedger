@@ -15,48 +15,48 @@ export async function mockGetHomeDashboard(
   await mockDelay();
 
   return success("Dashboard loaded", {
-    displayName: displayName ?? "Amina",
+    displayName: displayName ?? "Kashi",
     avatarUrl: null,
     group: {
-      id: "mock-group-kano",
-      name: "Kano Market Women Ajo",
+      id: "mock-group-afijo",
+      name: "Afijo Community Ajo",
       status: "active",
-      cycleFrequency: "monthly",
-      amountPerMember: 10_000,
+      cycleFrequency: "weekly",
+      amountPerMember: 50_000,
     },
     progress: {
       percent: 70,
-      amountPaid: 140_000,
-      expectedTotal: 200_000,
+      memberCount: 10,
+      payoutNumber: 7,
+      payoutAmountPaid: 350_000,
+      payoutAmountTotal: 500_000,
     },
     payout: {
-      date: "2025-05-28T00:00:00.000Z",
-      daysRemaining: 3,
+      date: "2026-07-09T00:00:00.000Z",
+      daysRemaining: 4,
     },
-    nextContribution: {
-      amount: 10_000,
-      dueDate: "2025-05-20T00:00:00.000Z",
+    amountRemains: {
+      amount: 20_000,
+      dueDate: "2026-07-09T00:00:00.000Z",
       daysUntilDue: 5,
     },
     recentActivity: [
       {
         id: "act-1",
-        type: "payment_received",
-        occurredAt: "2025-05-15T08:30:00.000Z",
-        amount: 10_000,
+        type: "contribution_reminder",
+        occurredAt: "2026-06-16T09:30:00.000Z",
       },
       {
         id: "act-2",
-        type: "contribution_reminder",
-        occurredAt: "2025-05-20T00:00:00.000Z",
-        showChevron: true,
+        type: "payment_paid",
+        occurredAt: "2026-06-16T09:30:00.000Z",
+        amount: 10_000,
       },
       {
         id: "act-3",
         type: "upcoming_payout",
-        occurredAt: "2025-05-28T00:00:00.000Z",
-        recipientName: "Aisha Bello",
-        showChevron: true,
+        occurredAt: "2026-06-14T09:30:00.000Z",
+        recipientName: "Ibrahim sherif",
       },
     ],
   });

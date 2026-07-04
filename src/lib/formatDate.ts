@@ -34,11 +34,13 @@ export function formatActivityTimestamp(
     return datePart;
   }
 
-  const timePart = date.toLocaleTimeString(locale, {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const timePart = date
+    .toLocaleTimeString(locale, {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(/\s/g, "");
 
-  return `${datePart} • ${timePart}`;
+  return `${datePart} . ${timePart}`;
 }

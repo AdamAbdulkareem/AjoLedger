@@ -35,7 +35,14 @@
           }
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow AjoLedger to access your photos to update your profile picture.",
+          "cameraPermission": "Allow AjoLedger to use the camera to take your profile picture."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

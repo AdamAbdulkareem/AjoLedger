@@ -1,6 +1,7 @@
 import type { TFunction } from "i18next";
 
 import { formatShortDate } from "./formatDate";
+import { formatAmountRemainsDue, formatPayoutProgressLabel } from "./localizeActivity";
 import { formatNaira } from "./formatMoney";
 import { localizeActivityItem } from "./localizeActivity";
 import type { HomeDashboard } from "../models/home";
@@ -22,12 +23,9 @@ export function buildHomeSpeechText(
       ),
       amount: formatNaira(dashboard.group.amountPerMember),
     }),
-    `${t("home.myProgress")}. ${dashboard.progress.percent}%. ${t("home.contributed", {
-      paid: formatNaira(dashboard.progress.amountPaid),
-      total: formatNaira(dashboard.progress.expectedTotal),
-    })}`,
+    `${t("home.myProgress")}. ${dashboard.progress.percent}%. ${t("home.memberCount", { count: dashboard.progress.memberCount })}. ${formatPayoutProgressLabel(t, dashboard.progress.payoutNumber, dashboard.progress.payoutAmountPaid, dashboard.progress.payoutAmountTotal)}`,
     `${t("home.nextPayout")}. ${formatShortDate(dashboard.payout.date)}. ${formatDaysToGo(t, dashboard.payout.daysRemaining)}.`,
-    `${t("home.nextContribution")}. ${formatNaira(dashboard.nextContribution.amount)}. ${formatContributionDue(t, dashboard.nextContribution.daysUntilDue, dashboard.nextContribution.dueDate)}.`,
+    `${t("home.amountRemains")}. ${formatNaira(dashboard.amountRemains.amount)}. ${formatAmountRemainsDue(t, dashboard.amountRemains.daysUntilDue, dashboard.amountRemains.dueDate)}.`,
   ];
 
   for (const item of dashboard.recentActivity) {
@@ -42,17 +40,6 @@ export function formatDaysToGo(t: TFunction, days: number): string {
   if (days <= 0) return t("home.dueTodayShort");
   if (days === 1) return t("home.dayToGo");
   return t("home.daysToGo", { count: days });
-}
-
-export function formatContributionDue(
-  t: TFunction,
-  daysUntilDue: number,
-  dueDate: string,
-): string {
-  const date = formatShortDate(dueDate);
-  if (daysUntilDue <= 0) return t("home.dueTodayWithDate", { date });
-  if (daysUntilDue === 1) return t("home.dueTomorrowWithDate", { date });
-  return t("home.dueInDaysWithDate", { count: daysUntilDue, date });
 }
 
 export function groupStatusKey(

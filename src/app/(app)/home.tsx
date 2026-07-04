@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,62 +9,42 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 
+import { AmountRemainsCard } from "../../components/home/AmountRemainsCard";
+import { BankDetailsModal } from "../../components/home/BankDetailsModal";
 import { HomeHeader } from "../../components/home/HomeHeader";
 import { HomeTabBar } from "../../components/home/HomeTabBar";
-import { HomeTopBar } from "../../components/home/HomeTopBar";
-import { HomeUtilityRow } from "../../components/home/HomeUtilityRow";
-import { NextContributionCard } from "../../components/home/NextContributionCard";
 import { RecentActivitySection } from "../../components/home/RecentActivitySection";
 import { SavingsOverviewCard } from "../../components/home/SavingsOverviewCard";
 import { Button } from "../../components/Button";
 import { useAuth } from "../../context/AuthProvider";
+import { useProfile } from "../../context/ProfileProvider";
 import { useHomeDashboard } from "../../hooks/useHomeDashboard";
-import { getLanguageLabel, type LanguageCode } from "../../i18n/languages";
-import { setStoredLanguage } from "../../i18n/languageStorage";
-import { deriveDisplayName, getGreetingKey } from "../../lib/greeting";
-import { buildHomeSpeechText } from "../../lib/homeSpeech";
-import { showLanguagePicker } from "../../lib/showLanguagePicker";
-import type { HomeTabKey } from "../../models/home";
+import { usePayoutAccountGate } from "../../hooks/usePayoutAccountGate";
+import { hasCustomAvatar } from "../../lib/avatarSource";
+import { deriveDisplayName } from "../../lib/greeting";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 export default function HomeScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   const { accessToken, user } = useAuth();
+  const { profile } = useProfile();
   const styles = useThemedStyles(createStyles);
-  const displayNameHint = deriveDisplayName(user?.email);
+  const displayNameHint =
+    profile?.fullName?.trim() || deriveDisplayName(user?.email);
   const { data, loading, error, refresh } = useHomeDashboard(
     accessToken,
     displayNameHint,
   );
-
-  const speechText = useMemo(() => {
-    if (!data) return "";
-    return buildHomeSpeechText(t, getGreetingKey(), data);
-  }, [data, t, i18n.language]);
-
-  const currentLanguageLabel = getLanguageLabel(i18n.language);
+  const {
+    hasPayoutAccount,
+    saving: savingPayoutAccount,
+    error: payoutAccountError,
+    save: savePayoutAccount,
+  } = usePayoutAccountGate(accessToken, user?.id);
 
   const showComingSoon = () => {
     Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
-  };
-
-  const handleLanguageSelect = async (code: LanguageCode) => {
-    await setStoredLanguage(code);
-    await i18n.changeLanguage(code);
-  };
-
-  const handleLanguagePress = () => {
-    showLanguagePicker({
-      t,
-      currentLanguage: i18n.language,
-      onSelect: (code) => void handleLanguageSelect(code),
-    });
-  };
-
-  const handleTabPress = (tab: HomeTabKey) => {
-    if (tab === "home") return;
-    showComingSoon();
   };
 
   return (
@@ -90,8 +69,14 @@ export default function HomeScreen() {
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
-            <HomeTopBar speechText={speechText} />
-            <HomeHeader displayName={data.displayName} />
+            <HomeHeader
+              displayName={profile?.fullName?.trim() || data.displayName}
+              avatarUrl={
+                profile?.avatarUri && hasCustomAvatar(profile.avatarUri)
+                  ? profile.avatarUri
+                  : data.avatarUrl
+              }
+            />
 
             <SavingsOverviewCard
               group={data.group}
@@ -101,9 +86,9 @@ export default function HomeScreen() {
               onDetailsPress={showComingSoon}
             />
 
-            <NextContributionCard
-              contribution={data.nextContribution}
-              onHowToPayPress={showComingSoon}
+            <AmountRemainsCard
+              amountRemains={data.amountRemains}
+              onPayNowPress={showComingSoon}
             />
 
             <RecentActivitySection
@@ -112,16 +97,16 @@ export default function HomeScreen() {
               onViewAllPress={showComingSoon}
               onItemPress={showComingSoon}
             />
-
-            <HomeUtilityRow
-              languageLabel={currentLanguageLabel}
-              accessibilityLabel={t("home.accessibility")}
-              onLanguagePress={() => void handleLanguagePress()}
-              onAccessibilityPress={showComingSoon}
-            />
           </ScrollView>
 
-          <HomeTabBar activeTab="home" onTabPress={handleTabPress} />
+          <HomeTabBar activeTab="home" />
+
+          <BankDetailsModal
+            visible={hasPayoutAccount === false}
+            saving={savingPayoutAccount}
+            error={payoutAccountError}
+            onSubmit={savePayoutAccount}
+          />
         </>
       ) : null}
     </SafeAreaView>
@@ -137,7 +122,7 @@ const createStyles = (theme: Theme) =>
     scrollContent: {
       paddingHorizontal: theme.spacing.md,
       paddingBottom: theme.spacing.lg,
-      gap: theme.spacing.md,
+      gap: 14,
     },
     centered: {
       flex: 1,
