@@ -38,7 +38,6 @@
     "enterPinTitle": "Shigar da PIN ɗinka",
     "enterPinSubtitle": "Shigar da PIN mai lamba 4 don ci gaba.",
     "useAnotherAccount": "Yi amfani da wani asusu",
-    "mockModeHint": "Demo mode — auth runs locally without the backend.",
     "socialComingSoonTitle": "Yana zuwa nan ba da jimawa ba",
     "socialComingSoonBody": "Shiga ta Google da Apple za su kasance idan backend ya shirya.",
     "errors": {

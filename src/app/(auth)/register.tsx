@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 
 import { AuthScreenLayout } from "../../components/AuthScreenLayout";
 import { Button } from "../../components/Button";
-import { MockAuthBanner } from "../../components/MockAuthBanner";
 import { OrDivider } from "../../components/OrDivider";
 import { SocialAuthButton } from "../../components/SocialAuthButton";
 import { TextField } from "../../components/TextField";
@@ -78,7 +77,6 @@ export default function RegisterScreen() {
       }
     >
       <Text style={styles.title}>{t("auth.signUpTitle")}</Text>
-      <MockAuthBanner />
 
       <View style={styles.form}>
         <TextField

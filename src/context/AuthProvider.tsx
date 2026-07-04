@@ -24,6 +24,7 @@ import {
   setPinConfigured,
   setStoredUser,
 } from "../lib/authStorage";
+import { isMockAccessToken, shouldUseLiveRegisterLogin } from "../config/api";
 import type { AuthStatus, User } from "../models/auth";
 
 type AuthContextValue = {
@@ -66,6 +67,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           getAccessToken(),
           getStoredUser(),
         ]);
+
+        if (shouldUseLiveRegisterLogin() && isMockAccessToken(token)) {
+          await clearSessionStorage();
+          if (cancelled) return;
+          setAccessTokenState(null);
+          setUser(null);
+          setPinUnlocked(false);
+          setStatus("unauthenticated");
+          return;
+        }
+
         const pinConfigured = storedUser
           ? await getPinConfigured(storedUser.id)
           : false;

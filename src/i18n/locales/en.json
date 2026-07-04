@@ -38,7 +38,6 @@
     "enterPinTitle": "Enter your PIN",
     "enterPinSubtitle": "Enter your 4-digit PIN to continue.",
     "useAnotherAccount": "Use another account",
-    "mockModeHint": "Demo mode — auth runs locally without the backend.",
     "socialComingSoonTitle": "Coming soon",
     "socialComingSoonBody": "Google and Apple sign-in will be available once the backend is ready.",
     "errors": {
