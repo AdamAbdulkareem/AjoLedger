@@ -33,6 +33,8 @@ export default function EnterAccessPasscodeScreen() {
     passcode.length === ACCESS_PASSCODE_LENGTH && !submitting;
 
   const handleSubmit = async (code?: string) => {
+    if (submitting) return;
+
     const value = code ?? passcode;
     setPasscodeError(undefined);
     setFormError(undefined);
@@ -88,8 +90,16 @@ export default function EnterAccessPasscodeScreen() {
           style: "destructive",
           onPress: () => {
             void (async () => {
-              await resetAccessPasscode();
-              router.replace("/setup-access-passcode");
+              try {
+                await resetAccessPasscode();
+                router.replace("/setup-access-passcode");
+              } catch (error) {
+                const message =
+                  error instanceof ApiError
+                    ? error.message
+                    : t("auth.errors.generic");
+                Alert.alert(t("auth.errors.generic"), message);
+              }
             })();
           },
         },
@@ -98,8 +108,16 @@ export default function EnterAccessPasscodeScreen() {
   };
 
   const handleSwitchAccount = async () => {
-    await logout();
-    router.replace("/login");
+    try {
+      await logout();
+      router.replace("/login");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : t("auth.errors.generic");
+      Alert.alert(t("auth.errors.generic"), message);
+    }
   };
 
   const handleFingerprint = () => {

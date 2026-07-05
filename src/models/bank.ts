@@ -12,12 +12,6 @@ export type ResolveAccountResult = {
   accountName: string;
 };
 
-export type SetupBankPayload = {
-  bankCode: string;
-  accountNumber: string;
-  accountName: string;
-};
-
 export type UserWithPayout = {
   id: string;
   name: string;

@@ -33,12 +33,13 @@ export async function mockGetPayoutAccountStatus(
 export async function mockSetupBank(
   payload: SetupBankPayload,
   userId: string,
+  bankName: string,
 ): Promise<ApiEnvelope<PayoutAccountStatus>> {
   await mockDelay();
 
   const account: PayoutAccount = {
     bankCode: payload.bankCode,
-    bankName: payload.bankCode,
+    bankName,
     accountNumber: payload.accountNumber,
     accountName: payload.accountName,
   };

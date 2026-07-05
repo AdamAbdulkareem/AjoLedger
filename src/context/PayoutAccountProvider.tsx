@@ -99,7 +99,12 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       try {
-        const status = await saveSetupBank(accessToken, payload, userId);
+        const status = await saveSetupBank(
+          accessToken,
+          payload,
+          userId,
+          bankName,
+        );
         setHasPayoutAccount(status.configured);
         setAccount(
           status.account
@@ -113,7 +118,7 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
             ? err.message
             : "Something went wrong. Please try again.";
         setError(message);
-        if (isBankAlreadyConfiguredError(message)) {
+        if (isBankAlreadyConfiguredError(err)) {
           return "already_configured";
         }
         return "failed";
@@ -155,6 +160,6 @@ export function usePayoutAccountGate(): PayoutAccountContextValue {
   return context;
 }
 
-export function isBankAlreadyConfiguredError(message: string): boolean {
-  return message.includes("already configured");
+export function isBankAlreadyConfiguredError(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 400;
 }

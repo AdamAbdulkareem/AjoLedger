@@ -53,6 +53,11 @@
     "fingerprintComingSoonTitle": "Na-abịa n'oge na-adịghị anya",
     "fingerprintComingSoonBody": "Nbanye site na akara mkpịsị aka ga-adị na mmelite na-abịa.",
     "useAnotherAccount": "Jiri akaụnt ọzọ",
+    "enterPinTitle": "Tinye PIN azụmahịa gị",
+    "enterPinSubtitle": "Tinye PIN nke digiti 4 iji gaa n'ihu.",
+    "createPinTitle": "Mepụta PIN azụmahịa gị",
+    "createPinSubtitle": "Ị ga-eji PIN a maka omume dị mkpa.",
+    "confirmPinLabel": "Kwenye PIN",
     "socialComingSoonTitle": "Na-abịa n'oge na-adịghị anya",
     "socialComingSoonBody": "Nbanye Google na Apple ga-adị mgbe backend kwesịrị.",
     "errors": {
@@ -62,6 +67,8 @@
       "accessPasscodeLength": "Koodu nnweta ga-abụ nkeonụ 6.",
       "accessPasscodeMismatch": "Koodu adịghị egosi otu. Biko nwaa ọzọ.",
       "incorrectAccessPasscode": "Koodu ezighi ezi. Biko nwaa ọzọ.",
+      "pinLength": "PIN ga-abụrịrị digit 4.",
+      "pinMismatch": "PINs adịghị eme otu. Biko nwaa ọzọ.",
       "generic": "Ihe mehiere mere. Biko nwaa ọzọ."
     }
   },
@@ -129,10 +136,18 @@
       "accountLabel": "Akaụnt",
       "accountPlaceholder": "Tinye nọmba akaụnt gị",
       "continue": "Gaa n'ihu",
+      "next": "Osote",
       "cancel": "Kagbuo",
+      "loadingBanks": "Na-ebubata ụlọ akụ…",
+      "resolving": "Na-enyocha akaụnt…",
+      "profileHint": "Imelite nkọwa ụlọ akụ site na ntọala ga-achọ PIN azụmahịa gị (na-abịa n'oge na-adịghị anya).",
       "errors": {
         "bankRequired": "Biko họrọ ụlọ akụ.",
-        "accountInvalid": "Tinye nọmba akaụnt ziri ezi nke digiti 10."
+        "accountInvalid": "Tinye nọmba akaụnt ziri ezi nke digiti 10.",
+        "resolveRequired": "Kwenye akaụnt gị tupu ịga n'ihu.",
+        "resolveFailed": "Enweghị ike ịkwado nkọwa akaụnt. Gbalịa ọzọ.",
+        "banksLoadFailed": "Enweghị ike ibubata ụlọ akụ. Gbalịa ọzọ.",
+        "banksUnavailable": "Ndepụta ụlọ akụ adịghị adị ugbu a. Gbalịa ọzọ."
       }
     }
   },

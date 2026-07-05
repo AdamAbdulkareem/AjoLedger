@@ -80,6 +80,7 @@ export function BankDetailsModal({
 
   const isProfileVariant = variant === "profile";
   const canResolve =
+    !isProfileVariant &&
     !!accessToken &&
     !!selectedBank &&
     isValidNuban(normalizeAccountNumber(accountNumber));
@@ -140,10 +141,12 @@ export function BankDetailsModal({
   }, [visible, initialAccount, onClearError]);
 
   useEffect(() => {
-    if (!visible || !initialAccount || banks.length === 0) return;
+    if (!visible || !initialAccount) return;
 
     const bank =
-      findBankByCode(banks, initialAccount.bankCode) ??
+      (banks.length > 0
+        ? findBankByCode(banks, initialAccount.bankCode)
+        : null) ??
       ({
         bankCode: initialAccount.bankCode,
         bankName: initialAccount.bankName,
@@ -152,6 +155,8 @@ export function BankDetailsModal({
   }, [visible, initialAccount, banks]);
 
   useEffect(() => {
+    if (isProfileVariant) return;
+
     if (!visible || !canResolve || !accessToken || !selectedBank) {
       if (!canResolve) {
         setResolveState("idle");
@@ -197,6 +202,7 @@ export function BankDetailsModal({
     selectedBank,
     accountNumber,
     canResolve,
+    isProfileVariant,
     t,
   ]);
 
@@ -212,7 +218,7 @@ export function BankDetailsModal({
   };
 
   const handleBankPress = () => {
-    if (banksLoading || banks.length === 0) return;
+    if (isProfileVariant || banksLoading || banks.length === 0) return;
 
     showBankPicker({
       t,
@@ -227,6 +233,7 @@ export function BankDetailsModal({
   };
 
   const handleAccountChange = (text: string) => {
+    if (isProfileVariant) return;
     setAccountNumber(normalizeAccountNumber(text));
     setAccountError(undefined);
     resetResolveState();
@@ -301,14 +308,15 @@ export function BankDetailsModal({
         <Text style={styles.fieldLabel}>{t("home.bankDetails.bankLabel")}</Text>
         <Pressable
           onPress={handleBankPress}
-          disabled={banksLoading || banks.length === 0}
+          disabled={isProfileVariant || banksLoading || banks.length === 0}
           accessibilityRole="button"
           accessibilityLabel={t("home.bankDetails.bankLabel")}
           style={({ pressed }) => [
             styles.bankRow,
             bankError && styles.fieldError,
-            pressed && styles.pressed,
-            (banksLoading || banks.length === 0) && styles.disabled,
+            pressed && !isProfileVariant && styles.pressed,
+            (isProfileVariant || banksLoading || banks.length === 0) &&
+              styles.disabled,
           ]}
         >
           <Text
@@ -333,9 +341,10 @@ export function BankDetailsModal({
         keyboardType="number-pad"
         autoComplete="off"
         textContentType="none"
+        editable={!isProfileVariant}
       />
 
-      {resolveState === "loading" ? (
+      {!isProfileVariant && resolveState === "loading" ? (
         <View style={styles.inlineStatus}>
           <ActivityIndicator size="small" color={theme.colors.brand} />
           <Text style={styles.inlineStatusText}>
@@ -344,7 +353,7 @@ export function BankDetailsModal({
         </View>
       ) : null}
 
-      {resolveState === "success" && resolvedName ? (
+      {!isProfileVariant && resolveState === "success" && resolvedName ? (
         <View style={styles.resolveSuccess} accessibilityLiveRegion="polite">
           <Ionicons
             name="checkmark-circle"
@@ -355,7 +364,7 @@ export function BankDetailsModal({
         </View>
       ) : null}
 
-      {resolveState === "error" && resolveError ? (
+      {!isProfileVariant && resolveState === "error" && resolveError ? (
         <View style={styles.resolveError} accessibilityLiveRegion="polite">
           <Ionicons
             name="close-circle"

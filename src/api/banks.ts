@@ -2,17 +2,27 @@ import type {
   Bank,
   ResolveAccountPayload,
   ResolveAccountResult,
-  SetupBankPayload,
   UserWithPayout,
 } from "../models/bank";
-import type { PayoutAccount } from "../models/payoutAccount";
+import type { PayoutAccount, SetupBankPayload } from "../models/payoutAccount";
 import { apiRequest } from "./client";
 
+const UNKNOWN_BANK_NAME = "Unknown bank";
+
+let cachedBanks: Bank[] | null = null;
+let cachedBanksToken: string | null = null;
+
 export async function getBanks(token: string): Promise<Bank[]> {
+  if (cachedBanks && cachedBanksToken === token) {
+    return cachedBanks;
+  }
+
   const envelope = await apiRequest<Bank[]>("/users/banks", { token });
   if (!envelope.data) {
     throw new Error("Bank list returned no data.");
   }
+  cachedBanks = envelope.data;
+  cachedBanksToken = token;
   return envelope.data;
 }
 
@@ -65,7 +75,7 @@ export function payoutAccountFromUser(
 
   return {
     bankCode: user.payoutBankCode!,
-    bankName: bankName ?? user.payoutBankCode!,
+    bankName: bankName ?? UNKNOWN_BANK_NAME,
     accountNumber: user.payoutAccountNumber ?? "",
     accountName: user.payoutAccountName ?? undefined,
   };

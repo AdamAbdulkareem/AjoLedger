@@ -43,7 +43,7 @@ export function PasscodeOtpInput({
       <Text style={styles.fieldLabel}>{label}</Text>
       <Pressable
         onPress={() => inputRef.current?.focus()}
-        accessibilityRole="none"
+        accessible={false}
         style={styles.otpRow}
       >
         {digits.map((digit, index) => {
@@ -121,8 +121,7 @@ export function PasscodeRowInput({
     <View style={styles.rowSection}>
       <Pressable
         onPress={() => inputRef.current?.focus()}
-        accessibilityRole="button"
-        accessibilityLabel={placeholder}
+        accessible={false}
         style={[styles.row, error ? styles.rowError : null]}
       >
         <Text

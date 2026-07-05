@@ -99,7 +99,7 @@ const createStyles = (theme: Theme) =>
       color: theme.colors.textPrimary,
     },
     labelDisabled: {
-      color: "#9EA2AE",
+      color: theme.colors.textMuted,
     },
     icon: {
       marginLeft: theme.spacing.sm,

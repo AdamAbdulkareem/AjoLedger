@@ -53,6 +53,11 @@
     "fingerprintComingSoonTitle": "Coming soon",
     "fingerprintComingSoonBody": "Fingerprint login will be available in a future update.",
     "useAnotherAccount": "Use another account",
+    "enterPinTitle": "Enter your transaction PIN",
+    "enterPinSubtitle": "Enter your 4-digit PIN to continue.",
+    "createPinTitle": "Create your transaction PIN",
+    "createPinSubtitle": "You'll use this PIN for sensitive actions.",
+    "confirmPinLabel": "Confirm PIN",
     "socialComingSoonTitle": "Coming soon",
     "socialComingSoonBody": "Google and Apple sign-in will be available once the backend is ready.",
     "errors": {
@@ -62,6 +67,8 @@
       "accessPasscodeLength": "Access passcode must be 6 digits.",
       "accessPasscodeMismatch": "Passcodes do not match. Please try again.",
       "incorrectAccessPasscode": "Incorrect passcode. Please try again.",
+      "pinLength": "PIN must be 4 digits.",
+      "pinMismatch": "PINs do not match. Please try again.",
       "generic": "Something went wrong. Please try again."
     }
   },

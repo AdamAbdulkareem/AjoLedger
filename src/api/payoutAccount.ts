@@ -52,9 +52,14 @@ export async function saveSetupBank(
   token: string,
   payload: SetupBankPayload,
   userId?: string,
+  bankName?: string,
 ): Promise<PayoutAccountStatus> {
   if (USE_MOCK_AUTH) {
-    const envelope = await mockSetupBank(payload, userId ?? "mock-user");
+    const envelope = await mockSetupBank(
+      payload,
+      userId ?? "mock-user",
+      bankName ?? payload.bankCode,
+    );
     if (!envelope.data) {
       throw new Error("Mock bank setup returned no data.");
     }

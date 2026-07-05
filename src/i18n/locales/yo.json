@@ -53,6 +53,11 @@
     "fingerprintComingSoonTitle": "Nbọ laipe",
     "fingerprintComingSoonBody": "Iwọle pẹlu itẹka yoo wa ni imudojuiwọn to n bọ.",
     "useAnotherAccount": "Lo akọọlẹ miiran",
+    "enterPinTitle": "Tẹ PIN iṣowo rẹ",
+    "enterPinSubtitle": "Tẹ PIN oni-nọmba 4 lati tẹsiwaju.",
+    "createPinTitle": "Ṣẹda PIN iṣowo rẹ",
+    "createPinSubtitle": "O yoo lo PIN yii fun awọn iṣe pataki.",
+    "confirmPinLabel": "Jẹrisi PIN",
     "socialComingSoonTitle": "Nbọ laipe",
     "socialComingSoonBody": "Wiwọle Google ati Apple yoo wa nigba ti backend ba setan.",
     "errors": {
@@ -62,6 +67,8 @@
       "accessPasscodeLength": "Koodu iwọle gbọdọ jẹ oni-nọmba 6.",
       "accessPasscodeMismatch": "Awọn koodu ko ba ara wọn mu. Jọwọ gbiyanju lẹkan si.",
       "incorrectAccessPasscode": "Koodu ko tọ. Jọwọ gbiyanju lẹkan si.",
+      "pinLength": "PIN gbọdọ jẹ nọmba 4.",
+      "pinMismatch": "Awọn PIN ko ba ara wọn mu. Jọwọ gbiyanju lẹkan si.",
       "generic": "Nkọkan kan ṣẹlẹ. Jọwọ gbiyanju lẹkan si."
     }
   },
@@ -128,10 +135,18 @@
       "accountLabel": "Account",
       "accountPlaceholder": "Enter your Account number",
       "continue": "Continue",
+      "next": "Tẹle",
       "cancel": "Cancel",
+      "loadingBanks": "N gba awọn banki…",
+      "resolving": "N ṣe idanwo akọọlẹ…",
+      "profileHint": "Imudojuiwọn alaye banki lati eto yoo nilo PIN iṣowo rẹ (nbọ laipe).",
       "errors": {
         "bankRequired": "Please select a bank.",
-        "accountInvalid": "Enter a valid 10-digit account number."
+        "accountInvalid": "Enter a valid 10-digit account number.",
+        "resolveRequired": "Jẹrisi akọọlẹ rẹ ṣaaju títẹ̀ síwaju.",
+        "resolveFailed": "Ko le ṣe idanwo alaye akọọlẹ. Gbiyanju lẹẹkansi.",
+        "banksLoadFailed": "Ko le gba awọn banki. Gbiyanju lẹẹkansi.",
+        "banksUnavailable": "Atokọ banki ko si sibẹsibẹ. Gbiyanju lẹẹkansi."
       }
     }
   },

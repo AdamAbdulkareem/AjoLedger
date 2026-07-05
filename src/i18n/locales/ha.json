@@ -53,6 +53,11 @@
     "fingerprintComingSoonTitle": "Yana zuwa nan ba da jimawa ba",
     "fingerprintComingSoonBody": "Shiga da yatsa za a samu a sabon sabuntawa.",
     "useAnotherAccount": "Yi amfani da wani asusu",
+    "enterPinTitle": "Shigar da PIN na ciniki",
+    "enterPinSubtitle": "Shigar da PIN mai lamba 4 don ci gaba.",
+    "createPinTitle": "Ƙirƙiri PIN na ciniki",
+    "createPinSubtitle": "Za ka yi amfani da wannan PIN don muhimman ayyuka.",
+    "confirmPinLabel": "Tabbatar da PIN",
     "socialComingSoonTitle": "Yana zuwa nan ba da jimawa ba",
     "socialComingSoonBody": "Shiga ta Google da Apple za su kasance idan backend ya shirya.",
     "errors": {
@@ -62,6 +67,8 @@
       "accessPasscodeLength": "Lambar shiga dole ta kasance lambobi 6.",
       "accessPasscodeMismatch": "Lambobin shiga ba su dace ba. Sake gwadawa.",
       "incorrectAccessPasscode": "Lambar shiga ba daidai ba ce. Sake gwadawa.",
+      "pinLength": "PIN dole ta kasance lambobi 4.",
+      "pinMismatch": "PINs ba su dace ba. Sake gwadawa.",
       "generic": "Wani abu ya faru. Sake gwadawa."
     }
   },
@@ -129,10 +136,18 @@
       "accountLabel": "Asusu",
       "accountPlaceholder": "Shigar da lambar asusun ku",
       "continue": "Ci gaba",
+      "next": "Na gaba",
       "cancel": "Soke",
+      "loadingBanks": "Ana lodawa bankuna…",
+      "resolving": "Ana tabbatar da asusu…",
+      "profileHint": "Sabunta bayanan banki daga saituna zai buƙaci PIN na ciniki (yana zuwa nan ba da jimawa ba).",
       "errors": {
         "bankRequired": "Da fatan za a zaɓi banki.",
-        "accountInvalid": "Shigar da lambar asusu mai inganci mai lamba 10."
+        "accountInvalid": "Shigar da lambar asusu mai inganci mai lamba 10.",
+        "resolveRequired": "Tabbatar da asusun ku kafin ci gaba.",
+        "resolveFailed": "Ba a iya tabbatar da bayanan asusu ba. Sake gwadawa.",
+        "banksLoadFailed": "Ba a iya lodawa bankuna ba. Sake gwadawa.",
+        "banksUnavailable": "Jerin bankuna bai samu ba tukuna. Sake gwadawa."
       }
     }
   },

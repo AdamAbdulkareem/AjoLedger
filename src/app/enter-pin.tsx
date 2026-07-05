@@ -63,8 +63,16 @@ export default function EnterPinScreen() {
   };
 
   const handleUseAnotherAccount = async () => {
-    await logout();
-    router.replace("/login");
+    try {
+      await logout();
+      router.replace("/login");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : t("auth.errors.generic");
+      setFormError(message);
+    }
   };
 
   return (

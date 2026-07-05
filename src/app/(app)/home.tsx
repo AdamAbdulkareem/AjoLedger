@@ -43,6 +43,7 @@ export default function HomeScreen() {
     saving: savingPayoutAccount,
     error: payoutAccountError,
     setupBank,
+    refresh: refreshPayoutAccount,
     clearError,
   } = usePayoutAccountGate();
 
@@ -112,7 +113,11 @@ export default function HomeScreen() {
             onSubmit={setupBank}
             onClearError={clearError}
             variant="onboarding"
-            onAlreadyConfigured={() => router.push("/(app)/profile")}
+            onAlreadyConfigured={() => {
+              void refreshPayoutAccount().finally(() => {
+                router.push("/(app)/profile");
+              });
+            }}
           />
         </>
       ) : null}
