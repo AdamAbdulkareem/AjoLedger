@@ -14,6 +14,7 @@ import {
   saveSetupBank,
 } from "../api/payoutAccount";
 import { ApiError } from "../api/client";
+import { clearBankSetupSkipped } from "../lib/bankSetupSkipStorage";
 import { useAuth } from "./AuthProvider";
 import type { PayoutAccount, SetupBankPayload } from "../models/payoutAccount";
 
@@ -111,6 +112,9 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
             ? { ...status.account, bankName }
             : null,
         );
+        if (status.configured) {
+          await clearBankSetupSkipped(userId);
+        }
         return "success";
       } catch (err) {
         const message =
