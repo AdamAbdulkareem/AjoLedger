@@ -12,11 +12,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme, useThemedStyles, type Theme } from "../theme";
 
 type ButtonVariant = "primary" | "secondary";
+type ButtonSize = "default" | "compact";
 
 type ButtonProps = {
   label: string;
   onPress?: PressableProps["onPress"];
   variant?: ButtonVariant;
+  size?: ButtonSize;
   iconRight?: ComponentProps<typeof Ionicons>["name"];
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -27,6 +29,7 @@ export function Button({
   label,
   onPress,
   variant = "primary",
+  size = "default",
   iconRight,
   disabled = false,
   style,
@@ -44,13 +47,14 @@ export function Button({
       accessibilityState={{ disabled }}
       style={({ pressed }) => [
         styles.base,
+        size === "compact" && styles.compact,
         styles[variant],
         pressed && styles.pressed,
         disabled && styles.disabled,
         style,
       ]}
     >
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, disabled && styles.labelDisabled]}>{label}</Text>
       {iconRight ? (
         <Ionicons
           name={iconRight}
@@ -73,6 +77,9 @@ const createStyles = (theme: Theme) =>
       justifyContent: "center",
       paddingHorizontal: theme.spacing.lg,
     },
+    compact: {
+      height: 40,
+    },
     primary: {
       backgroundColor: theme.colors.brand,
     },
@@ -90,6 +97,9 @@ const createStyles = (theme: Theme) =>
     label: {
       ...theme.typography.button,
       color: theme.colors.textPrimary,
+    },
+    labelDisabled: {
+      color: "#9EA2AE",
     },
     icon: {
       marginLeft: theme.spacing.sm,

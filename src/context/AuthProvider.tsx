@@ -41,6 +41,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<AuthStatus>;
   setupAccessPasscode: (passcode: string) => Promise<void>;
   verifyAccessPasscode: (passcode: string) => Promise<void>;
+  resetAccessPasscode: () => Promise<void>;
   logout: () => Promise<void>;
   updateSessionUser: (nextUser: User) => Promise<void>;
 };
@@ -237,6 +238,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [user],
   );
 
+  const resetAccessPasscode = useCallback(async () => {
+    if (!user) return;
+
+    await clearAccessPasscode(user.id);
+    setAccessPasscodeConfigured(false);
+    setAccessPasscodeUnlocked(false);
+    setStatus("needsPasscodeSetup");
+  }, [user]);
+
   const logout = useCallback(async () => {
     if (user) await clearAccessPasscode(user.id);
     await clearSessionStorage();
@@ -261,6 +271,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       setupAccessPasscode,
       verifyAccessPasscode: verifyAccessPasscodeEntry,
+      resetAccessPasscode,
       logout,
       updateSessionUser,
     }),
@@ -272,6 +283,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       setupAccessPasscode,
       verifyAccessPasscodeEntry,
+      resetAccessPasscode,
       logout,
       updateSessionUser,
     ],

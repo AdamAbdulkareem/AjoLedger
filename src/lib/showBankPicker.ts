@@ -1,20 +1,27 @@
 import { ActionSheetIOS, Alert, Platform } from "react-native";
 import type { TFunction } from "i18next";
 
-import { NIGERIAN_BANKS, type NigerianBank } from "./nigerianBanks";
+import type { Bank } from "../models/bank";
 
 type ShowBankPickerOptions = {
   t: TFunction;
+  banks: Bank[];
   selectedBankCode?: string;
-  onSelect: (bank: NigerianBank) => void;
+  onSelect: (bank: Bank) => void;
 };
 
 export function showBankPicker({
   t,
+  banks,
   selectedBankCode,
   onSelect,
 }: ShowBankPickerOptions): void {
-  const labels = NIGERIAN_BANKS.map((bank) => bank.name);
+  if (banks.length === 0) {
+    Alert.alert(t("home.bankDetails.errors.banksUnavailable"));
+    return;
+  }
+
+  const labels = banks.map((bank) => bank.bankName);
   const cancelLabel = t("home.bankDetails.cancel");
 
   if (Platform.OS === "ios") {
@@ -26,7 +33,7 @@ export function showBankPicker({
       },
       (buttonIndex) => {
         if (buttonIndex === undefined || buttonIndex >= labels.length) return;
-        onSelect(NIGERIAN_BANKS[buttonIndex]);
+        onSelect(banks[buttonIndex]);
       },
     );
     return;
@@ -36,13 +43,22 @@ export function showBankPicker({
     t("home.bankDetails.bankLabel"),
     undefined,
     [
-      ...NIGERIAN_BANKS.map((bank) => ({
+      ...banks.map((bank) => ({
         text:
-          bank.code === selectedBankCode ? `${bank.name} ✓` : bank.name,
+          bank.bankCode === selectedBankCode
+            ? `${bank.bankName} ✓`
+            : bank.bankName,
         onPress: () => onSelect(bank),
       })),
       { text: cancelLabel, style: "cancel" as const },
     ],
     { cancelable: true },
   );
+}
+
+export function findBankByCode(
+  banks: Bank[],
+  bankCode: string,
+): Bank | undefined {
+  return banks.find((bank) => bank.bankCode === bankCode);
 }

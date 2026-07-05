@@ -1,33 +1,71 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { useRef } from "react";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import {
   ACCESS_PASSCODE_LENGTH,
   normalizeAccessPasscode,
 } from "../lib/accessPasscodeStorage";
-import { useThemedStyles, type Theme } from "../theme";
+import { useTheme, useThemedStyles, type Theme } from "../theme";
 
-type AccessPasscodeInputProps = {
+const OTP_CELL_SIZE = 40;
+const OTP_CELL_GAP = 16;
+
+type PasscodeOtpInputProps = {
   label: string;
   value: string;
   onChangeText: (text: string) => void;
   error?: string;
-  helperText?: string;
+  autoFocus?: boolean;
 };
 
-export function AccessPasscodeInput({
+export function PasscodeOtpInput({
   label,
   value,
   onChangeText,
   error,
-  helperText,
-}: AccessPasscodeInputProps) {
+  autoFocus = false,
+}: PasscodeOtpInputProps) {
+  const inputRef = useRef<TextInput>(null);
   const styles = useThemedStyles(createStyles);
 
+  const digits = value.padEnd(ACCESS_PASSCODE_LENGTH, " ").split("").slice(0, ACCESS_PASSCODE_LENGTH);
+  const activeIndex = Math.min(value.length, ACCESS_PASSCODE_LENGTH - 1);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
-      {helperText ? <Text style={styles.helper}>{helperText}</Text> : null}
+    <View style={styles.otpSection}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <Pressable
+        onPress={() => inputRef.current?.focus()}
+        accessibilityRole="none"
+        style={styles.otpRow}
+      >
+        {digits.map((digit, index) => {
+          const filled = digit.trim().length > 0;
+          const isActive = index === activeIndex && value.length < ACCESS_PASSCODE_LENGTH;
+
+          return (
+            <View
+              key={index}
+              style={[
+                styles.cell,
+                error ? styles.cellError : null,
+                isActive ? styles.cellActive : null,
+              ]}
+            >
+              <Text style={styles.cellText}>{filled ? "•" : ""}</Text>
+            </View>
+          );
+        })}
+      </Pressable>
       <TextInput
+        ref={inputRef}
         value={value}
         onChangeText={(text) => onChangeText(normalizeAccessPasscode(text))}
         keyboardType="number-pad"
@@ -35,8 +73,84 @@ export function AccessPasscodeInput({
         maxLength={ACCESS_PASSCODE_LENGTH}
         textContentType="oneTimeCode"
         autoComplete="one-time-code"
-        style={[styles.input, error ? styles.inputError : null]}
+        autoFocus={autoFocus}
+        caretHidden
+        style={styles.hiddenInput}
         accessibilityLabel={label}
+      />
+      {error ? (
+        <Text style={styles.error} accessibilityLiveRegion="polite">
+          {error}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+type PasscodeRowInputProps = {
+  placeholder: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  error?: string;
+  onComplete?: (passcode: string) => void;
+};
+
+export function PasscodeRowInput({
+  placeholder,
+  value,
+  onChangeText,
+  error,
+  onComplete,
+}: PasscodeRowInputProps) {
+  const theme = useTheme();
+  const inputRef = useRef<TextInput>(null);
+  const styles = useThemedStyles(createStyles);
+
+  const handleChange = (text: string) => {
+    const next = normalizeAccessPasscode(text);
+    onChangeText(next);
+    if (next.length === ACCESS_PASSCODE_LENGTH) {
+      onComplete?.(next);
+    }
+  };
+
+  const displayValue =
+    value.length > 0 ? "•".repeat(value.length) : "";
+
+  return (
+    <View style={styles.rowSection}>
+      <Pressable
+        onPress={() => inputRef.current?.focus()}
+        accessibilityRole="button"
+        accessibilityLabel={placeholder}
+        style={[styles.row, error ? styles.rowError : null]}
+      >
+        <Text
+          style={[
+            styles.rowText,
+            !displayValue ? styles.rowPlaceholder : null,
+          ]}
+          numberOfLines={1}
+        >
+          {displayValue || placeholder}
+        </Text>
+        <Ionicons
+          name="chevron-down"
+          size={13}
+          color={theme.colors.textMuted}
+        />
+      </Pressable>
+      <TextInput
+        ref={inputRef}
+        value={value}
+        onChangeText={handleChange}
+        keyboardType="number-pad"
+        secureTextEntry
+        maxLength={ACCESS_PASSCODE_LENGTH}
+        textContentType="oneTimeCode"
+        autoComplete="one-time-code"
+        style={styles.hiddenInput}
+        accessibilityLabel={placeholder}
       />
       {error ? (
         <Text style={styles.error} accessibilityLiveRegion="polite">
@@ -49,35 +163,73 @@ export function AccessPasscodeInput({
 
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
-    container: {
-      gap: theme.spacing.sm,
-      alignItems: "center",
+    otpSection: {
+      gap: theme.spacing.md,
+      alignSelf: "stretch",
+      position: "relative",
     },
-    label: {
-      ...theme.typography.title,
+    fieldLabel: {
+      ...theme.typography.subtitle,
       color: theme.colors.textPrimary,
-      textAlign: "center",
     },
-    helper: {
-      ...theme.typography.body,
-      color: theme.colors.textSecondary,
-      textAlign: "center",
+    otpRow: {
+      flexDirection: "row",
+      gap: OTP_CELL_GAP,
+      alignSelf: "stretch",
     },
-    input: {
-      width: 220,
+    cell: {
+      width: OTP_CELL_SIZE,
+      height: OTP_CELL_SIZE,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.colors.cardBorderMuted,
+      backgroundColor: theme.colors.surface,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    cellActive: {
+      borderColor: theme.colors.textMuted,
+    },
+    cellError: {
+      borderColor: theme.colors.errorBorder,
+    },
+    cellText: {
+      fontFamily: theme.fontFamily.semibold,
+      fontSize: 20,
+      lineHeight: 24,
+      color: theme.colors.textPrimary,
+    },
+    rowSection: {
+      gap: theme.spacing.sm + 3,
+      alignSelf: "stretch",
+      position: "relative",
+    },
+    row: {
       minHeight: 52,
       borderWidth: 1,
       borderColor: theme.colors.inputBorder,
       borderRadius: 10,
-      textAlign: "center",
-      fontFamily: theme.fontFamily.semibold,
-      fontSize: 24,
-      letterSpacing: 8,
-      color: theme.colors.textPrimary,
-      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.md,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
     },
-    inputError: {
+    rowError: {
       borderColor: theme.colors.errorBorder,
+    },
+    rowText: {
+      ...theme.typography.body,
+      flex: 1,
+      color: theme.colors.textPrimary,
+    },
+    rowPlaceholder: {
+      color: theme.colors.textMuted,
+    },
+    hiddenInput: {
+      position: "absolute",
+      width: 1,
+      height: 1,
+      opacity: 0,
     },
     error: {
       ...theme.typography.caption,

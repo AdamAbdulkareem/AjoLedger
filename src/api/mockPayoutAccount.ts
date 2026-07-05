@@ -2,8 +2,8 @@ import type { ApiEnvelope } from "../models/auth";
 import type {
   PayoutAccount,
   PayoutAccountStatus,
-  SavePayoutAccountPayload,
 } from "../models/payoutAccount";
+import type { SetupBankPayload } from "../models/payoutAccount";
 import {
   getStoredPayoutAccount,
   setStoredPayoutAccount,
@@ -30,19 +30,23 @@ export async function mockGetPayoutAccountStatus(
   });
 }
 
-export async function mockSavePayoutAccount(
+export async function mockSetupBank(
+  payload: SetupBankPayload,
   userId: string,
-  payload: SavePayoutAccountPayload,
-): Promise<ApiEnvelope<PayoutAccount>> {
+): Promise<ApiEnvelope<PayoutAccountStatus>> {
   await mockDelay();
 
   const account: PayoutAccount = {
     bankCode: payload.bankCode,
-    bankName: payload.bankName,
+    bankName: payload.bankCode,
     accountNumber: payload.accountNumber,
+    accountName: payload.accountName,
   };
 
   await setStoredPayoutAccount(userId, account);
 
-  return success("Payout account saved", account);
+  return success("Bank details configured successfully", {
+    configured: true,
+    account,
+  });
 }
