@@ -37,10 +37,27 @@
     "continue": "Continue",
     "createAccessPasscodeTitle": "Make your 6-digit access passcode",
     "createAccessPasscodeSubtitle": "You go use this passcode open the app.",
+    "inputPasscodeLabel": "Input Passcode",
+    "confirmPasscodeFieldLabel": "Confirm Passcode",
     "confirmAccessPasscodeLabel": "Confirm the passcode again",
+    "enterPasscodePlaceholder": "Enter 6-digit passcode",
     "enterAccessPasscodeTitle": "Enter your access passcode",
     "enterAccessPasscodeSubtitle": "Enter your 6-digit access passcode make you continue.",
+    "forgetPasscode": "Forget passcode?",
+    "forgetPasscodeTitle": "Reset passcode?",
+    "forgetPasscodeBody": "You go need create new 6-digit passcode before you fit open the app again.",
+    "forgetPasscodeConfirm": "Reset passcode",
+    "forgetPasscodeCancel": "Cancel",
+    "switchAccount": "Switch Account",
+    "loginWithFingerprint": "Login with fingerprint",
+    "fingerprintComingSoonTitle": "E dey come soon",
+    "fingerprintComingSoonBody": "Fingerprint login go ready for future update.",
     "useAnotherAccount": "Use different account",
+    "enterPinTitle": "Enter your transaction PIN",
+    "enterPinSubtitle": "Enter your 4-digit PIN make you continue.",
+    "createPinTitle": "Create your transaction PIN",
+    "createPinSubtitle": "You go use dis PIN for important actions.",
+    "confirmPinLabel": "Confirm PIN",
     "socialComingSoonTitle": "E dey come soon",
     "socialComingSoonBody": "Google and Apple sign-in go ready when backend don set.",
     "errors": {
@@ -50,6 +67,8 @@
       "accessPasscodeLength": "Passcode must reach 6 digits. Try again.",
       "accessPasscodeMismatch": "Passcode no match. Try again.",
       "incorrectAccessPasscode": "Passcode no correct. Try again.",
+      "pinLength": "PIN must be 4 digits.",
+      "pinMismatch": "PINs no match. Try again.",
       "generic": "Something go wrong. Try again."
     }
   },
@@ -116,10 +135,18 @@
       "accountLabel": "Account",
       "accountPlaceholder": "Enter your Account number",
       "continue": "Continue",
+      "next": "Next",
       "cancel": "Cancel",
+      "loadingBanks": "Dey load banks…",
+      "resolving": "Dey verify account…",
+      "profileHint": "To update bank details from settings go need transaction PIN (dey come soon).",
       "errors": {
         "bankRequired": "Abeg choose bank.",
-        "accountInvalid": "Enter correct 10-digit account number."
+        "accountInvalid": "Enter correct 10-digit account number.",
+        "resolveRequired": "Verify your account before you continue.",
+        "resolveFailed": "Account details no fit resolve. Try again.",
+        "banksLoadFailed": "No fit load banks. Try again.",
+        "banksUnavailable": "Bank list no dey available yet. Try again."
       }
     }
   },

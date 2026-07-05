@@ -1,20 +1,21 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Redirect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AccessPasscodeInput } from "../components/AccessPasscodeInput";
+import { PasscodeOtpInput } from "../components/AccessPasscodeInput";
 import { ACCESS_PASSCODE_LENGTH } from "../lib/accessPasscodeStorage";
 import { Button } from "../components/Button";
 import { AjoLedgerLogo } from "../components/AjoLedgerLogo";
 import { useAuth } from "../context/AuthProvider";
 import { ApiError } from "../api/client";
-import { useThemedStyles, type Theme } from "../theme";
+import { useTheme, useThemedStyles, type Theme } from "../theme";
 
 export default function SetupAccessPasscodeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const theme = useTheme();
   const { status, setupAccessPasscode } = useAuth();
   const styles = useThemedStyles(createStyles);
 
@@ -40,6 +41,11 @@ export default function SetupAccessPasscodeScreen() {
   if (status === "needsPasscodeEntry") {
     return <Redirect href="/enter-access-passcode" />;
   }
+
+  const canSubmit =
+    passcode.length === ACCESS_PASSCODE_LENGTH &&
+    confirmPasscode.length === ACCESS_PASSCODE_LENGTH &&
+    !submitting;
 
   const validate = () => {
     let valid = true;
@@ -86,29 +92,48 @@ export default function SetupAccessPasscodeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <AjoLedgerLogo style={styles.logo} />
-      <View style={styles.content}>
-        <AccessPasscodeInput
-          label={t("auth.createAccessPasscodeTitle")}
-          helperText={t("auth.createAccessPasscodeSubtitle")}
-          value={passcode}
-          onChangeText={setPasscode}
-          error={passcodeError}
-        />
-        <AccessPasscodeInput
-          label={t("auth.confirmAccessPasscodeLabel")}
-          value={confirmPasscode}
-          onChangeText={setConfirmPasscode}
-          error={confirmError}
-        />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>{t("auth.createAccessPasscodeTitle")}</Text>
+          <Text style={styles.subtitle}>
+            {t("auth.createAccessPasscodeSubtitle")}
+          </Text>
+        </View>
+
+        <View style={styles.fields}>
+          <PasscodeOtpInput
+            label={t("auth.inputPasscodeLabel")}
+            value={passcode}
+            onChangeText={setPasscode}
+            error={passcodeError}
+            autoFocus
+          />
+          <PasscodeOtpInput
+            label={t("auth.confirmPasscodeFieldLabel")}
+            value={confirmPasscode}
+            onChangeText={setConfirmPasscode}
+            error={confirmError}
+          />
+        </View>
+
         {formError ? (
           <Text style={styles.formError} accessibilityLiveRegion="polite">
             {formError}
           </Text>
         ) : null}
+      </ScrollView>
+
+      <View style={styles.footer}>
         <Button
           label={t("auth.continue")}
           onPress={handleSubmit}
-          disabled={submitting}
+          disabled={!canSubmit}
+          size="compact"
+          style={{ backgroundColor: theme.colors.activityPayoutBg }}
         />
       </View>
     </SafeAreaView>
@@ -120,20 +145,44 @@ const createStyles = (theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.surface,
-      paddingHorizontal: theme.spacing.lg,
-      paddingBottom: theme.spacing.lg,
     },
     logo: {
       marginTop: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
     },
-    content: {
-      flex: 1,
-      justifyContent: "center",
-      gap: theme.spacing.lg,
+    scrollContent: {
+      flexGrow: 1,
+      paddingHorizontal: theme.spacing.md + 4,
+      paddingTop: theme.spacing.xl + theme.spacing.sm,
+      gap: theme.spacing.xl,
+    },
+    header: {
+      gap: 6,
+      alignItems: "center",
+    },
+    title: {
+      fontFamily: theme.fontFamily.semibold,
+      fontSize: 18,
+      lineHeight: 24,
+      color: theme.colors.textPrimary,
+      textAlign: "center",
+    },
+    subtitle: {
+      ...theme.typography.body,
+      color: theme.colors.textPrimary,
+      textAlign: "center",
+    },
+    fields: {
+      gap: theme.spacing.md,
     },
     formError: {
       ...theme.typography.caption,
       color: theme.colors.error,
       textAlign: "center",
+    },
+    footer: {
+      paddingHorizontal: theme.spacing.md,
+      paddingBottom: theme.spacing.lg,
+      paddingTop: theme.spacing.md,
     },
   });

@@ -22,6 +22,7 @@ type TextFieldProps = {
   autoCapitalize?: TextInputProps["autoCapitalize"];
   textContentType?: TextInputProps["textContentType"];
   autoComplete?: TextInputProps["autoComplete"];
+  editable?: boolean;
 };
 
 export function TextField({
@@ -35,6 +36,7 @@ export function TextField({
   autoCapitalize,
   textContentType,
   autoComplete,
+  editable = true,
 }: TextFieldProps) {
   const [hidden, setHidden] = useState(secureTextEntry);
   const styles = useThemedStyles(createStyles);
@@ -54,6 +56,7 @@ export function TextField({
           autoCapitalize={autoCapitalize}
           textContentType={textContentType}
           autoComplete={autoComplete}
+          editable={editable}
           style={styles.input}
           accessibilityLabel={label}
         />

@@ -55,7 +55,7 @@ export default function ProfileScreen() {
     account,
     saving: savingPayoutAccount,
     error: payoutAccountError,
-    save: savePayoutAccount,
+    clearError,
   } = usePayoutAccountGate();
 
   const showComingSoon = useCallback(() => {
@@ -210,12 +210,15 @@ export default function ProfileScreen() {
 
       <BankDetailsModal
         visible={bankModalVisible}
+        accessToken={accessToken}
         saving={savingPayoutAccount}
         error={payoutAccountError}
-        onSubmit={savePayoutAccount}
+        onSubmit={async () => "failed" as const}
+        onClearError={clearError}
         dismissible
         onClose={() => setBankModalVisible(false)}
         initialAccount={account}
+        variant="profile"
       />
 
       {photoModal.modal}

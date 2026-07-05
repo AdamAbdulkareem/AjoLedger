@@ -7,6 +7,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 import { AmountRemainsCard } from "../../components/home/AmountRemainsCard";
@@ -26,6 +27,7 @@ import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 export default function HomeScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const theme = useTheme();
   const { accessToken, user } = useAuth();
   const { profile } = useProfile();
@@ -40,7 +42,9 @@ export default function HomeScreen() {
     hasPayoutAccount,
     saving: savingPayoutAccount,
     error: payoutAccountError,
-    save: savePayoutAccount,
+    setupBank,
+    refresh: refreshPayoutAccount,
+    clearError,
   } = usePayoutAccountGate();
 
   const showComingSoon = () => {
@@ -103,9 +107,17 @@ export default function HomeScreen() {
 
           <BankDetailsModal
             visible={hasPayoutAccount === false}
+            accessToken={accessToken}
             saving={savingPayoutAccount}
             error={payoutAccountError}
-            onSubmit={savePayoutAccount}
+            onSubmit={setupBank}
+            onClearError={clearError}
+            variant="onboarding"
+            onAlreadyConfigured={() => {
+              void refreshPayoutAccount().finally(() => {
+                router.push("/(app)/profile");
+              });
+            }}
           />
         </>
       ) : null}

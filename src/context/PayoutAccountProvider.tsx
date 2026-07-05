@@ -11,11 +11,11 @@ import {
 
 import {
   getPayoutAccountStatus,
-  savePayoutAccount,
+  saveSetupBank,
 } from "../api/payoutAccount";
 import { ApiError } from "../api/client";
 import { useAuth } from "./AuthProvider";
-import type { PayoutAccount, SavePayoutAccountPayload } from "../models/payoutAccount";
+import type { PayoutAccount, SetupBankPayload } from "../models/payoutAccount";
 
 type PayoutAccountContextValue = {
   /** null while checking, false when setup is required, true when configured. */
@@ -24,8 +24,12 @@ type PayoutAccountContextValue = {
   loading: boolean;
   saving: boolean;
   error: string | null;
-  save: (payload: SavePayoutAccountPayload) => Promise<boolean>;
+  setupBank: (
+    payload: SetupBankPayload,
+    bankName: string,
+  ) => Promise<"success" | "failed" | "already_configured">;
   refresh: () => Promise<void>;
+  clearError: () => void;
 };
 
 const PayoutAccountContext = createContext<PayoutAccountContextValue | null>(
@@ -80,25 +84,44 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
     void refresh();
   }, [refresh]);
 
-  const save = useCallback(
-    async (payload: SavePayoutAccountPayload): Promise<boolean> => {
-      if (!accessToken || !userId) return false;
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const setupBank = useCallback(
+    async (
+      payload: SetupBankPayload,
+      bankName: string,
+    ): Promise<"success" | "failed" | "already_configured"> => {
+      if (!accessToken || !userId) return "failed";
 
       setSaving(true);
       setError(null);
 
       try {
-        const savedAccount = await savePayoutAccount(accessToken, userId, payload);
-        setHasPayoutAccount(true);
-        setAccount(savedAccount);
-        return true;
+        const status = await saveSetupBank(
+          accessToken,
+          payload,
+          userId,
+          bankName,
+        );
+        setHasPayoutAccount(status.configured);
+        setAccount(
+          status.account
+            ? { ...status.account, bankName }
+            : null,
+        );
+        return "success";
       } catch (err) {
-        setError(
+        const message =
           err instanceof ApiError
             ? err.message
-            : "Something went wrong. Please try again.",
-        );
-        return false;
+            : "Something went wrong. Please try again.";
+        setError(message);
+        if (isBankAlreadyConfiguredError(err)) {
+          return "already_configured";
+        }
+        return "failed";
       } finally {
         setSaving(false);
       }
@@ -113,10 +136,11 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
       loading,
       saving,
       error,
-      save,
+      setupBank,
       refresh,
+      clearError,
     }),
-    [hasPayoutAccount, account, loading, saving, error, save, refresh],
+    [hasPayoutAccount, account, loading, saving, error, setupBank, refresh, clearError],
   );
 
   return (
@@ -134,4 +158,8 @@ export function usePayoutAccountGate(): PayoutAccountContextValue {
     );
   }
   return context;
+}
+
+export function isBankAlreadyConfiguredError(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 400;
 }
