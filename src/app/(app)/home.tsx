@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -22,6 +23,10 @@ import { useProfile } from "../../context/ProfileProvider";
 import { useHomeDashboard } from "../../hooks/useHomeDashboard";
 import { usePayoutAccountGate } from "../../hooks/usePayoutAccountGate";
 import { hasCustomAvatar } from "../../lib/avatarSource";
+import {
+  getBankSetupSkipped,
+  setBankSetupSkipped,
+} from "../../lib/bankSetupSkipStorage";
 import { deriveDisplayName } from "../../lib/greeting";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
@@ -46,6 +51,44 @@ export default function HomeScreen() {
     refresh: refreshPayoutAccount,
     clearError,
   } = usePayoutAccountGate();
+
+  const [bankSetupSkipped, setBankSetupSkippedState] = useState(false);
+  const [skipStateLoaded, setSkipStateLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setBankSetupSkippedState(false);
+      setSkipStateLoaded(true);
+      return;
+    }
+
+    let cancelled = false;
+    setSkipStateLoaded(false);
+
+    void getBankSetupSkipped(user.id)
+      .then((skipped) => {
+        if (!cancelled) setBankSetupSkippedState(skipped);
+      })
+      .finally(() => {
+        if (!cancelled) setSkipStateLoaded(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  const showBankOnboardingModal =
+    skipStateLoaded &&
+    hasPayoutAccount === false &&
+    !bankSetupSkipped;
+
+  const handleSkipBankSetup = () => {
+    if (!user?.id) return;
+    void setBankSetupSkipped(user.id).then(() => {
+      setBankSetupSkippedState(true);
+    });
+  };
 
   const showComingSoon = () => {
     Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
@@ -106,13 +149,14 @@ export default function HomeScreen() {
           <HomeTabBar activeTab="home" />
 
           <BankDetailsModal
-            visible={hasPayoutAccount === false}
+            visible={showBankOnboardingModal}
             accessToken={accessToken}
             saving={savingPayoutAccount}
             error={payoutAccountError}
             onSubmit={setupBank}
             onClearError={clearError}
             variant="onboarding"
+            onSkip={handleSkipBankSetup}
             onAlreadyConfigured={() => {
               void refreshPayoutAccount().finally(() => {
                 router.push("/(app)/profile");

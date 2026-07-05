@@ -45,6 +45,8 @@ type BankDetailsModalProps = {
   /** Profile edits require transaction PIN — not supported yet. */
   variant?: "onboarding" | "profile";
   onAlreadyConfigured?: () => void;
+  /** Onboarding only — dismiss without saving bank details. */
+  onSkip?: () => void;
 };
 
 export function BankDetailsModal({
@@ -59,6 +61,7 @@ export function BankDetailsModal({
   initialAccount,
   variant = "onboarding",
   onAlreadyConfigured,
+  onSkip,
 }: BankDetailsModalProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -391,6 +394,15 @@ export function BankDetailsModal({
             styles.submitButton,
             { backgroundColor: theme.colors.activityPayoutBg },
           ]}
+        />
+      ) : null}
+
+      {!isProfileVariant && onSkip ? (
+        <Button
+          label={t("home.bankDetails.skip")}
+          onPress={onSkip}
+          variant="secondary"
+          disabled={saving}
         />
       ) : null}
 

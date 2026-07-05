@@ -17,13 +17,11 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "../components/Button";
 import { AjoLedgerLogo } from "../components/AjoLedgerLogo";
-import { VoiceButton } from "../components/VoiceButton";
 import { useAuthStatus } from "../context/AuthProvider";
 import {
   getOnboardingCompleted,
   setOnboardingCompleted,
 } from "../lib/onboardingStorage";
-import { stopSpeech } from "../lib/speech";
 import { useThemedStyles, type Theme } from "../theme";
 
 type SlideKey = "welcome" | "recorded" | "confidence";
@@ -89,15 +87,7 @@ export default function Onboarding() {
       .catch(() => setHasCompletedOnboarding(false));
   }, []);
 
-  useEffect(() => {
-    void stopSpeech();
-  }, [index]);
-
   const isLast = index === slides.length - 1;
-  const currentSlide = slides[index];
-  const speechText = currentSlide
-    ? `${currentSlide.title}. ${currentSlide.body}`
-    : "";
 
   if (hasCompletedOnboarding === null) {
     return <View style={styles.container} />;
@@ -171,8 +161,6 @@ export default function Onboarding() {
       />
 
       <View style={styles.footer}>
-        {speechText ? <VoiceButton text={speechText} /> : null}
-
         <Button
           label={isLast ? t("onboarding.getStarted") : t("onboarding.continue")}
           iconRight="arrow-forward"
