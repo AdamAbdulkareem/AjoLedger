@@ -12,6 +12,7 @@ import {
   deleteUserAvatar,
   updateUserAvatar,
   updateUserProfile,
+  userProfileFromMe,
 } from "../api/profile";
 import { mockGetUserProfile } from "../api/mockProfile";
 import { ApiError } from "../api/client";
@@ -66,11 +67,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       }
 
       if (!cancelled) {
-        setProfile({
-          fullName: currentUser.name?.trim() || "",
-          phoneNumber: "",
-          avatarUri: null,
-        });
+        setProfile((prev) => userProfileFromMe(currentUser, prev ?? undefined));
       }
     })();
 

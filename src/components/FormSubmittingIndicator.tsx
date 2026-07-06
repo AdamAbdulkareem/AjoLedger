@@ -1,4 +1,11 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useEffect } from "react";
+import {
+  AccessibilityInfo,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { useTheme, useThemedStyles, type Theme } from "../theme";
 
@@ -13,6 +20,11 @@ export function FormSubmittingIndicator({
 }: FormSubmittingIndicatorProps) {
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
+
+  useEffect(() => {
+    if (!visible || !message) return;
+    void AccessibilityInfo.announceForAccessibility(message);
+  }, [visible, message]);
 
   if (!visible) return null;
 

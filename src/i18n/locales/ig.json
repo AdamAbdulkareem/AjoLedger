@@ -156,6 +156,42 @@
       "message": "Echekwala akaụnt gị nke ọma",
       "ok": "OK",
       "dismiss": "Mechie nkwenye mmelite akaụnt"
+    },
+    "firstTime": {
+      "heroTitle": "Ị dị njikere!",
+      "heroMessage": "Mepụta ma ọ bụ sonye na otu nchekwa iji malite ịchekwa na obodo gị",
+      "joinOrCreateGroup": "Sonye ma ọ bụ Mepụta Otu",
+      "whySaveTitle": "Gịnị kpatara ịchekwa na AjoLedger?",
+      "quickActions": "Omume Ngwa Ngwa",
+      "benefits": {
+        "secure": {
+          "title": "Nchekwa & Nghọta",
+          "body": "A na-edekọ ụgwọ ọ bụla ma dị nchebe"
+        },
+        "community": {
+          "title": "Obodo",
+          "body": "Chekwa ọnụ ma nwee ihe karịa"
+        },
+        "informed": {
+          "title": "Nọrọ na Ozi",
+          "body": "Nweta ncheta na mmelite oge niile"
+        }
+      },
+      "actions": {
+        "join": {
+          "title": "Sonye na Otu",
+          "subtitle": "Sonye na nchekwa dị adị na koodu ịkpọ oku"
+        },
+        "create": {
+          "title": "Mepụta Otu",
+          "subtitle": "Mepụta otu nchekwa gị maka obodo gị"
+        },
+        "help": {
+          "title": "Ịchọrọ Enyemaka?",
+          "subtitle": "Anyị nọ ebe a iji nyere gị aka n'ụzọ niile",
+          "trailing": "Kpọtụrụ Nkwado"
+        }
+      }
     }
   },
   "profile": {

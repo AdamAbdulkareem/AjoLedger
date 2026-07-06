@@ -156,6 +156,42 @@
       "message": "An ajiye asusun ku cikin nasara",
       "ok": "OK",
       "dismiss": "Rufe tabbatarwar sabunta asusu"
+    },
+    "firstTime": {
+      "heroTitle": "Kun shirya!",
+      "heroMessage": "Ƙirƙiri ko shiga ƙungiyar ajiya don fara ajiya tare da al'ummarka",
+      "joinOrCreateGroup": "Shiga ko Ƙirƙiri Ƙungiya",
+      "whySaveTitle": "Me yasa ajiya tare da AjoLedger?",
+      "quickActions": "Ayyuka Masu Sauri",
+      "benefits": {
+        "secure": {
+          "title": "Amintacce & Bayyananne",
+          "body": "An rubuta kowane biyan kuɗi kuma yana da aminci"
+        },
+        "community": {
+          "title": "Al'umma",
+          "body": "Ajiye tare ku sami ƙari"
+        },
+        "informed": {
+          "title": "Kasance da Labari",
+          "body": "Samu tunatarwa da sabuntawa a kowane lokaci"
+        }
+      },
+      "actions": {
+        "join": {
+          "title": "Shiga Ƙungiya",
+          "subtitle": "Shiga ajiya mai wanzuwa da lambar gayyata"
+        },
+        "create": {
+          "title": "Ƙirƙiri Ƙungiya",
+          "subtitle": "Ƙirƙiri ƙungiyar ajiyarka don al'ummarka"
+        },
+        "help": {
+          "title": "Kuna Bukatar Taimako?",
+          "subtitle": "Muna nan don taimaka muku a kowane mataki",
+          "trailing": "Tuntuɓi Tallafi"
+        }
+      }
     }
   },
   "profile": {

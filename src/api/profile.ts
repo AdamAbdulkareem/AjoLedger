@@ -19,11 +19,14 @@ export type UserIdentity = {
   email: string;
 };
 
-export function userProfileFromMe(user: UserWithPayout): UserProfile {
+export function userProfileFromMe(
+  user: UserWithPayout,
+  fallback?: Partial<UserProfile>,
+): UserProfile {
   return {
-    fullName: user.name?.trim() || "",
-    phoneNumber: "",
-    avatarUri: null,
+    fullName: user.name?.trim() || fallback?.fullName || "",
+    phoneNumber: fallback?.phoneNumber ?? "",
+    avatarUri: fallback?.avatarUri ?? null,
   };
 }
 
