@@ -4,6 +4,10 @@ import { getHomeDashboard } from "../api/home";
 import { ApiError } from "../api/client";
 import type { HomeDashboard } from "../models/home";
 
+type UseHomeDashboardOptions = {
+  enabled?: boolean;
+};
+
 type UseHomeDashboardResult = {
   data: HomeDashboard | null;
   loading: boolean;
@@ -14,12 +18,20 @@ type UseHomeDashboardResult = {
 export function useHomeDashboard(
   token: string | null,
   displayName?: string,
+  { enabled = true }: UseHomeDashboardOptions = {},
 ): UseHomeDashboardResult {
   const [data, setData] = useState<HomeDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    if (!enabled) {
+      setData(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     if (!token) {
       setData(null);
       setLoading(false);
@@ -43,7 +55,7 @@ export function useHomeDashboard(
     } finally {
       setLoading(false);
     }
-  }, [token, displayName]);
+  }, [token, displayName, enabled]);
 
   useEffect(() => {
     void refresh();

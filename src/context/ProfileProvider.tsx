@@ -4,19 +4,21 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
 
 import {
   deleteUserAvatar,
-  getUserProfile,
   updateUserAvatar,
   updateUserProfile,
+  userProfileFromMe,
 } from "../api/profile";
+import { mockGetUserProfile } from "../api/mockProfile";
 import { ApiError } from "../api/client";
+import { USE_MOCK_AUTH } from "../config/api";
 import { useAuth } from "./AuthProvider";
+import { useCurrentUser } from "./CurrentUserProvider";
 import type { UpdateProfilePayload, UserProfile } from "../models/profile";
 
 type ProfileContextValue = {
@@ -35,39 +37,44 @@ const ProfileContext = createContext<ProfileContextValue | null>(null);
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user, accessToken, status, updateSessionUser } = useAuth();
-  const requestIdRef = useRef(0);
+  const { currentUser, loading: userLoading, refresh: refreshCurrentUser } =
+    useCurrentUser();
+
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [pendingUpdateSuccess, setPendingUpdateSuccess] = useState(false);
 
   const refreshProfile = useCallback(async () => {
-    const requestId = ++requestIdRef.current;
+    await refreshCurrentUser();
+  }, [refreshCurrentUser]);
 
-    if (!accessToken || !user || status !== "authenticated") {
-      if (requestId !== requestIdRef.current) return;
+  useEffect(() => {
+    if (status !== "authenticated" || !currentUser) {
       setProfile(null);
-      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    try {
-      const data = await getUserProfile(accessToken, user.id, user.email);
-      if (requestId !== requestIdRef.current) return;
-      setProfile(data);
-    } catch {
-      if (requestId !== requestIdRef.current) return;
-      // Keep the last known profile on transient fetch failures.
-    } finally {
-      if (requestId !== requestIdRef.current) return;
-      setLoading(false);
-    }
-  }, [accessToken, user, status]);
+    let cancelled = false;
 
-  useEffect(() => {
-    void refreshProfile();
-  }, [refreshProfile]);
+    void (async () => {
+      if (USE_MOCK_AUTH) {
+        const mockProfile = await mockGetUserProfile(
+          currentUser.id,
+          currentUser.email,
+        );
+        if (!cancelled) setProfile(mockProfile);
+        return;
+      }
+
+      if (!cancelled) {
+        setProfile((prev) => userProfileFromMe(currentUser, prev ?? undefined));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUser, status]);
 
   const updateProfile = useCallback(
     async (payload: UpdateProfilePayload) => {
@@ -89,12 +96,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           await updateSessionUser({ ...user, email: result.email });
         }
 
+        await refreshCurrentUser();
         setPendingUpdateSuccess(true);
       } finally {
         setSaving(false);
       }
     },
-    [accessToken, user, updateSessionUser],
+    [accessToken, user, updateSessionUser, refreshCurrentUser],
   );
 
   const setAvatarUri = useCallback(
@@ -144,7 +152,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const value = useMemo<ProfileContextValue>(
     () => ({
       profile,
-      loading,
+      loading: userLoading,
       saving,
       pendingUpdateSuccess,
       refreshProfile,
@@ -155,7 +163,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     }),
     [
       profile,
-      loading,
+      userLoading,
       saving,
       pendingUpdateSuccess,
       refreshProfile,
@@ -180,6 +188,6 @@ export function useProfile(): ProfileContextValue {
 }
 
 export function useProfileDisplayName(fallback: string): string {
-  const { profile } = useProfile();
-  return profile?.fullName?.trim() || fallback;
+  const { displayName } = useCurrentUser();
+  return displayName || fallback;
 }

@@ -4,6 +4,8 @@ import type {
   UpdateProfileResult,
   UserProfile,
 } from "../models/profile";
+import type { UserWithPayout } from "../models/bank";
+import { getCurrentUser } from "./banks";
 import { apiRequest } from "./client";
 import {
   mockDeleteUserAvatar,
@@ -12,20 +14,47 @@ import {
   mockUpdateUserProfile,
 } from "./mockProfile";
 
+export type UserIdentity = {
+  profile: UserProfile;
+  email: string;
+};
+
+export function userProfileFromMe(
+  user: UserWithPayout,
+  fallback?: Partial<UserProfile>,
+): UserProfile {
+  return {
+    fullName: user.name?.trim() || fallback?.fullName || "",
+    phoneNumber: fallback?.phoneNumber ?? "",
+    avatarUri: fallback?.avatarUri ?? null,
+  };
+}
+
+export async function getUserIdentity(
+  token: string,
+  userId: string,
+  email: string,
+): Promise<UserIdentity> {
+  if (USE_MOCK_AUTH) {
+    const profile = await mockGetUserProfile(userId, email);
+    return { profile, email };
+  }
+
+  const user = await getCurrentUser(token);
+  return {
+    profile: userProfileFromMe(user),
+    email: user.email,
+  };
+}
+
+/** @deprecated Use getUserIdentity — kept for call sites that only need profile fields. */
 export async function getUserProfile(
   token: string,
   userId: string,
   email: string,
 ): Promise<UserProfile> {
-  if (USE_MOCK_AUTH) {
-    return mockGetUserProfile(userId, email);
-  }
-
-  const envelope = await apiRequest<UserProfile>("/users/me/profile", { token });
-  if (!envelope.data) {
-    throw new Error("Profile returned no data.");
-  }
-  return envelope.data;
+  const identity = await getUserIdentity(token, userId, email);
+  return identity.profile;
 }
 
 export async function updateUserProfile(

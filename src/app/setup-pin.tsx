@@ -105,7 +105,7 @@ export default function SetupPinScreen() {
         <Button
           label={t("auth.continue")}
           onPress={handleSubmit}
-          disabled={submitting}
+          loading={submitting}
         />
       </View>
     </SafeAreaView>

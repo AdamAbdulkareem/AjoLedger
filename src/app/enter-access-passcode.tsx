@@ -7,12 +7,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { PasscodeRowInput } from "../components/AccessPasscodeInput";
 import { ACCESS_PASSCODE_LENGTH } from "../lib/accessPasscodeStorage";
 import { Button } from "../components/Button";
+import { FormSubmittingIndicator } from "../components/FormSubmittingIndicator";
 import { AjoLedgerLogo } from "../components/AjoLedgerLogo";
 import { PasscodeUserBadge } from "../components/PasscodeUserBadge";
 import { useAuth } from "../context/AuthProvider";
 import { useProfile } from "../context/ProfileProvider";
 import { ApiError } from "../api/client";
 import { INCORRECT_ACCESS_PASSCODE } from "../models/auth";
+import { waitForNextFrame } from "../lib/waitForNextFrame";
 import { useTheme, useThemedStyles, type Theme } from "../theme";
 
 export default function EnterAccessPasscodeScreen() {
@@ -29,8 +31,7 @@ export default function EnterAccessPasscodeScreen() {
   const [formError, setFormError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
 
-  const canSubmit =
-    passcode.length === ACCESS_PASSCODE_LENGTH && !submitting;
+  const isFormValid = passcode.length === ACCESS_PASSCODE_LENGTH;
 
   const handleSubmit = async (code?: string) => {
     if (submitting) return;
@@ -47,6 +48,7 @@ export default function EnterAccessPasscodeScreen() {
     setSubmitting(true);
 
     try {
+      await waitForNextFrame();
       await verifyAccessPasscode(value);
       router.replace("/(app)/home");
     } catch (error) {
@@ -148,12 +150,18 @@ export default function EnterAccessPasscodeScreen() {
             value={passcode}
             onChangeText={setPasscode}
             error={passcodeError}
+            editable={!submitting}
             onComplete={(code) => {
               void handleSubmit(code);
             }}
           />
+          <FormSubmittingIndicator
+            message={t("auth.submittingPasscode")}
+            visible={submitting}
+          />
           <Pressable
             onPress={handleForgetPasscode}
+            disabled={submitting}
             accessibilityRole="button"
             accessibilityLabel={t("auth.forgetPasscode")}
             style={styles.forgetLinkWrap}
@@ -173,7 +181,8 @@ export default function EnterAccessPasscodeScreen() {
           onPress={() => {
             void handleSubmit();
           }}
-          disabled={!canSubmit}
+          disabled={!isFormValid}
+          loading={submitting}
           size="compact"
           style={{ backgroundColor: theme.colors.activityPayoutBg }}
         />

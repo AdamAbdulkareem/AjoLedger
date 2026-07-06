@@ -1,6 +1,7 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 
+import { AjoLedgerLogoMark } from "../AjoLedgerLogoMark";
 import { getGreetingKey } from "../../lib/greeting";
 import { useThemedStyles, type Theme } from "../../theme";
 
@@ -18,11 +19,14 @@ export function HomeHeader({ displayName, avatarUrl }: HomeHeaderProps) {
 
   return (
     <View style={styles.row}>
-      <View style={styles.textWrap}>
-        <Text style={styles.greeting}>
-          {t(`home.${greetingKey}`, { name: displayName })}
-        </Text>
-        <Text style={styles.subtitle}>{t("home.overviewSubtitle")}</Text>
+      <View style={styles.brandRow}>
+        <AjoLedgerLogoMark size={50} variant="circle" />
+        <View style={styles.textWrap}>
+          <Text style={styles.greeting}>
+            {t(`home.${greetingKey}`, { name: displayName })}
+          </Text>
+          <Text style={styles.subtitle}>{t("home.overviewSubtitle")}</Text>
+        </View>
       </View>
       <View style={styles.avatarWrap}>
         <Image
@@ -44,10 +48,17 @@ const createStyles = (theme: Theme) =>
       alignItems: "center",
       gap: theme.spacing.md,
     },
+    brandRow: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 0,
+      maxWidth: 260,
+    },
     textWrap: {
       flex: 1,
       gap: 4,
-      maxWidth: 165,
+      paddingLeft: 0,
     },
     greeting: {
       ...theme.typography.subtitle,

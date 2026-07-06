@@ -7,9 +7,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { PasscodeOtpInput } from "../components/AccessPasscodeInput";
 import { ACCESS_PASSCODE_LENGTH } from "../lib/accessPasscodeStorage";
 import { Button } from "../components/Button";
+import { FormSubmittingIndicator } from "../components/FormSubmittingIndicator";
 import { AjoLedgerLogo } from "../components/AjoLedgerLogo";
 import { useAuth } from "../context/AuthProvider";
 import { ApiError } from "../api/client";
+import { waitForNextFrame } from "../lib/waitForNextFrame";
 import { useTheme, useThemedStyles, type Theme } from "../theme";
 
 export default function SetupAccessPasscodeScreen() {
@@ -42,10 +44,9 @@ export default function SetupAccessPasscodeScreen() {
     return <Redirect href="/enter-access-passcode" />;
   }
 
-  const canSubmit =
+  const isFormValid =
     passcode.length === ACCESS_PASSCODE_LENGTH &&
-    confirmPasscode.length === ACCESS_PASSCODE_LENGTH &&
-    !submitting;
+    confirmPasscode.length === ACCESS_PASSCODE_LENGTH;
 
   const validate = () => {
     let valid = true;
@@ -70,12 +71,14 @@ export default function SetupAccessPasscodeScreen() {
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
     if (!validate()) return;
 
     setSubmitting(true);
     setFormError(undefined);
 
     try {
+      await waitForNextFrame();
       await setupAccessPasscode(passcode);
       router.replace("/(app)/home");
     } catch (error) {
@@ -110,6 +113,7 @@ export default function SetupAccessPasscodeScreen() {
             value={passcode}
             onChangeText={setPasscode}
             error={passcodeError}
+            editable={!submitting}
             autoFocus
           />
           <PasscodeOtpInput
@@ -117,6 +121,11 @@ export default function SetupAccessPasscodeScreen() {
             value={confirmPasscode}
             onChangeText={setConfirmPasscode}
             error={confirmError}
+            editable={!submitting}
+          />
+          <FormSubmittingIndicator
+            message={t("auth.submittingPasscode")}
+            visible={submitting}
           />
         </View>
 
@@ -131,7 +140,8 @@ export default function SetupAccessPasscodeScreen() {
         <Button
           label={t("auth.continue")}
           onPress={handleSubmit}
-          disabled={!canSubmit}
+          disabled={!isFormValid}
+          loading={submitting}
           size="compact"
           style={{ backgroundColor: theme.colors.activityPayoutBg }}
         />

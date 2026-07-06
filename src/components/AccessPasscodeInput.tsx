@@ -23,6 +23,7 @@ type PasscodeOtpInputProps = {
   onChangeText: (text: string) => void;
   error?: string;
   autoFocus?: boolean;
+  editable?: boolean;
 };
 
 export function PasscodeOtpInput({
@@ -31,6 +32,7 @@ export function PasscodeOtpInput({
   onChangeText,
   error,
   autoFocus = false,
+  editable = true,
 }: PasscodeOtpInputProps) {
   const inputRef = useRef<TextInput>(null);
   const styles = useThemedStyles(createStyles);
@@ -42,7 +44,9 @@ export function PasscodeOtpInput({
     <View style={styles.otpSection}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <Pressable
-        onPress={() => inputRef.current?.focus()}
+        onPress={() => {
+          if (editable) inputRef.current?.focus();
+        }}
         accessible={false}
         style={styles.otpRow}
       >
@@ -74,6 +78,7 @@ export function PasscodeOtpInput({
         textContentType="oneTimeCode"
         autoComplete="one-time-code"
         autoFocus={autoFocus}
+        editable={editable}
         caretHidden
         style={styles.hiddenInput}
         accessibilityLabel={label}
@@ -93,6 +98,7 @@ type PasscodeRowInputProps = {
   onChangeText: (text: string) => void;
   error?: string;
   onComplete?: (passcode: string) => void;
+  editable?: boolean;
 };
 
 export function PasscodeRowInput({
@@ -101,12 +107,15 @@ export function PasscodeRowInput({
   onChangeText,
   error,
   onComplete,
+  editable = true,
 }: PasscodeRowInputProps) {
   const theme = useTheme();
   const inputRef = useRef<TextInput>(null);
   const styles = useThemedStyles(createStyles);
 
   const handleChange = (text: string) => {
+    if (!editable) return;
+
     const next = normalizeAccessPasscode(text);
     onChangeText(next);
     if (next.length === ACCESS_PASSCODE_LENGTH) {
@@ -120,7 +129,9 @@ export function PasscodeRowInput({
   return (
     <View style={styles.rowSection}>
       <Pressable
-        onPress={() => inputRef.current?.focus()}
+        onPress={() => {
+          if (editable) inputRef.current?.focus();
+        }}
         accessible={false}
         style={[styles.row, error ? styles.rowError : null]}
       >
@@ -148,6 +159,7 @@ export function PasscodeRowInput({
         maxLength={ACCESS_PASSCODE_LENGTH}
         textContentType="oneTimeCode"
         autoComplete="one-time-code"
+        editable={editable}
         style={styles.hiddenInput}
         accessibilityLabel={placeholder}
       />

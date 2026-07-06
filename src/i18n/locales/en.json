@@ -35,6 +35,7 @@
     "noAccount": "Don't have an account?",
     "signIn": "Sign In",
     "continue": "Continue",
+    "submittingPasscode": "Verifying passcode…",
     "createAccessPasscodeTitle": "Create your 6-digit passcode",
     "createAccessPasscodeSubtitle": "You will use this passcode to unlock the app.",
     "inputPasscodeLabel": "Input Passcode",
@@ -111,8 +112,7 @@
     "tabs": {
       "home": "Home",
       "groups": "Groups",
-      "contributions": "Contributions",
-      "payouts": "Payouts",
+      "ledger": "Ledger",
       "profile": "Profile"
     },
     "activity": {
@@ -150,6 +150,48 @@
         "resolveFailed": "Account details could not be resolved. Please try again.",
         "banksLoadFailed": "Could not load banks. Please try again.",
         "banksUnavailable": "Bank list is not available yet. Please try again."
+      }
+    },
+    "bankDetailsSuccess": {
+      "title": "Account Update",
+      "message": "Your account has successfully been saved",
+      "ok": "OK",
+      "dismiss": "Dismiss account update confirmation"
+    },
+    "firstTime": {
+      "heroTitle": "You are all set!",
+      "heroMessage": "Create or join a savings group to start saving with your community",
+      "joinOrCreateGroup": "Join or Create Group",
+      "whySaveTitle": "Why save with AjoLedger?",
+      "quickActions": "Quick Actions",
+      "benefits": {
+        "secure": {
+          "title": "Secure & Transparent",
+          "body": "Every payment is recorded and safe"
+        },
+        "community": {
+          "title": "Community Driven",
+          "body": "Save together and achieve more"
+        },
+        "informed": {
+          "title": "Stay Informed",
+          "body": "Get reminders and updates every time"
+        }
+      },
+      "actions": {
+        "join": {
+          "title": "Join a Group",
+          "subtitle": "Join an existing savings with an invitation code"
+        },
+        "create": {
+          "title": "Create a Group",
+          "subtitle": "Create your own savings group for your community"
+        },
+        "help": {
+          "title": "Needs Help?",
+          "subtitle": "We are here to help you with every step of the way",
+          "trailing": "Contact Support"
+        }
       }
     }
   },

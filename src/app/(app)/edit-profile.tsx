@@ -17,10 +17,9 @@ import { HomeTabBar } from "../../components/home/HomeTabBar";
 import { ProfilePhotoEditor } from "../../components/profile/ProfilePhotoEditor";
 import { SubScreenHeader } from "../../components/profile/SubScreenHeader";
 import { ApiError } from "../../api/client";
-import { useAuth } from "../../context/AuthProvider";
+import { useCurrentUser } from "../../context/CurrentUserProvider";
 import { useProfile } from "../../context/ProfileProvider";
 import { useEditProfilePictureModal } from "../../hooks/useEditProfilePictureModal";
-import { deriveDisplayName } from "../../lib/greeting";
 import {
   normalizePhoneNumber,
   validateProfileForm,
@@ -32,7 +31,7 @@ export default function EditProfileScreen() {
   const router = useRouter();
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
-  const { user } = useAuth();
+  const { displayName, email: currentEmail } = useCurrentUser();
   const { profile, loading, saving, updateProfile } = useProfile();
   const photoModal = useEditProfilePictureModal({ deferChanges: true });
 
@@ -45,11 +44,11 @@ export default function EditProfileScreen() {
   const [formError, setFormError] = useState<string>();
 
   useEffect(() => {
-    if (!profile || !user) return;
-    setFullName(profile.fullName);
-    setEmail(user.email);
+    if (!profile) return;
+    setFullName(profile.fullName || displayName);
+    setEmail(currentEmail);
     setPhoneNumber(profile.phoneNumber);
-  }, [profile, user]);
+  }, [profile, displayName, currentEmail]);
 
   const handleCancel = () => {
     photoModal.discardPendingAvatar();
@@ -105,7 +104,7 @@ export default function EditProfileScreen() {
     );
   }
 
-  const fallbackName = deriveDisplayName(user?.email) ?? t("profile.defaultName");
+  const fallbackName = displayName || t("profile.defaultName");
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -145,7 +144,7 @@ export default function EditProfileScreen() {
               setEmailError(undefined);
               setFormError(undefined);
             }}
-            placeholder={user?.email}
+            placeholder={currentEmail}
             error={emailError}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -175,7 +174,7 @@ export default function EditProfileScreen() {
           <Button
             label={t("profile.edit.saveChanges")}
             onPress={() => void handleSave()}
-            disabled={saving}
+            loading={saving}
           />
           <Pressable
             onPress={handleCancel}

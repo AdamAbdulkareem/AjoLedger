@@ -35,6 +35,7 @@
     "noAccount": "Ko ni akọọlẹ?",
     "signIn": "Wọle",
     "continue": "Tẹsiwaju",
+    "submittingPasscode": "N ṣayẹwo koodu iwọle…",
     "createAccessPasscodeTitle": "Ṣẹda koodu iwọle app oni-nọmba 6 rẹ",
     "createAccessPasscodeSubtitle": "O yoo lo koodu yii lati ṣi app naa.",
     "inputPasscodeLabel": "Tẹ koodu iwọle",
@@ -109,8 +110,7 @@
     "tabs": {
       "home": "Ilé",
       "groups": "Awọn Ẹgbẹ",
-      "contributions": "Awọn Owo",
-      "payouts": "Awọn Owo Ti N Bo",
+      "ledger": "Iwe ẹri",
       "profile": "Profaili"
     },
     "activity": {
@@ -148,6 +148,48 @@
         "resolveFailed": "Ko le ṣe idanwo alaye akọọlẹ. Gbiyanju lẹẹkansi.",
         "banksLoadFailed": "Ko le gba awọn banki. Gbiyanju lẹẹkansi.",
         "banksUnavailable": "Atokọ banki ko si sibẹsibẹ. Gbiyanju lẹẹkansi."
+      }
+    },
+    "bankDetailsSuccess": {
+      "title": "Imudojuiwọn Akaun",
+      "message": "A ti fi akaun rẹ pamọ ni aṣeyọri",
+      "ok": "OK",
+      "dismiss": "Pa idaniloju imudojuiwọn akaun"
+    },
+    "firstTime": {
+      "heroTitle": "O ti ṣetan!",
+      "heroMessage": "Ṣẹda tabi darapọ mọ ẹgbẹ ajọpọ lati bẹrẹ ajọpọ pẹlu agbegbe rẹ",
+      "joinOrCreateGroup": "Darapọ tabi Ṣẹda Ẹgbẹ",
+      "whySaveTitle": "Kini idi ti o fi fẹ fi AjoLedger ṣe ajọpọ?",
+      "quickActions": "Awọn Iṣe Kọọkan",
+      "benefits": {
+        "secure": {
+          "title": "Aabo & Ifihan",
+          "body": "Gbogbo isanwo ni a ṣe igbasilẹ ati aabo"
+        },
+        "community": {
+          "title": "Agbegbe",
+          "body": "Ajọpọ papọ ki o ṣe diẹ sii"
+        },
+        "informed": {
+          "title": "Mọ Ohun Tó Ṣẹlẹ",
+          "body": "Gba awọn irannilẹti ati imudojuiwọn ni gbogbo igba"
+        }
+      },
+      "actions": {
+        "join": {
+          "title": "Darapọ mọ Ẹgbẹ",
+          "subtitle": "Darapọ mọ ajọpọ ti o wa pẹlu koodu pipe"
+        },
+        "create": {
+          "title": "Ṣẹda Ẹgbẹ",
+          "subtitle": "Ṣẹda ẹgbẹ ajọpọ tirẹ fun agbegbe rẹ"
+        },
+        "help": {
+          "title": "Nilo Iranlọwọ?",
+          "subtitle": "A wa nibi lati ran ọ lọwọ ni gbogbo igba",
+          "trailing": "Kan si Atilẹyin"
+        }
       }
     }
   },

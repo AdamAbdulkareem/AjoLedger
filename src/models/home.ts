@@ -62,9 +62,4 @@ export type HomeDashboard = {
   recentActivity: RecentActivityItem[];
 };
 
-export type HomeTabKey =
-  | "home"
-  | "groups"
-  | "contributions"
-  | "payouts"
-  | "profile";
+export type HomeTabKey = "home" | "groups" | "ledger" | "profile";
