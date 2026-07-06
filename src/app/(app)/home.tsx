@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,12 +13,14 @@ import { useTranslation } from "react-i18next";
 
 import { AmountRemainsCard } from "../../components/home/AmountRemainsCard";
 import { BankDetailsModal } from "../../components/home/BankDetailsModal";
+import { BankDetailsSuccessModal } from "../../components/home/BankDetailsSuccessModal";
 import { HomeHeader } from "../../components/home/HomeHeader";
 import { HomeTabBar } from "../../components/home/HomeTabBar";
 import { RecentActivitySection } from "../../components/home/RecentActivitySection";
 import { SavingsOverviewCard } from "../../components/home/SavingsOverviewCard";
 import { Button } from "../../components/Button";
 import { useAuth } from "../../context/AuthProvider";
+import { useCurrentUser } from "../../context/CurrentUserProvider";
 import { useProfile } from "../../context/ProfileProvider";
 import { useHomeDashboard } from "../../hooks/useHomeDashboard";
 import { usePayoutAccountGate } from "../../hooks/usePayoutAccountGate";
@@ -27,7 +29,6 @@ import {
   getBankSetupSkipped,
   setBankSetupSkipped,
 } from "../../lib/bankSetupSkipStorage";
-import { deriveDisplayName } from "../../lib/greeting";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 export default function HomeScreen() {
@@ -35,13 +36,12 @@ export default function HomeScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { accessToken, user } = useAuth();
+  const { displayName, refresh: refreshCurrentUser } = useCurrentUser();
   const { profile } = useProfile();
   const styles = useThemedStyles(createStyles);
-  const displayNameHint =
-    profile?.fullName?.trim() || deriveDisplayName(user?.email);
   const { data, loading, error, refresh } = useHomeDashboard(
     accessToken,
-    displayNameHint,
+    displayName,
   );
   const {
     hasPayoutAccount,
@@ -54,6 +54,7 @@ export default function HomeScreen() {
 
   const [bankSetupSkipped, setBankSetupSkippedState] = useState(false);
   const [skipStateLoaded, setSkipStateLoaded] = useState(false);
+  const [showBankSaveSuccess, setShowBankSaveSuccess] = useState(false);
 
   useEffect(() => {
     if (!user?.id) {
@@ -94,6 +95,24 @@ export default function HomeScreen() {
     Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
   };
 
+  const dismissBankSaveSuccess = useCallback(() => {
+    setShowBankSaveSuccess(false);
+  }, []);
+
+  const handleSetupBank = useCallback(
+    async (
+      ...args: Parameters<typeof setupBank>
+    ): ReturnType<typeof setupBank> => {
+      const result = await setupBank(...args);
+      if (result === "success") {
+        setShowBankSaveSuccess(true);
+        void refreshCurrentUser();
+      }
+      return result;
+    },
+    [setupBank, refreshCurrentUser],
+  );
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       {loading ? (
@@ -112,48 +131,56 @@ export default function HomeScreen() {
         </View>
       ) : data ? (
         <>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
+          <View
+            style={[
+              styles.homeContent,
+              showBankSaveSuccess ? styles.homeContentDimmed : null,
+            ]}
+            pointerEvents={showBankSaveSuccess ? "none" : "auto"}
           >
-            <HomeHeader
-              displayName={profile?.fullName?.trim() || data.displayName}
-              avatarUrl={
-                profile?.avatarUri && hasCustomAvatar(profile.avatarUri)
-                  ? profile.avatarUri
-                  : data.avatarUrl
-              }
-            />
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              <HomeHeader
+                displayName={displayName}
+                avatarUrl={
+                  profile?.avatarUri && hasCustomAvatar(profile.avatarUri)
+                    ? profile.avatarUri
+                    : data.avatarUrl
+                }
+              />
 
-            <SavingsOverviewCard
-              group={data.group}
-              progress={data.progress}
-              payout={data.payout}
-              onGroupPress={showComingSoon}
-              onDetailsPress={showComingSoon}
-            />
+              <SavingsOverviewCard
+                group={data.group}
+                progress={data.progress}
+                payout={data.payout}
+                onGroupPress={showComingSoon}
+                onDetailsPress={showComingSoon}
+              />
 
-            <AmountRemainsCard
-              amountRemains={data.amountRemains}
-              onPayNowPress={showComingSoon}
-            />
+              <AmountRemainsCard
+                amountRemains={data.amountRemains}
+                onPayNowPress={showComingSoon}
+              />
 
-            <RecentActivitySection
-              items={data.recentActivity}
-              viewAllLabel={t("home.viewAll")}
-              onViewAllPress={showComingSoon}
-              onItemPress={showComingSoon}
-            />
-          </ScrollView>
+              <RecentActivitySection
+                items={data.recentActivity}
+                viewAllLabel={t("home.viewAll")}
+                onViewAllPress={showComingSoon}
+                onItemPress={showComingSoon}
+              />
+            </ScrollView>
 
-          <HomeTabBar activeTab="home" />
+            <HomeTabBar activeTab="home" />
+          </View>
 
           <BankDetailsModal
             visible={showBankOnboardingModal}
             accessToken={accessToken}
             saving={savingPayoutAccount}
             error={payoutAccountError}
-            onSubmit={setupBank}
+            onSubmit={handleSetupBank}
             onClearError={clearError}
             variant="onboarding"
             onSkip={handleSkipBankSetup}
@@ -162,6 +189,11 @@ export default function HomeScreen() {
                 router.push("/(app)/profile");
               });
             }}
+          />
+
+          <BankDetailsSuccessModal
+            visible={showBankSaveSuccess}
+            onDismiss={dismissBankSaveSuccess}
           />
         </>
       ) : null}
@@ -174,6 +206,12 @@ const createStyles = (theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.surface,
+    },
+    homeContent: {
+      flex: 1,
+    },
+    homeContentDimmed: {
+      opacity: 0.45,
     },
     scrollContent: {
       paddingHorizontal: theme.spacing.md,

@@ -35,6 +35,7 @@
     "noAccount": "You no get account?",
     "signIn": "Sign In",
     "continue": "Continue",
+    "submittingPasscode": "Dey verify passcode…",
     "createAccessPasscodeTitle": "Make your 6-digit access passcode",
     "createAccessPasscodeSubtitle": "You go use this passcode open the app.",
     "inputPasscodeLabel": "Input Passcode",
@@ -109,8 +110,7 @@
     "tabs": {
       "home": "Home",
       "groups": "Groups",
-      "contributions": "Contributions",
-      "payouts": "Payouts",
+      "ledger": "Ledger",
       "profile": "Profile"
     },
     "activity": {
@@ -149,6 +149,12 @@
         "banksLoadFailed": "No fit load banks. Try again.",
         "banksUnavailable": "Bank list no dey available yet. Try again."
       }
+    },
+    "bankDetailsSuccess": {
+      "title": "Account Update",
+      "message": "Your account don save successfully",
+      "ok": "OK",
+      "dismiss": "Dismiss account update confirmation"
     }
   },
   "profile": {

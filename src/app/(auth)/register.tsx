@@ -112,7 +112,7 @@ export default function RegisterScreen() {
         <Button
           label={t("auth.signUp")}
           onPress={handleSubmit}
-          disabled={submitting}
+          loading={submitting}
         />
         <OrDivider label={t("auth.or")} />
         <View style={styles.social}>

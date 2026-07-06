@@ -79,6 +79,7 @@ export function BankDetailsModal({
   const [resolveState, setResolveState] = useState<ResolveState>("idle");
   const [resolvedName, setResolvedName] = useState<string | null>(null);
   const [resolveError, setResolveError] = useState<string>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const resolveRequestIdRef = useRef(0);
 
   const isProfileVariant = variant === "profile";
@@ -92,8 +93,7 @@ export function BankDetailsModal({
     variant === "onboarding" &&
     canResolve &&
     resolveState === "success" &&
-    !!resolvedName &&
-    !saving;
+    !!resolvedName;
 
   useEffect(() => {
     if (!visible || !accessToken) return;
@@ -123,6 +123,11 @@ export function BankDetailsModal({
       cancelled = true;
     };
   }, [visible, accessToken, t]);
+
+  useEffect(() => {
+    if (visible) return;
+    setIsSubmitting(false);
+  }, [visible]);
 
   useEffect(() => {
     if (!visible) return;
@@ -265,21 +270,27 @@ export function BankDetailsModal({
       return;
     }
 
-    const result = await onSubmit(
-      {
-        bankCode: selectedBank.bankCode,
-        accountNumber: normalized,
-        accountName: resolvedName,
-      },
-      selectedBank.bankName,
-    );
+    setIsSubmitting(true);
 
-    if (result === "already_configured") {
-      onAlreadyConfigured?.();
-    }
+    try {
+      const result = await onSubmit(
+        {
+          bankCode: selectedBank.bankCode,
+          accountNumber: normalized,
+          accountName: resolvedName,
+        },
+        selectedBank.bankName,
+      );
 
-    if (result === "success" && dismissible) {
-      onClose?.();
+      if (result === "already_configured") {
+        onAlreadyConfigured?.();
+      }
+
+      if (result === "success" && dismissible) {
+        onClose?.();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -388,7 +399,8 @@ export function BankDetailsModal({
         <Button
           label={t("home.bankDetails.next")}
           onPress={() => void handleSubmit()}
-          disabled={!canSubmit}
+          disabled={!canSubmit || isSubmitting}
+          loading={saving || isSubmitting}
           size="compact"
           style={[
             styles.submitButton,
@@ -402,7 +414,7 @@ export function BankDetailsModal({
           label={t("home.bankDetails.skip")}
           onPress={onSkip}
           variant="secondary"
-          disabled={saving}
+          disabled={saving || isSubmitting}
         />
       ) : null}
 

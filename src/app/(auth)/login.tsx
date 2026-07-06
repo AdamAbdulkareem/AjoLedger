@@ -116,7 +116,7 @@ export default function LoginScreen() {
         <Button
           label={t("auth.logIn")}
           onPress={handleSubmit}
-          disabled={submitting}
+          loading={submitting}
         />
         <OrDivider label={t("auth.or")} />
         <View style={styles.social}>

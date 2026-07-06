@@ -20,10 +20,10 @@ import { ProfileScreenHeader } from "../../components/profile/ProfileScreenHeade
 import { ProfileSection } from "../../components/profile/ProfileSection";
 import { ProfileSuccessToast } from "../../components/profile/ProfileSuccessToast";
 import { useAuth } from "../../context/AuthProvider";
+import { useCurrentUser } from "../../context/CurrentUserProvider";
 import { useProfile } from "../../context/ProfileProvider";
 import { usePayoutAccountGate } from "../../hooks/usePayoutAccountGate";
 import { useEditProfilePictureModal } from "../../hooks/useEditProfilePictureModal";
-import { deriveDisplayName } from "../../lib/greeting";
 import { setStoredLanguage } from "../../i18n/languageStorage";
 import { getLanguageLabel } from "../../i18n/languages";
 import { showLanguagePicker } from "../../lib/showLanguagePicker";
@@ -33,6 +33,7 @@ export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { user, accessToken, logout } = useAuth();
+  const { displayName, email } = useCurrentUser();
   const { profile, pendingUpdateSuccess, consumePendingUpdateSuccess } =
     useProfile();
   const theme = useTheme();
@@ -41,11 +42,7 @@ export default function ProfileScreen() {
 
   const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
 
-  const displayName =
-    profile?.fullName?.trim() ||
-    deriveDisplayName(user?.email) ||
-    t("profile.defaultName");
-  const email = user?.email ?? "";
+  const resolvedDisplayName = displayName || t("profile.defaultName");
 
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(true);
@@ -109,7 +106,7 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         <ProfileAvatarSection
-          displayName={displayName}
+          displayName={resolvedDisplayName}
           email={email}
           avatarUri={photoModal.avatarUri}
           onEditPhotoPress={photoModal.open}

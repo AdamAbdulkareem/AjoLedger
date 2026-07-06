@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { HomeTabKey } from "../../models/home";
 import { handleAppTabPress } from "../../lib/navigateAppTab";
-import { useThemedStyles, type Theme } from "../../theme";
+import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 type HomeTabBarProps = {
   activeTab?: HomeTabKey;
@@ -32,21 +32,15 @@ const TABS: {
     labelKey: "home.tabs.groups",
   },
   {
-    key: "contributions",
-    icon: "download-outline",
-    activeIcon: "download",
-    labelKey: "home.tabs.contributions",
-  },
-  {
-    key: "payouts",
-    icon: "wallet-outline",
-    activeIcon: "wallet",
-    labelKey: "home.tabs.payouts",
+    key: "ledger",
+    icon: "document-text-outline",
+    activeIcon: "document-text",
+    labelKey: "home.tabs.ledger",
   },
   {
     key: "profile",
-    icon: "person-outline",
-    activeIcon: "person",
+    icon: "person-circle-outline",
+    activeIcon: "person-circle",
     labelKey: "home.tabs.profile",
   },
 ];
@@ -57,6 +51,7 @@ export function HomeTabBar({
 }: HomeTabBarProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const theme = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useThemedStyles(createStyles);
 
@@ -72,6 +67,7 @@ export function HomeTabBar({
     <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 8) }]}>
       {TABS.map((tab) => {
         const isActive = tab.key === activeTab;
+        const tint = isActive ? theme.colors.brand : theme.colors.cardBorderMuted;
         return (
           <Pressable
             key={tab.key}
@@ -83,8 +79,8 @@ export function HomeTabBar({
           >
             <Ionicons
               name={isActive ? tab.activeIcon : tab.icon}
-              size={22}
-              color={isActive ? "#00732E" : "#6D7888"}
+              size={24}
+              color={tint}
             />
             <Text style={[styles.label, isActive && styles.labelActive]}>
               {t(tab.labelKey)}
@@ -103,23 +99,25 @@ const createStyles = (theme: Theme) =>
       alignItems: "flex-end",
       justifyContent: "space-between",
       paddingTop: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
       borderTopWidth: 1,
-      borderTopColor: theme.colors.inputBorder,
+      borderTopColor: theme.colors.viewAllLink,
       backgroundColor: theme.colors.surface,
     },
     tab: {
       flex: 1,
       alignItems: "center",
-      gap: 4,
+      gap: theme.spacing.xs,
       paddingBottom: theme.spacing.xs,
     },
     label: {
-      ...theme.typography.micro,
-      color: theme.colors.textMuted,
+      fontFamily: theme.fontFamily.semibold,
+      fontSize: 10,
+      lineHeight: 12,
+      color: theme.colors.cardBorderMuted,
+      textAlign: "center",
     },
     labelActive: {
-      color: theme.colors.success,
-      fontFamily: theme.fontFamily.semibold,
+      color: theme.colors.brand,
     },
   });

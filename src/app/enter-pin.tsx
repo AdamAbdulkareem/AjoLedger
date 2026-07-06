@@ -93,7 +93,7 @@ export default function EnterPinScreen() {
         <Button
           label={t("auth.continue")}
           onPress={handleSubmit}
-          disabled={submitting}
+          loading={submitting}
         />
         <Button
           label={t("auth.useAnotherAccount")}

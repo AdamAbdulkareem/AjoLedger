@@ -1,5 +1,6 @@
 import { type ComponentProps } from "react";
 import {
+  ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
@@ -21,6 +22,7 @@ type ButtonProps = {
   size?: ButtonSize;
   iconRight?: ComponentProps<typeof Ionicons>["name"];
   disabled?: boolean;
+  loading?: boolean;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
 };
@@ -32,37 +34,47 @@ export function Button({
   size = "default",
   iconRight,
   disabled = false,
+  loading = false,
   style,
   accessibilityLabel,
 }: ButtonProps) {
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
+  const isDisabled = disabled || loading;
 
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled}
+      disabled={isDisabled}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={({ pressed }) => [
         styles.base,
         size === "compact" && styles.compact,
         styles[variant],
-        pressed && styles.pressed,
-        disabled && styles.disabled,
+        pressed && !isDisabled && styles.pressed,
+        disabled && !loading && styles.disabled,
         style,
       ]}
     >
-      <Text style={[styles.label, disabled && styles.labelDisabled]}>{label}</Text>
-      {iconRight ? (
-        <Ionicons
-          name={iconRight}
-          size={18}
-          color={theme.colors.textPrimary}
-          style={styles.icon}
-        />
-      ) : null}
+      {loading ? (
+        <ActivityIndicator size="small" color={theme.colors.textPrimary} />
+      ) : (
+        <>
+          <Text style={[styles.label, disabled && styles.labelDisabled]}>
+            {label}
+          </Text>
+          {iconRight ? (
+            <Ionicons
+              name={iconRight}
+              size={18}
+              color={theme.colors.textPrimary}
+              style={styles.icon}
+            />
+          ) : null}
+        </>
+      )}
     </Pressable>
   );
 }
