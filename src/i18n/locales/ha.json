@@ -102,6 +102,15 @@
     "dueTodayShort": "Za a yi biya yau",
     "recentActivity": "Ayyukan Kwanan Nan",
     "viewAll": "Duba duka",
+    "groupCarousel": "Carousel na Ƙungiya",
+    "urgentDuePrefix": "Gaggawa: Za a biya cikin ",
+    "urgentDueDays": "kwanaki {{count}}",
+    "urgentDueDays_one": "kwana 1",
+    "balancePrefix": "Balance: ",
+    "totalDueThisWeek": "Jimillar da za a biya wannan mako:",
+    "totalDueSubtitle": "Jimillar biyan da ake buƙata a duk ƙungiyoyi masu aiki",
+    "settleAll": "Biya Duka",
+    "activityTag": "Tag: {{name}}",
     "accessibility": "Samun dama",
     "loading": "Ana lodin dashboard ɗinku…",
     "errors": {
@@ -113,7 +122,6 @@
     "tabs": {
       "home": "Gida",
       "groups": "Ƙungiyoyi",
-      "ledger": "Lissafi",
       "profile": "Bayani"
     },
     "activity": {
@@ -199,6 +207,7 @@
   "groups": {
     "title": "Ƙungiyoyi",
     "enterCode": "Shigar da Lamba",
+    "joinButton": "Shiga",
     "loading": "Ana lodin ƙungiyoyinku…",
     "bankRequired": {
       "title": "Ƙara bankin biyan kuɗi da farko",
@@ -209,11 +218,11 @@
       "message": "Shiga ƙungiyar ajiya ta gayyata ko fara Ajo naka tare da mutane da ka amince da su",
       "join": {
         "title": "Shiga Ƙungiya (da gayyata)",
-        "subtitle": "Yana buƙatar lambar gayyata ko hanyar haɗi"
+        "subtitle": "(Yana buƙatar lambar gayyata ko hanyar haɗi)"
       },
       "create": {
         "title": "Ƙirƙiri ƙungiyar ajiya",
-        "subtitle": "Saita suna, adadi, lokaci"
+        "subtitle": "(Saita suna, adadi, lokaci)"
       }
     },
     "create": {
@@ -246,9 +255,20 @@
     "list": {
       "heading": "Ƙungiyoyinku",
       "contributionLine": "{{amount}} · {{frequency}}",
+      "contributionLabel": "Gudummawa",
+      "statusLabel": "Matsayi",
+      "positionLabel": "Matsayi",
+      "status": {
+        "partial": "Sashe",
+        "paid": "An biya",
+        "notPaid": "Ba a biya ba"
+      },
+      "potProgress": "{{collected}} daga cikin {{target}}",
+      "cycleLabel": "Zagayowar {{number}}",
+      "nextPayout": "Biyan gaba: {{date}}",
       "creatorBadge": "Kun ƙirƙiri wannan ƙungiyar",
       "createNew": "Ƙirƙiri sabuwar ƙungiyar ajiya",
-      "createNewSubtitle": "Saita suna, adadi, lokaci"
+      "createNewSubtitle": "(Saita suna, adadi, lokaci)"
     },
     "invite": {
       "title": "Gayyata",
@@ -258,9 +278,11 @@
       "copyLink": "Kwafi hanyar shiga",
       "copied": "An kwafa!",
       "share": "Raba gayyata",
+      "shareCodeHint": "Raba wannan lambar gayyata",
+      "checkPayoutOrder": "Duba tsarin biyan",
       "done": "An gama",
       "joinedProgress": "{{joined}} cikin {{total}} sun shiga",
-      "membersTitle": "Mahalarta ({{count}})",
+      "membersTitle": "Mahalarta({{count}})",
       "noMembersYet": "Babu wanda ya shiga tukuna.",
       "statusJoined": "Ya shiga"
     },
@@ -275,6 +297,16 @@
         "required": "Shigar da lambar gayyata.",
         "invalid": "Shigar da lamba mai inganci kamar AJO-7JM200."
       }
+    },
+    "detail": {
+      "title": "Ƙungiya",
+      "membershipTitle": "Membobinka",
+      "payoutPosition": "Lambar biyan kuɗi: {{position}}",
+      "payoutPending": "Ba a sanya lambar biyan kuɗi ba tukuna.",
+      "payInTitle": "Biya cikin wannan ƙungiyar",
+      "payInBody": "Aika gudummawarka zuwa wannan asusun.",
+      "copyAccount": "Kwafi lambar asusu",
+      "accountPending": "Ana shirya asusun ƙungiyar ku. Duba daga baya."
     }
   },
   "profile": {

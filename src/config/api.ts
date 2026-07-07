@@ -4,7 +4,7 @@ const rawApiBaseUrl =
 
 export const API_BASE_URL = rawApiBaseUrl.replace(/\/+$/, "");
 
-/** Clears legacy demo sessions created before production-only API mode. */
+/** Returns true when the token is a legacy mock/demo access token (mock.* prefix). */
 export function isLegacyMockAccessToken(
   token: string | null | undefined,
 ): boolean {

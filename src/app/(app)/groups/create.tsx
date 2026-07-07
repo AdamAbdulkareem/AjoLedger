@@ -76,23 +76,14 @@ export default function CreateGroupScreen() {
 
     setSubmitting(true);
 
+    let created;
     try {
-      const created = await createGroup(accessToken, {
-          name: name.trim(),
-          description: description.trim() || undefined,
-          frequency,
-          contributionAmount: parsedAmount,
-          numberOfParticipants: parsedParticipants,
-        });
-
-      await rememberCreatorGroup(created.id);
-      await rememberGroupMetadata(created.id, {
+      created = await createGroup(accessToken, {
+        name: name.trim(),
+        description: description.trim() || undefined,
+        frequency,
+        contributionAmount: parsedAmount,
         numberOfParticipants: parsedParticipants,
-      });
-
-      router.replace({
-        pathname: "/(app)/groups/invite",
-        params: { groupId: created.id },
       });
     } catch (error) {
       setFormError(
@@ -100,9 +91,27 @@ export default function CreateGroupScreen() {
           ? error.message
           : t("home.errors.generic"),
       );
-    } finally {
       setSubmitting(false);
+      return;
     }
+
+    try {
+      await rememberCreatorGroup(created.id);
+      await rememberGroupMetadata(created.id, {
+        numberOfParticipants: parsedParticipants,
+      });
+    } catch {
+      // Group was created — local cache is best-effort.
+    }
+
+    router.replace({
+      pathname: "/(app)/groups/invite",
+      params: {
+        groupId: created.id,
+        expectedParticipants: String(parsedParticipants),
+      },
+    });
+    setSubmitting(false);
   }, [
     accessToken,
     clearErrors,

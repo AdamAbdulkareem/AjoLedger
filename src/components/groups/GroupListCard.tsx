@@ -75,7 +75,7 @@ export function GroupListCard({ group, onPress, loading = false }: GroupListCard
       <Ionicons
         name="chevron-forward"
         size={20}
-        color={styles.chevron.color}
+        color={theme.colors.textMuted}
         style={styles.chevronIcon}
       />
       {loading ? (
@@ -132,8 +132,5 @@ const createStyles = (theme: Theme) =>
     },
     chevronIcon: {
       marginTop: 2,
-    },
-    chevron: {
-      color: theme.colors.textMuted,
     },
   });

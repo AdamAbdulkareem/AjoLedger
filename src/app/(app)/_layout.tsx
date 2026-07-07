@@ -21,5 +21,18 @@ export default function AppLayout() {
     return <Redirect href="/enter-access-passcode" />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: "fade",
+        animationDuration: 200,
+      }}
+    >
+      <Stack.Screen
+        name="edit-profile"
+        options={{ animation: "slide_from_right" }}
+      />
+    </Stack>
+  );
 }

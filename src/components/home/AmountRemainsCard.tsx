@@ -61,7 +61,7 @@ const createStyles = (theme: Theme) =>
       borderWidth: 1,
       borderColor: theme.colors.cardBorderMuted,
       borderRadius: 10,
-      backgroundColor: theme.colors.surface,
+      backgroundColor: theme.colors.carouselCardBg,
       paddingVertical: 5,
       gap: 8,
     },

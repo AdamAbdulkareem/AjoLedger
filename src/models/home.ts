@@ -1,3 +1,5 @@
+export type GroupContributionStatusKey = "partial" | "paid" | "notPaid";
+
 export type GroupStatus = "active" | "pending" | "completed";
 
 export type CycleFrequency = "monthly" | "weekly";
@@ -49,7 +51,12 @@ export type RecentActivityItem = {
   amount?: number;
   /** Recipient name for upcoming payout items. */
   recipientName?: string;
+  /** Source group — used for multi-group activity tag pills. */
+  groupId?: string;
+  groupName?: string;
 };
+
+export type CarouselProgressTone = "urgent" | "success" | "neutral";
 
 /** Aggregated dashboard payload — backend may split these across endpoints later. */
 export type HomeDashboard = {
@@ -62,4 +69,24 @@ export type HomeDashboard = {
   recentActivity: RecentActivityItem[];
 };
 
-export type HomeTabKey = "home" | "groups" | "ledger" | "profile";
+export type HomeTabKey = "home" | "groups" | "profile";
+
+export type GroupHomeDashboard = {
+  groupId: string;
+  contributionStatusKey: GroupContributionStatusKey;
+  group: SavingsGroupSummary;
+  progress: ContributionProgress;
+  payout: PayoutInfo;
+  amountRemains: AmountRemains;
+};
+
+/** Registered-user home payload built from GET /groups. */
+export type RegisteredHomeData = {
+  displayName: string;
+  avatarUrl: string | null;
+  groups: GroupHomeDashboard[];
+  /** Sum of outstanding amounts due this week across active groups. */
+  totalDueThisWeek: number;
+  recentActivity: RecentActivityItem[];
+  recentActivityError?: string | null;
+};

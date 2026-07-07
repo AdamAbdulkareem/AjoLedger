@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -18,22 +18,24 @@ import { FirstTimeHomeHero } from "../../components/home/FirstTimeHomeHero";
 import { HomeHeader } from "../../components/home/HomeHeader";
 import { HomeTabBar } from "../../components/home/HomeTabBar";
 import { QuickActionsSection } from "../../components/home/QuickActionsSection";
-import { RecentActivitySection } from "../../components/home/RecentActivitySection";
-import { SavingsOverviewCard } from "../../components/home/SavingsOverviewCard";
+import { RegisteredHomeContent } from "../../components/home/RegisteredHomeContent";
 import { WhySaveWithAjoLedger } from "../../components/home/WhySaveWithAjoLedger";
 import { Button } from "../../components/Button";
 import { useAuth } from "../../context/AuthProvider";
 import { useCurrentUser } from "../../context/CurrentUserProvider";
 import { useProfile } from "../../context/ProfileProvider";
 import { usePayoutAccountGate } from "../../hooks/usePayoutAccountGate";
+import { useRecentActivity } from "../../hooks/useRecentActivity";
 import { useRequirePayoutBank } from "../../hooks/useRequirePayoutBank";
 import { useUserGroups } from "../../hooks/useUserGroups";
+import { openGroupDetail, openGroupsTab } from "../../lib/appNavigation";
 import { hasCustomAvatar } from "../../lib/avatarSource";
-import { buildHomeDashboardFromGroups } from "../../lib/buildHomeDashboardFromGroups";
+import { buildRegisteredHomeData } from "../../lib/buildHomeDashboardFromGroups";
 import {
   getBankSetupSkipped,
   setBankSetupSkipped,
 } from "../../lib/bankSetupSkipStorage";
+import type { RecentActivityItem } from "../../models/home";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 export default function HomeScreen() {
@@ -55,6 +57,13 @@ export default function HomeScreen() {
   const hasGroups = groups.length > 0;
 
   const {
+    items: recentActivity,
+    loading: activityLoading,
+    error: activityError,
+    refresh: refreshActivity,
+  } = useRecentActivity(accessToken, hasGroups);
+
+  const {
     hasPayoutAccount,
     saving: savingPayoutAccount,
     error: payoutAccountError,
@@ -63,7 +72,7 @@ export default function HomeScreen() {
     clearError,
   } = usePayoutAccountGate();
 
-  const { requireBank, bankModalProps: requiredBankModalProps } =
+  const { requireBank, payoutLoading, bankModalProps: requiredBankModalProps } =
     useRequirePayoutBank();
 
   const [bankSetupSkipped, setBankSetupSkippedState] = useState(false);
@@ -107,6 +116,10 @@ export default function HomeScreen() {
     });
   };
 
+  const handleJoinOrCreatePress = useCallback(() => {
+    openGroupsTab(router);
+  }, [router]);
+
   const showComingSoon = useCallback(() => {
     Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
   }, [t]);
@@ -122,6 +135,28 @@ export default function HomeScreen() {
       router.push("/(app)/groups/join");
     });
   }, [requireBank, router]);
+
+  const handleOpenGroup = useCallback(
+    (groupId: string) => {
+      openGroupDetail(router, groupId);
+    },
+    [router],
+  );
+
+  const handleViewAllActivityPress = useCallback(() => {
+    openGroupsTab(router);
+  }, [router]);
+
+  const handleActivityPress = useCallback(
+    (item: RecentActivityItem) => {
+      if (!item.groupId) {
+        return;
+      }
+
+      openGroupDetail(router, item.groupId);
+    },
+    [router],
+  );
 
   const dismissBankSaveSuccess = useCallback(() => {
     setShowBankSaveSuccess(false);
@@ -146,12 +181,30 @@ export default function HomeScreen() {
       ? profile.avatarUri
       : null;
 
-  const dashboard = hasGroups
-    ? buildHomeDashboardFromGroups(groups, displayName, avatarUrl)
-    : null;
+  const registeredHomeData = useMemo(() => {
+    if (!hasGroups) {
+      return null;
+    }
+
+    const base = buildRegisteredHomeData(groups, displayName, avatarUrl);
+    if (!base) {
+      return null;
+    }
+
+    return {
+      ...base,
+      recentActivity: activityError
+        ? []
+        : activityLoading
+          ? base.recentActivity
+          : recentActivity,
+      recentActivityError: activityError,
+    };
+  }, [hasGroups, groups, displayName, avatarUrl, recentActivity, activityLoading, activityError]);
 
   const handleRetry = () => {
     void refreshGroups();
+    void refreshActivity();
   };
 
   const renderBody = () => {
@@ -159,44 +212,29 @@ export default function HomeScreen() {
       return (
         <>
           <HomeHeader displayName={displayName} avatarUrl={avatarUrl} />
-          <FirstTimeHomeHero onJoinOrCreatePress={showComingSoon} />
+          <FirstTimeHomeHero onJoinOrCreatePress={handleJoinOrCreatePress} />
           <WhySaveWithAjoLedger />
           <QuickActionsSection
             onJoinGroupPress={handleJoinGroupPress}
             onCreateGroupPress={handleCreateGroupPress}
             onContactSupportPress={showComingSoon}
+            actionsLoading={payoutLoading}
           />
         </>
       );
     }
 
-    if (!dashboard) return null;
+    if (!registeredHomeData) return null;
 
     return (
-      <>
-        <HomeHeader displayName={displayName} avatarUrl={avatarUrl} />
-        <SavingsOverviewCard
-          group={dashboard.group}
-          progress={dashboard.progress}
-          payout={dashboard.payout}
-          onGroupPress={showComingSoon}
-          onDetailsPress={showComingSoon}
-        />
-        {dashboard.amountRemains.amount > 0 ? (
-          <AmountRemainsCard
-            amountRemains={dashboard.amountRemains}
-            onPayNowPress={showComingSoon}
-          />
-        ) : null}
-        {dashboard.recentActivity.length > 0 ? (
-          <RecentActivitySection
-            items={dashboard.recentActivity}
-            viewAllLabel={t("home.viewAll")}
-            onViewAllPress={showComingSoon}
-            onItemPress={showComingSoon}
-          />
-        ) : null}
-      </>
+      <RegisteredHomeContent
+        data={registeredHomeData}
+        onGroupPress={handleOpenGroup}
+        onPayNowPress={handleOpenGroup}
+        onDetailsPress={handleOpenGroup}
+        onViewAllActivityPress={handleViewAllActivityPress}
+        onActivityPress={handleActivityPress}
+      />
     );
   };
 
@@ -246,7 +284,7 @@ export default function HomeScreen() {
             onSkip={handleSkipBankSetup}
             onAlreadyConfigured={() => {
               void refreshPayoutAccount().finally(() => {
-                router.push("/(app)/profile");
+                router.replace("/(app)/profile");
               });
             }}
           />
@@ -267,7 +305,7 @@ const createStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.surface,
+      backgroundColor: theme.colors.groupsScreenBg,
     },
     homeContent: {
       flex: 1,

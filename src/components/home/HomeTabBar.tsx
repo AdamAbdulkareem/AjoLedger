@@ -32,12 +32,6 @@ const TABS: {
     labelKey: "home.tabs.groups",
   },
   {
-    key: "ledger",
-    icon: "document-text-outline",
-    activeIcon: "document-text",
-    labelKey: "home.tabs.ledger",
-  },
-  {
     key: "profile",
     icon: "person-circle-outline",
     activeIcon: "person-circle",
@@ -99,10 +93,10 @@ const createStyles = (theme: Theme) =>
       alignItems: "flex-end",
       justifyContent: "space-between",
       paddingTop: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.md,
+      paddingHorizontal: 40,
       borderTopWidth: 1,
       borderTopColor: theme.colors.viewAllLink,
-      backgroundColor: theme.colors.surface,
+      backgroundColor: theme.colors.groupsScreenBg,
     },
     tab: {
       flex: 1,

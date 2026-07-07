@@ -101,6 +101,15 @@
     "dueTodayShort": "Yoo pe loni",
     "recentActivity": "Iṣẹ Laipe",
     "viewAll": "Wo gbogbo",
+    "groupCarousel": "Carousel Ẹgbẹ",
+    "urgentDuePrefix": "Pajawiri: Yoo pari ni ",
+    "urgentDueDays": "ọjọ {{count}}",
+    "urgentDueDays_one": "ọjọ 1",
+    "balancePrefix": "Balance: ",
+    "totalDueThisWeek": "Lapapọ ti o yẹ fun ọsẹ yii:",
+    "totalDueSubtitle": "Lapapọ gbese pajawiri lori gbogbo ẹgbẹ ti n ṣiṣẹ",
+    "settleAll": "San Gbogbo",
+    "activityTag": "Tag: {{name}}",
     "accessibility": "Wiwọle",
     "loading": "N gba dashboard rẹ…",
     "errors": {
@@ -112,7 +121,6 @@
     "tabs": {
       "home": "Ilé",
       "groups": "Awọn Ẹgbẹ",
-      "ledger": "Iwe ẹri",
       "profile": "Profaili"
     },
     "activity": {
@@ -198,6 +206,7 @@
   "groups": {
     "title": "Awọn Ẹgbẹ",
     "enterCode": "Tẹ Koodu",
+    "joinButton": "Darapọ",
     "loading": "N ṣe ikojọpọ awọn ẹgbẹ rẹ…",
     "bankRequired": {
       "title": "Fi banki gbigba sii akọkọ",
@@ -208,11 +217,11 @@
       "message": "Darapọ mọ ẹgbẹ ajọ ti a pe ni eniyan kan tabi bẹrẹ Ajo tirẹ pẹlu awọn eniyan ti o gba lẹkan",
       "join": {
         "title": "Darapọ mọ Ẹgbẹ (pẹlu ifiwepe)",
-        "subtitle": "Nilo koodu ifiwepe tabi ọna asopọ"
+        "subtitle": "(Nilo koodu ifiwepe tabi ọna asopọ)"
       },
       "create": {
         "title": "Ṣẹda ẹgbẹ ajọ",
-        "subtitle": "Ṣeto orukọ, iye, igba"
+        "subtitle": "(Ṣeto orukọ, iye, igba)"
       }
     },
     "create": {
@@ -245,9 +254,20 @@
     "list": {
       "heading": "Awọn ẹgbẹ rẹ",
       "contributionLine": "{{amount}} · {{frequency}}",
+      "contributionLabel": "Ifiṣowọ",
+      "statusLabel": "Ipo",
+      "positionLabel": "Ipo",
+      "status": {
+        "partial": "Apakan",
+        "paid": "Sanwo",
+        "notPaid": "Ko sanwo"
+      },
+      "potProgress": "{{collected}} ninu {{target}}",
+      "cycleLabel": "Ayika {{number}}",
+      "nextPayout": "Isanwo ti nbọ: {{date}}",
       "creatorBadge": "O ṣẹda ẹgbẹ yii",
       "createNew": "Ṣẹda ẹgbẹ ajọ tuntun",
-      "createNewSubtitle": "Ṣeto orukọ, iye, igba"
+      "createNewSubtitle": "(Ṣeto orukọ, iye, igba)"
     },
     "invite": {
       "title": "Ifiwepe",
@@ -257,9 +277,11 @@
       "copyLink": "Daakọ ọna asopọ",
       "copied": "Ti daakọ!",
       "share": "Pin ifiwepe",
+      "shareCodeHint": "Pin koodu ifiwepe yii",
+      "checkPayoutOrder": "Wo idiyele isanwo",
       "done": "Parí",
       "joinedProgress": "{{joined}} ninu {{total}} ti darapọ",
-      "membersTitle": "Awọn memba ({{count}})",
+      "membersTitle": "Awọn memba({{count}})",
       "noMembersYet": "Ko si ẹnikan ti darapọ sibẹsibẹ.",
       "statusJoined": "Ti darapọ"
     },
@@ -274,6 +296,16 @@
         "required": "Tẹ koodu ifiwepe kan.",
         "invalid": "Tẹ koodu ti o tọ bii AJO-7JM200."
       }
+    },
+    "detail": {
+      "title": "Ẹgbẹ",
+      "membershipTitle": "Memba rẹ",
+      "payoutPosition": "Igbà gbigba rẹ: {{position}}",
+      "payoutPending": "A ko ti yan igba gbigba rẹ.",
+      "payInTitle": "San si ẹgbẹ yii",
+      "payInBody": "Fi ifowopamọ rẹ ranṣẹ si akọọlẹ yii.",
+      "copyAccount": "Daakọ nọmba akọọlẹ",
+      "accountPending": "A n ṣeto akọọlẹ ẹgbẹ rẹ. Ṣayẹwo lẹhinna."
     }
   },
   "profile": {
