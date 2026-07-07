@@ -20,13 +20,17 @@ import {
   verifyAccessPasscode,
 } from "../lib/accessPasscodeStorage";
 import {
+  clearBiometricsEnabled,
+  isBiometricsEnabled,
+} from "../lib/biometricStorage";
+import {
   clearSessionStorage,
   getAccessToken,
   getStoredUser,
   setAccessToken,
   setStoredUser,
 } from "../lib/authStorage";
-import { isMockAccessToken, shouldUseLiveRegisterLogin } from "../config/api";
+import { isLegacyMockAccessToken } from "../config/api";
 import {
   INCORRECT_ACCESS_PASSCODE,
   type AuthStatus,
@@ -41,6 +45,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<AuthStatus>;
   setupAccessPasscode: (passcode: string) => Promise<void>;
   verifyAccessPasscode: (passcode: string) => Promise<void>;
+  unlockWithBiometrics: () => Promise<void>;
   resetAccessPasscode: () => Promise<void>;
   logout: () => Promise<void>;
   updateSessionUser: (nextUser: User) => Promise<void>;
@@ -93,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           getStoredUser(),
         ]);
 
-        if (shouldUseLiveRegisterLogin() && isMockAccessToken(token)) {
+        if (isLegacyMockAccessToken(token)) {
           if (storedUser) await clearAccessPasscode(storedUser.id);
           await clearSessionStorage();
           if (cancelled) return;
@@ -238,17 +243,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [user],
   );
 
+  const unlockWithBiometrics = useCallback(async () => {
+    if (!user) throw new ApiError("You are not signed in.");
+
+    const enabled = await isBiometricsEnabled(user.id);
+    if (!enabled) {
+      throw new ApiError("Biometric unlock is not enabled.");
+    }
+
+    setAccessPasscodeUnlocked(true);
+    setStatus("authenticated");
+  }, [user]);
+
   const resetAccessPasscode = useCallback(async () => {
     if (!user) return;
 
-    await clearAccessPasscode(user.id);
+    await Promise.all([
+      clearAccessPasscode(user.id),
+      clearBiometricsEnabled(user.id),
+    ]);
     setAccessPasscodeConfigured(false);
     setAccessPasscodeUnlocked(false);
     setStatus("needsPasscodeSetup");
   }, [user]);
 
   const logout = useCallback(async () => {
-    if (user) await clearAccessPasscode(user.id);
+    if (user) {
+      await Promise.all([
+        clearAccessPasscode(user.id),
+        clearBiometricsEnabled(user.id),
+      ]);
+    }
     await clearSessionStorage();
     setAccessTokenState(null);
     setUser(null);
@@ -271,6 +296,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       setupAccessPasscode,
       verifyAccessPasscode: verifyAccessPasscodeEntry,
+      unlockWithBiometrics,
       resetAccessPasscode,
       logout,
       updateSessionUser,
@@ -283,6 +309,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       setupAccessPasscode,
       verifyAccessPasscodeEntry,
+      unlockWithBiometrics,
       resetAccessPasscode,
       logout,
       updateSessionUser,

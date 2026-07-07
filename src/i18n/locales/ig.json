@@ -50,9 +50,11 @@
     "forgetPasscodeConfirm": "Tọgharịa koodu nnweta",
     "forgetPasscodeCancel": "Kagbuo",
     "switchAccount": "Gbanwee akaụnt",
-    "loginWithFingerprint": "Banye site na akara mkpịsị aka",
-    "fingerprintComingSoonTitle": "Na-abịa n'oge na-adịghị anya",
-    "fingerprintComingSoonBody": "Nbanye site na akara mkpịsị aka ga-adị na mmelite na-abịa.",
+    "unlockWithFingerprint": "Mepee ngwa site na akara mkpịsị aka",
+    "unlockWithFaceId": "Mepee ngwa site na Face ID",
+    "unlockWithBiometrics": "Mepee ngwa site na biometrics",
+    "biometricPrompt": "Mepee AjoLedger",
+    "submittingBiometric": "Na-enyocha biometrics…",
     "useAnotherAccount": "Jiri akaụnt ọzọ",
     "enterPinTitle": "Tinye PIN azụmahịa gị",
     "enterPinSubtitle": "Tinye PIN nke digiti 4 iji gaa n'ihu.",
@@ -194,6 +196,87 @@
       }
     }
   },
+  "groups": {
+    "title": "Otu",
+    "enterCode": "Tinye Koodu",
+    "loading": "Na-ebu otu gị…",
+    "bankRequired": {
+      "title": "Tinye banki ị na-enweta ugwo mbụ",
+      "body": "Ị chọrọ akaụntụ banki ebe ị ga-enweta ugwo Ajo gị tupu ị sonye ma ọ bụ mepụta otu."
+    },
+    "empty": {
+      "headline": "Ruo ebumnuche ngwa ngwa, ọnụ.",
+      "message": "Sonye na otu nchekwa na-enyo naanị ma ọ bụ malite Ajo gị na ndị ị na-enwe obi ike",
+      "join": {
+        "title": "Sonye na Otu (na-enyo)",
+        "subtitle": "Achọrọ koodu enyo ma ọ bụ njikọ"
+      },
+      "create": {
+        "title": "Mepụta otu nchekwa",
+        "subtitle": "Tọọ aha, ego, oge"
+      }
+    },
+    "create": {
+      "title": "Mepụta otu nchekwa",
+      "nameLabel": "Aha otu",
+      "namePlaceholder": "dịka Lagos Traders Ajo",
+      "descriptionLabel": "Nkọwa",
+      "descriptionPlaceholder": "Gịnị ka otu a na-echekwa?",
+      "frequencyLabel": "Oge ntinye ego",
+      "amountLabel": "Ego ntinye",
+      "amountPlaceholder": "₦50,000",
+      "participantsLabel": "Ọnụọgụ ndị sonyere",
+      "participantsPlaceholder": "10",
+      "submit": "Mepụta otu",
+      "frequency": {
+        "daily": "Kwa ụbọchị",
+        "weekly": "Kwa izu",
+        "monthly": "Kwa ọnwa"
+      },
+      "errors": {
+        "nameRequired": "A chọrọ aha otu.",
+        "nameLength": "Aha otu ga-abụ n'etiti mkpụrụedemede 3 na 100.",
+        "descriptionLength": "Nkọwa ga-abụrịrị mkpụrụedemede 500 ma ọ dịghị karịa.",
+        "amountRequired": "Tinye ego ntinye.",
+        "amountMinimum": "Ntinye kacha nta bụ ₦500.",
+        "participantsRequired": "Tinye ọnụọgụ ndị sonyere.",
+        "participantsMinimum": "Otu chọrọ opekata mpe ndị sonyere 2."
+      }
+    },
+    "list": {
+      "heading": "Otu gị",
+      "contributionLine": "{{amount}} · {{frequency}}",
+      "creatorBadge": "Ị kere otu a",
+      "createNew": "Mepụta otu nchekwa ọhụrụ",
+      "createNewSubtitle": "Tọọ aha, ego, oge"
+    },
+    "invite": {
+      "title": "Enyo",
+      "codeLabel": "Koodu enyo",
+      "linkLabel": "Njikọ sonye",
+      "copyCode": "Detuo koodu enyo",
+      "copyLink": "Detuo njikọ sonye",
+      "copied": "Edeturu!",
+      "share": "Kesaa enyo",
+      "done": "Emechaala",
+      "joinedProgress": "{{joined}} n'ime {{total}} sonyere",
+      "membersTitle": "Ndị otu ({{count}})",
+      "noMembersYet": "Ọ dịghị onye sonyere ya.",
+      "statusJoined": "Sonyere"
+    },
+    "join": {
+      "title": "Tinye Koodu",
+      "subtitle": "Tinye koodu enyo nke onye isi otu gị kesara",
+      "codeLabel": "Koodu enyo",
+      "codePlaceholder": "AJO-7JM200",
+      "submit": "Sonye na otu",
+      "successMessage": "Ị sonyere na {{name}} nke ọma!",
+      "errors": {
+        "required": "Tinye koodu enyo.",
+        "invalid": "Tinye koodu ziri ezi dị ka AJO-7JM200."
+      }
+    }
+  },
   "profile": {
     "title": "Profaịlụ",
     "defaultName": "Onye otu",
@@ -207,6 +290,8 @@
       "editProfile": "Dezie Profaịlụ",
       "changePassword": "Gbanwee Paswọọd",
       "biometrics": "Biometrics",
+      "faceId": "Face ID",
+      "fingerprint": "Akara mkpịsị aka",
       "privacyPolicy": "Iwu Nzuzo",
       "bankDetails": "Nkọwa Bank",
       "pushNotifications": "Ngosi Push",
@@ -219,6 +304,13 @@
     "logoutMessage": "Ị ji n'aka na ị chọrọ ịpụ?",
     "logoutConfirm": "Pụọ",
     "logoutCancel": "Kagbuo",
+    "biometrics": {
+      "enablePrompt": "Kwado iji mee biometrics",
+      "notAvailableTitle": "Biometrics adịghị",
+      "notAvailableBody": "Ngwaọrụ a anaghị akwado akara mkpịsị aka ma ọ bụ Face ID.",
+      "notEnrolledTitle": "E debanyela biometrics",
+      "notEnrolledBody": "Tinye akara mkpịsị aka ma ọ bụ Face ID na ntọala ngwaọrụ gị, wee nwaa ọzọ."
+    },
     "edit": {
       "title": "Dezie Profaịlụ",
       "changePhoto": "Gbanwee foto",

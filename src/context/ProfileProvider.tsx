@@ -14,9 +14,7 @@ import {
   updateUserProfile,
   userProfileFromMe,
 } from "../api/profile";
-import { mockGetUserProfile } from "../api/mockProfile";
 import { ApiError } from "../api/client";
-import { USE_MOCK_AUTH } from "../config/api";
 import { useAuth } from "./AuthProvider";
 import { useCurrentUser } from "./CurrentUserProvider";
 import type { UpdateProfilePayload, UserProfile } from "../models/profile";
@@ -54,26 +52,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    let cancelled = false;
-
-    void (async () => {
-      if (USE_MOCK_AUTH) {
-        const mockProfile = await mockGetUserProfile(
-          currentUser.id,
-          currentUser.email,
-        );
-        if (!cancelled) setProfile(mockProfile);
-        return;
-      }
-
-      if (!cancelled) {
-        setProfile((prev) => userProfileFromMe(currentUser, prev ?? undefined));
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+    setProfile((prev) => userProfileFromMe(currentUser, prev ?? undefined));
   }, [currentUser, status]);
 
   const updateProfile = useCallback(

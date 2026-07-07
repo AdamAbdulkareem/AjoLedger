@@ -12,6 +12,7 @@ type ProfileMenuRowProps = {
   showChevron?: boolean;
   toggleValue?: boolean;
   onToggleChange?: (value: boolean) => void;
+  toggleDisabled?: boolean;
   accessibilityLabel?: string;
 };
 
@@ -23,6 +24,7 @@ export function ProfileMenuRow({
   showChevron = false,
   toggleValue,
   onToggleChange,
+  toggleDisabled = false,
   accessibilityLabel,
 }: ProfileMenuRowProps) {
   const theme = useTheme();
@@ -42,6 +44,7 @@ export function ProfileMenuRow({
           <Switch
             value={toggleValue}
             onValueChange={onToggleChange}
+            disabled={toggleDisabled}
             trackColor={{ false: theme.colors.cardBorderMuted, true: theme.colors.brand }}
             thumbColor={theme.colors.surface}
             accessibilityLabel={accessibilityLabel ?? label}

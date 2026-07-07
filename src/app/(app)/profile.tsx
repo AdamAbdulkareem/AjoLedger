@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import {
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -27,6 +28,16 @@ import { useEditProfilePictureModal } from "../../hooks/useEditProfilePictureMod
 import { setStoredLanguage } from "../../i18n/languageStorage";
 import { getLanguageLabel } from "../../i18n/languages";
 import { showLanguagePicker } from "../../lib/showLanguagePicker";
+import {
+  getBiometricCapabilities,
+  getBiometricProfileLabelKey,
+  promptBiometricAuth,
+  type BiometricCapabilities,
+} from "../../lib/biometricAuth";
+import {
+  isBiometricsEnabled,
+  setBiometricsEnabled,
+} from "../../lib/biometricStorage";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 export default function ProfileScreen() {
@@ -44,7 +55,11 @@ export default function ProfileScreen() {
 
   const resolvedDisplayName = displayName || t("profile.defaultName");
 
-  const [biometricsEnabled, setBiometricsEnabled] = useState(false);
+  const [biometricsEnabled, setBiometricsEnabledState] = useState(false);
+  const [biometricCaps, setBiometricCaps] = useState<BiometricCapabilities | null>(
+    null,
+  );
+  const [biometricsLoading, setBiometricsLoading] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(true);
   const [bankModalVisible, setBankModalVisible] = useState(false);
 
@@ -66,6 +81,89 @@ export default function ProfileScreen() {
       consumePendingUpdateSuccess();
     }, [pendingUpdateSuccess, consumePendingUpdateSuccess]),
   );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!user || Platform.OS === "web") return;
+
+      let cancelled = false;
+
+      void (async () => {
+        const [enabled, caps] = await Promise.all([
+          isBiometricsEnabled(user.id),
+          getBiometricCapabilities(),
+        ]);
+
+        if (cancelled) return;
+
+        setBiometricsEnabledState(enabled);
+        setBiometricCaps(caps);
+      })();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [user]),
+  );
+
+  const handleBiometricsToggle = useCallback(
+    async (nextValue: boolean) => {
+      if (!user || biometricsLoading) return;
+
+      if (!nextValue) {
+        await setBiometricsEnabled(user.id, false);
+        setBiometricsEnabledState(false);
+        return;
+      }
+
+      if (!biometricCaps?.available) {
+        Alert.alert(
+          t("profile.biometrics.notAvailableTitle"),
+          t("profile.biometrics.notAvailableBody"),
+        );
+        return;
+      }
+
+      if (!biometricCaps.enrolled) {
+        Alert.alert(
+          t("profile.biometrics.notEnrolledTitle"),
+          t("profile.biometrics.notEnrolledBody"),
+        );
+        return;
+      }
+
+      setBiometricsLoading(true);
+
+      try {
+        const result = await promptBiometricAuth(
+          t("profile.biometrics.enablePrompt"),
+        );
+
+        if (!result.success) {
+          if (!result.cancelled && result.error === "not_enrolled") {
+            Alert.alert(
+              t("profile.biometrics.notEnrolledTitle"),
+              t("profile.biometrics.notEnrolledBody"),
+            );
+          }
+          return;
+        }
+
+        await setBiometricsEnabled(user.id, true);
+        setBiometricsEnabledState(true);
+      } finally {
+        setBiometricsLoading(false);
+      }
+    },
+    [user, biometricsLoading, biometricCaps, t],
+  );
+
+  const biometricLabelKey = biometricCaps
+    ? getBiometricProfileLabelKey(biometricCaps.kind)
+    : "profile.rows.biometrics";
+
+  const showBiometricsRow =
+    Platform.OS !== "web" && biometricCaps?.available === true;
 
   const handleLanguagePress = () => {
     showLanguagePicker({
@@ -129,12 +227,19 @@ export default function ProfileScreen() {
               showChevron
               onPress={showComingSoon}
             />
-            <ProfileMenuRow
-              icon={<Ionicons name="shield-checkmark-outline" size={20} color={theme.colors.textPrimary} />}
-              label={t("profile.rows.biometrics")}
-              toggleValue={biometricsEnabled}
-              onToggleChange={setBiometricsEnabled}
-            />
+            {showBiometricsRow ? (
+              <ProfileMenuRow
+                icon={<Ionicons name="shield-checkmark-outline" size={20} color={theme.colors.textPrimary} />}
+                label={t(biometricLabelKey)}
+                toggleValue={biometricsEnabled}
+                onToggleChange={(value) => {
+                  void handleBiometricsToggle(value);
+                }}
+                toggleDisabled={
+                  biometricsLoading || biometricCaps?.enrolled === false
+                }
+              />
+            ) : null}
             <ProfileMenuRow
               icon={<Ionicons name="eye-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.privacyPolicy")}

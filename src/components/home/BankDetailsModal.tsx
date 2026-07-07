@@ -43,7 +43,7 @@ type BankDetailsModalProps = {
   onClose?: () => void;
   initialAccount?: PayoutAccount | null;
   /** Profile edits require transaction PIN — not supported yet. */
-  variant?: "onboarding" | "profile";
+  variant?: "onboarding" | "profile" | "required";
   onAlreadyConfigured?: () => void;
   /** Onboarding only — dismiss without saving bank details. */
   onSkip?: () => void;
@@ -83,6 +83,7 @@ export function BankDetailsModal({
   const resolveRequestIdRef = useRef(0);
 
   const isProfileVariant = variant === "profile";
+  const isRequiredVariant = variant === "required";
   const canResolve =
     !isProfileVariant &&
     !!accessToken &&
@@ -90,10 +91,17 @@ export function BankDetailsModal({
     isValidNuban(normalizeAccountNumber(accountNumber));
 
   const canSubmit =
-    variant === "onboarding" &&
+    (variant === "onboarding" || variant === "required") &&
     canResolve &&
     resolveState === "success" &&
     !!resolvedName;
+
+  const modalTitle = isRequiredVariant
+    ? t("groups.bankRequired.title")
+    : t("home.bankDetails.title");
+  const modalSubtitle = isRequiredVariant
+    ? t("groups.bankRequired.body")
+    : t("home.bankDetails.subtitle");
 
   useEffect(() => {
     if (!visible || !accessToken) return;
@@ -301,8 +309,8 @@ export function BankDetailsModal({
       contentContainerStyle={styles.formContent}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>{t("home.bankDetails.title")}</Text>
-        <Text style={styles.subtitle}>{t("home.bankDetails.subtitle")}</Text>
+        <Text style={styles.title}>{modalTitle}</Text>
+        <Text style={styles.subtitle}>{modalSubtitle}</Text>
       </View>
 
       {banksLoading ? (
@@ -409,7 +417,7 @@ export function BankDetailsModal({
         />
       ) : null}
 
-      {!isProfileVariant && onSkip ? (
+      {!isProfileVariant && onSkip && variant === "onboarding" ? (
         <Button
           label={t("home.bankDetails.skip")}
           onPress={onSkip}
@@ -418,7 +426,14 @@ export function BankDetailsModal({
         />
       ) : null}
 
-      {dismissible ? (
+      {(dismissible || isRequiredVariant) && onClose ? (
+        <Button
+          label={t("home.bankDetails.cancel")}
+          onPress={onClose}
+          variant="secondary"
+          disabled={saving || isSubmitting}
+        />
+      ) : dismissible ? (
         <Button
           label={t("home.bankDetails.cancel")}
           onPress={handleClose}

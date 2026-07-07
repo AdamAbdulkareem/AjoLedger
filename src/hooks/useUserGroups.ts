@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { getUserGroups } from "../api/groups";
 import { ApiError } from "../api/client";
+import { getRememberedCreatorGroupIds } from "../lib/creatorGroupsStorage";
 import type { GroupSummary } from "../models/group";
 
 type UseUserGroupsResult = {
@@ -10,6 +11,16 @@ type UseUserGroupsResult = {
   error: string | null;
   refresh: () => Promise<void>;
 };
+
+function applyRememberedCreatorFlags(
+  groups: GroupSummary[],
+  creatorGroupIds: Set<string>,
+): GroupSummary[] {
+  return groups.map((group) => ({
+    ...group,
+    isCreator: group.isCreator || creatorGroupIds.has(group.id),
+  }));
+}
 
 export function useUserGroups(token: string | null): UseUserGroupsResult {
   const [groups, setGroups] = useState<GroupSummary[]>([]);
@@ -28,8 +39,11 @@ export function useUserGroups(token: string | null): UseUserGroupsResult {
     setError(null);
 
     try {
-      const list = await getUserGroups(token);
-      setGroups(list);
+      const [list, creatorGroupIds] = await Promise.all([
+        getUserGroups(token),
+        getRememberedCreatorGroupIds(),
+      ]);
+      setGroups(applyRememberedCreatorFlags(list, creatorGroupIds));
     } catch (err) {
       setGroups([]);
       setError(

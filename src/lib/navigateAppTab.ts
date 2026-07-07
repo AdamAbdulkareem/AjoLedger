@@ -6,6 +6,7 @@ import type { HomeTabKey } from "../models/home";
 
 const TAB_ROUTES: Partial<Record<HomeTabKey, Href>> = {
   home: "/(app)/home",
+  groups: "/(app)/groups",
   profile: "/(app)/profile",
 };
 

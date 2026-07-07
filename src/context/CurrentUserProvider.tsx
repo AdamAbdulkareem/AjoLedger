@@ -11,9 +11,6 @@ import {
 
 import { getCurrentUser } from "../api/banks";
 import { ApiError } from "../api/client";
-import { mockGetPayoutAccountStatus } from "../api/mockPayoutAccount";
-import { mockGetUserProfile } from "../api/mockProfile";
-import { USE_MOCK_AUTH } from "../config/api";
 import { deriveDisplayName } from "../lib/greeting";
 import type { UserWithPayout } from "../models/bank";
 import { useAuth } from "./AuthProvider";
@@ -28,34 +25,6 @@ type CurrentUserContextValue = {
 };
 
 const CurrentUserContext = createContext<CurrentUserContextValue | null>(null);
-
-async function fetchCurrentUser(
-  accessToken: string,
-  userId: string,
-  email: string,
-): Promise<UserWithPayout> {
-  if (USE_MOCK_AUTH) {
-    const [profile, payoutStatus] = await Promise.all([
-      mockGetUserProfile(userId, email),
-      mockGetPayoutAccountStatus(userId),
-    ]);
-
-    const account = payoutStatus.data?.account;
-
-    return {
-      id: userId,
-      name: profile.fullName,
-      email,
-      payoutBankCode: account?.bankCode ?? null,
-      payoutAccountNumber: account?.accountNumber ?? null,
-      payoutAccountName: account?.accountName ?? null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-  }
-
-  return getCurrentUser(accessToken);
-}
 
 export function CurrentUserProvider({ children }: { children: ReactNode }) {
   const { user, accessToken, status, updateSessionUser } = useAuth();
@@ -80,11 +49,7 @@ export function CurrentUserProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const nextUser = await fetchCurrentUser(
-        accessToken,
-        user.id,
-        user.email,
-      );
+      const nextUser = await getCurrentUser(accessToken);
       if (requestId !== requestIdRef.current) return;
 
       setCurrentUser(nextUser);

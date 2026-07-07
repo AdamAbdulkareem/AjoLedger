@@ -12,15 +12,6 @@ Community savings (Ajo) mobile app built with Expo SDK 56, React Native, TypeScr
 npm run start -- --clear
 ```
 
-### Staged rollout (current setup)
-
-| Flag | Effect |
-| --- | --- |
-| `EXPO_PUBLIC_USE_LIVE_AUTH=true` | Register and login hit the live API |
-| `EXPO_PUBLIC_USE_MOCK_AUTH=true` | PIN, home, profile, and payout stay on local mocks |
-
-When ready for full production, set `EXPO_PUBLIC_USE_MOCK_AUTH=false`.
-
 Live API docs: [https://ajoledger-backend.onrender.com/api/docs](https://ajoledger-backend.onrender.com/api/docs)
 
 ### Device notes
@@ -31,7 +22,7 @@ Live API docs: [https://ajoledger-backend.onrender.com/api/docs](https://ajoledg
 | Android Emulator | `http://10.0.2.2:3000` |
 | Physical device | `http://<your-computer-lan-ip>:3000` or your deployed HTTPS URL |
 
-When switching from demo to production, log out or reinstall so old mock tokens are cleared. The app automatically discards mock sessions on startup in production mode.
+If you previously used an older demo build, log out or reinstall so legacy mock sessions are cleared. The app automatically discards old mock tokens on startup.
 
 ### API endpoints used
 
@@ -41,9 +32,11 @@ When switching from demo to production, log out or reinstall so old mock tokens 
 | POST | `/auth/login` |
 | POST | `/auth/setup-transaction-pin` |
 | POST | `/auth/verify-transaction-pin` |
-| GET | `/dashboard/home` |
-| GET/POST | `/users/me/payout-account` |
-| GET/PUT | `/users/me/profile` |
-| PUT/DELETE | `/users/me/profile/avatar` |
+| GET | `/users/me` |
+| GET | `/users/banks` |
+| POST | `/users/setup-bank` |
+| GET/POST | `/groups` |
+| POST | `/groups/join` |
+| GET | `/groups/{id}` |
 
 All responses are expected in `{ success, message, data }` envelope format with `Authorization: Bearer <token>` for protected routes.

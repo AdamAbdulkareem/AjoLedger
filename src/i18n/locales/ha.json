@@ -50,9 +50,11 @@
     "forgetPasscodeConfirm": "Sake saita lambar shiga",
     "forgetPasscodeCancel": "Soke",
     "switchAccount": "Canza asusu",
-    "loginWithFingerprint": "Shiga da yatsa",
-    "fingerprintComingSoonTitle": "Yana zuwa nan ba da jimawa ba",
-    "fingerprintComingSoonBody": "Shiga da yatsa za a samu a sabon sabuntawa.",
+    "unlockWithFingerprint": "Buɗe manhaja da yatsa",
+    "unlockWithFaceId": "Buɗe manhaja da Face ID",
+    "unlockWithBiometrics": "Buɗe manhaja da biometrics",
+    "biometricPrompt": "Buɗe AjoLedger",
+    "submittingBiometric": "Ana tabbatar da biometrics…",
     "useAnotherAccount": "Yi amfani da wani asusu",
     "enterPinTitle": "Shigar da PIN na ciniki",
     "enterPinSubtitle": "Shigar da PIN mai lamba 4 don ci gaba.",
@@ -194,6 +196,87 @@
       }
     }
   },
+  "groups": {
+    "title": "Ƙungiyoyi",
+    "enterCode": "Shigar da Lamba",
+    "loading": "Ana lodin ƙungiyoyinku…",
+    "bankRequired": {
+      "title": "Ƙara bankin biyan kuɗi da farko",
+      "body": "Kuna buƙatar asusun banki inda za ku karɓa biyan Ajo kafin shiga ko ƙirƙirar ƙungiya."
+    },
+    "empty": {
+      "headline": "Cim ma burin cikin sauri, tare.",
+      "message": "Shiga ƙungiyar ajiya ta gayyata ko fara Ajo naka tare da mutane da ka amince da su",
+      "join": {
+        "title": "Shiga Ƙungiya (da gayyata)",
+        "subtitle": "Yana buƙatar lambar gayyata ko hanyar haɗi"
+      },
+      "create": {
+        "title": "Ƙirƙiri ƙungiyar ajiya",
+        "subtitle": "Saita suna, adadi, lokaci"
+      }
+    },
+    "create": {
+      "title": "Ƙirƙiri ƙungiyar ajiya",
+      "nameLabel": "Sunan ƙungiya",
+      "namePlaceholder": "misali Lagos Traders Ajo",
+      "descriptionLabel": "Bayani",
+      "descriptionPlaceholder": "Me wannan ƙungiyar take ajiye?",
+      "frequencyLabel": "Yawan biyan kuɗi",
+      "amountLabel": "Adadin biyan kuɗi",
+      "amountPlaceholder": "₦50,000",
+      "participantsLabel": "Yawan mahalarta",
+      "participantsPlaceholder": "10",
+      "submit": "Ƙirƙiri ƙungiya",
+      "frequency": {
+        "daily": "Yau da kullum",
+        "weekly": "Mako-mako",
+        "monthly": "Wata-wata"
+      },
+      "errors": {
+        "nameRequired": "Ana buƙatar sunan ƙungiya.",
+        "nameLength": "Sunan ƙungiya dole ya kasance tsakanin haruffa 3 da 100.",
+        "descriptionLength": "Bayani dole ya kasance haruffa 500 ko ƙasa da haka.",
+        "amountRequired": "Shigar da adadin biyan kuɗi.",
+        "amountMinimum": "Mafi ƙarancin biyan kuɗi ₦500 ne.",
+        "participantsRequired": "Shigar da yawan mahalarta.",
+        "participantsMinimum": "Ƙungiya tana buƙatar aƙalla mahalarta 2."
+      }
+    },
+    "list": {
+      "heading": "Ƙungiyoyinku",
+      "contributionLine": "{{amount}} · {{frequency}}",
+      "creatorBadge": "Kun ƙirƙiri wannan ƙungiyar",
+      "createNew": "Ƙirƙiri sabuwar ƙungiyar ajiya",
+      "createNewSubtitle": "Saita suna, adadi, lokaci"
+    },
+    "invite": {
+      "title": "Gayyata",
+      "codeLabel": "Lambar gayyata",
+      "linkLabel": "Hanyar shiga",
+      "copyCode": "Kwafi lambar gayyata",
+      "copyLink": "Kwafi hanyar shiga",
+      "copied": "An kwafa!",
+      "share": "Raba gayyata",
+      "done": "An gama",
+      "joinedProgress": "{{joined}} cikin {{total}} sun shiga",
+      "membersTitle": "Mahalarta ({{count}})",
+      "noMembersYet": "Babu wanda ya shiga tukuna.",
+      "statusJoined": "Ya shiga"
+    },
+    "join": {
+      "title": "Shigar da Lamba",
+      "subtitle": "Shigar da lambar gayyatar da mai gudanar da ƙungiyar ya raba",
+      "codeLabel": "Lambar gayyata",
+      "codePlaceholder": "AJO-7JM200",
+      "submit": "Shiga ƙungiya",
+      "successMessage": "Kun shiga {{name}} cikin nasara!",
+      "errors": {
+        "required": "Shigar da lambar gayyata.",
+        "invalid": "Shigar da lamba mai inganci kamar AJO-7JM200."
+      }
+    }
+  },
   "profile": {
     "title": "Bayani",
     "defaultName": "Memba",
@@ -207,6 +290,8 @@
       "editProfile": "Gyara Bayani",
       "changePassword": "Canza Kalmar Sirri",
       "biometrics": "Biometrics",
+      "faceId": "Face ID",
+      "fingerprint": "Yatsa",
       "privacyPolicy": "Manufar Sirri",
       "bankDetails": "Bayanan Banki",
       "pushNotifications": "Sanarwar Push",
@@ -219,6 +304,13 @@
     "logoutMessage": "Ka tabbata kana son fita?",
     "logoutConfirm": "Fita",
     "logoutCancel": "Soke",
+    "biometrics": {
+      "enablePrompt": "Tabbatar don kunna buɗewa da biometrics",
+      "notAvailableTitle": "Biometrics ba sa samuwa",
+      "notAvailableBody": "Wannan na'ura ba ta goyi bayan yatsa ko Face ID.",
+      "notEnrolledTitle": "Ba a saita biometrics ba",
+      "notEnrolledBody": "Ƙara yatsa ko Face ID a cikin saitunan na'urar ku, sannan ku sake gwadawa."
+    },
     "edit": {
       "title": "Gyara Bayani",
       "changePhoto": "Canza hoto",

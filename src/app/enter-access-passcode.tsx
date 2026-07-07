@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Redirect, useRouter } from "expo-router";
+import { Redirect, useRouter, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,6 +14,13 @@ import { useAuth } from "../context/AuthProvider";
 import { useProfile } from "../context/ProfileProvider";
 import { ApiError } from "../api/client";
 import { INCORRECT_ACCESS_PASSCODE } from "../models/auth";
+import {
+  getBiometricCapabilities,
+  getBiometricUnlockLabelKey,
+  promptBiometricAuth,
+  type BiometricCapabilities,
+} from "../lib/biometricAuth";
+import { isBiometricsEnabled } from "../lib/biometricStorage";
 import { waitForNextFrame } from "../lib/waitForNextFrame";
 import { useTheme, useThemedStyles, type Theme } from "../theme";
 
@@ -21,7 +28,7 @@ export default function EnterAccessPasscodeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
-  const { status, user, verifyAccessPasscode, resetAccessPasscode, logout } =
+  const { status, user, verifyAccessPasscode, unlockWithBiometrics, resetAccessPasscode, logout } =
     useAuth();
   const { profile } = useProfile();
   const styles = useThemedStyles(createStyles);
@@ -30,8 +37,95 @@ export default function EnterAccessPasscodeScreen() {
   const [passcodeError, setPasscodeError] = useState<string>();
   const [formError, setFormError] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
+  const [biometricCaps, setBiometricCaps] = useState<BiometricCapabilities | null>(
+    null,
+  );
+  const [biometricsEnabled, setBiometricsEnabledState] = useState(false);
+  const [biometricUnlocking, setBiometricUnlocking] = useState(false);
 
   const isFormValid = passcode.length === ACCESS_PASSCODE_LENGTH;
+
+  const handleBiometricUnlock = useCallback(async () => {
+      if (biometricUnlocking || submitting || !biometricsEnabled) return;
+
+      setBiometricUnlocking(true);
+      setFormError(undefined);
+
+      try {
+        const result = await promptBiometricAuth(t("auth.biometricPrompt"));
+
+        if (!result.success) {
+          if (!result.cancelled && result.error === "not_enrolled") {
+            Alert.alert(
+              t("profile.biometrics.notEnrolledTitle"),
+              t("profile.biometrics.notEnrolledBody"),
+            );
+          }
+          return;
+        }
+
+        await unlockWithBiometrics();
+        router.replace("/(app)/home");
+      } catch (error) {
+        const message =
+          error instanceof ApiError ? error.message : t("auth.errors.generic");
+        setFormError(message);
+      } finally {
+        setBiometricUnlocking(false);
+      }
+    },
+    [
+      biometricUnlocking,
+      submitting,
+      biometricsEnabled,
+      unlockWithBiometrics,
+      router,
+      t,
+    ],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!user) return;
+
+      let cancelled = false;
+
+      void (async () => {
+        const [enabled, caps] = await Promise.all([
+          isBiometricsEnabled(user.id),
+          getBiometricCapabilities(),
+        ]);
+
+        if (cancelled) return;
+
+        setBiometricsEnabledState(enabled);
+        setBiometricCaps(caps);
+
+        if (!enabled || !caps.available || !caps.enrolled) return;
+
+        setBiometricUnlocking(true);
+        setFormError(undefined);
+
+        try {
+          const result = await promptBiometricAuth(t("auth.biometricPrompt"));
+          if (cancelled || !result.success) return;
+
+          await unlockWithBiometrics();
+          router.replace("/(app)/home");
+        } catch {
+          // Fall back to passcode entry silently on auto-prompt failure.
+        } finally {
+          if (!cancelled) {
+            setBiometricUnlocking(false);
+          }
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [user, t, unlockWithBiometrics, router]),
+  );
 
   const handleSubmit = async (code?: string) => {
     if (submitting) return;
@@ -123,11 +217,17 @@ export default function EnterAccessPasscodeScreen() {
   };
 
   const handleFingerprint = () => {
-    Alert.alert(
-      t("auth.fingerprintComingSoonTitle"),
-      t("auth.fingerprintComingSoonBody"),
-    );
+    void handleBiometricUnlock();
   };
+
+  const showBiometricLogin =
+    biometricsEnabled &&
+    biometricCaps?.available === true &&
+    biometricCaps.enrolled === true;
+
+  const biometricUnlockLabelKey = biometricCaps
+    ? getBiometricUnlockLabelKey(biometricCaps.kind)
+    : "auth.unlockWithBiometrics";
 
   return (
     <SafeAreaView style={styles.container}>
@@ -150,14 +250,18 @@ export default function EnterAccessPasscodeScreen() {
             value={passcode}
             onChangeText={setPasscode}
             error={passcodeError}
-            editable={!submitting}
+            editable={!submitting && !biometricUnlocking}
             onComplete={(code) => {
               void handleSubmit(code);
             }}
           />
           <FormSubmittingIndicator
-            message={t("auth.submittingPasscode")}
-            visible={submitting}
+            message={
+              biometricUnlocking
+                ? t("auth.submittingBiometric")
+                : t("auth.submittingPasscode")
+            }
+            visible={submitting || biometricUnlocking}
           />
           <Pressable
             onPress={handleForgetPasscode}
@@ -182,7 +286,7 @@ export default function EnterAccessPasscodeScreen() {
             void handleSubmit();
           }}
           disabled={!isFormValid}
-          loading={submitting}
+          loading={submitting || biometricUnlocking}
           size="compact"
           style={{ backgroundColor: theme.colors.activityPayoutBg }}
         />
@@ -197,14 +301,19 @@ export default function EnterAccessPasscodeScreen() {
           >
             <Text style={styles.footerLink}>{t("auth.switchAccount")}</Text>
           </Pressable>
-          <Text style={styles.footerDivider}>|</Text>
-          <Pressable
-            onPress={handleFingerprint}
-            accessibilityRole="button"
-            accessibilityLabel={t("auth.loginWithFingerprint")}
-          >
-            <Text style={styles.footerLink}>{t("auth.loginWithFingerprint")}</Text>
-          </Pressable>
+          {showBiometricLogin ? (
+            <>
+              <Text style={styles.footerDivider}>|</Text>
+              <Pressable
+                onPress={handleFingerprint}
+                disabled={biometricUnlocking || submitting}
+                accessibilityRole="button"
+                accessibilityLabel={t(biometricUnlockLabelKey)}
+              >
+                <Text style={styles.footerLink}>{t(biometricUnlockLabelKey)}</Text>
+              </Pressable>
+            </>
+          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>
