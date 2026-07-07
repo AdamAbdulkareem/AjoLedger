@@ -1,10 +1,9 @@
-import { Alert } from "react-native";
 import type { Href } from "expo-router";
 import type { TFunction } from "i18next";
 
 import type { HomeTabKey } from "../models/home";
 
-const TAB_ROUTES: Partial<Record<HomeTabKey, Href>> = {
+const TAB_ROUTES: Record<HomeTabKey, Href> = {
   home: "/(app)/home",
   groups: "/(app)/groups",
   profile: "/(app)/profile",
@@ -12,14 +11,8 @@ const TAB_ROUTES: Partial<Record<HomeTabKey, Href>> = {
 
 export function handleAppTabPress(
   tab: HomeTabKey,
-  router: { push: (href: Href) => void },
-  t: TFunction,
+  router: { replace: (href: Href) => void },
+  _t: TFunction,
 ): void {
-  const route = TAB_ROUTES[tab];
-  if (route) {
-    router.push(route);
-    return;
-  }
-
-  Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
+  router.replace(TAB_ROUTES[tab]);
 }

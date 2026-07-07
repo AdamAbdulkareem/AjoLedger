@@ -18,18 +18,21 @@ function resolveParticipantCount(
   apiCount: number,
   joinedCount: number,
   storedCount?: number,
+  routeExpected?: number,
 ): number {
-  const candidates = [apiCount, storedCount ?? 0].filter((value) => value > 0);
-  if (candidates.length === 0) {
-    return Math.max(joinedCount, 1);
-  }
+  const stored = storedCount && storedCount > 0 ? storedCount : 0;
+  const route = routeExpected && routeExpected > 0 ? routeExpected : 0;
 
-  return Math.max(...candidates, joinedCount);
+  // When apiCount equals joinedCount, the API likely sent current members — not capacity.
+  const apiCapacity = apiCount > joinedCount ? apiCount : 0;
+
+  return Math.max(stored, route, apiCapacity, joinedCount, 1);
 }
 
 function finalizeGroupDetails(
   raw: GroupDetails,
   storedParticipantCount?: number,
+  routeExpected?: number,
 ): GroupDetails {
   const joinedMembers = getJoinedMembers(raw.members);
   const joinedCount = raw.joinedCount || joinedMembers.length;
@@ -42,6 +45,7 @@ function finalizeGroupDetails(
       raw.numberOfParticipants,
       joinedCount,
       storedParticipantCount,
+      routeExpected,
     ),
   };
 }
@@ -105,6 +109,7 @@ export async function joinGroup(
 export async function getGroupDetails(
   token: string,
   groupId: string,
+  options?: { expectedParticipants?: number },
 ): Promise<GroupDetails> {
   const envelope = await apiRequest<unknown>(`/groups/${groupId}`, {
     token,
@@ -118,6 +123,7 @@ export async function getGroupDetails(
   return finalizeGroupDetails(
     normalizeGroupDetailsFromApi(envelope.data),
     stored?.numberOfParticipants,
+    options?.expectedParticipants,
   );
 }
 

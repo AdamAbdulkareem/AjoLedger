@@ -102,6 +102,15 @@
     "dueTodayShort": "Za a yi biya yau",
     "recentActivity": "Ayyukan Kwanan Nan",
     "viewAll": "Duba duka",
+    "groupCarousel": "Carousel na Ƙungiya",
+    "urgentDuePrefix": "Gaggawa: Za a biya cikin ",
+    "urgentDueDays": "kwanaki {{count}}",
+    "urgentDueDays_one": "kwana 1",
+    "balancePrefix": "Balance: ",
+    "totalDueThisWeek": "Jimillar da za a biya wannan mako:",
+    "totalDueSubtitle": "Jimillar biyan da ake buƙata a duk ƙungiyoyi masu aiki",
+    "settleAll": "Biya Duka",
+    "activityTag": "Tag: {{name}}",
     "accessibility": "Samun dama",
     "loading": "Ana lodin dashboard ɗinku…",
     "errors": {
@@ -113,7 +122,6 @@
     "tabs": {
       "home": "Gida",
       "groups": "Ƙungiyoyi",
-      "ledger": "Lissafi",
       "profile": "Bayani"
     },
     "activity": {
@@ -199,6 +207,7 @@
   "groups": {
     "title": "Ƙungiyoyi",
     "enterCode": "Shigar da Lamba",
+    "joinButton": "Shiga",
     "loading": "Ana lodin ƙungiyoyinku…",
     "bankRequired": {
       "title": "Ƙara bankin biyan kuɗi da farko",
@@ -246,6 +255,17 @@
     "list": {
       "heading": "Ƙungiyoyinku",
       "contributionLine": "{{amount}} · {{frequency}}",
+      "contributionLabel": "Gudummawa",
+      "statusLabel": "Matsayi",
+      "positionLabel": "Matsayi",
+      "status": {
+        "partial": "Sashe",
+        "paid": "An biya",
+        "notPaid": "Ba a biya ba"
+      },
+      "potProgress": "{{collected}} daga cikin {{target}}",
+      "cycleLabel": "Zagayowar {{number}}",
+      "nextPayout": "Biyan gaba: {{date}}",
       "creatorBadge": "Kun ƙirƙiri wannan ƙungiyar",
       "createNew": "Ƙirƙiri sabuwar ƙungiyar ajiya",
       "createNewSubtitle": "(Saita suna, adadi, lokaci)"
@@ -258,9 +278,11 @@
       "copyLink": "Kwafi hanyar shiga",
       "copied": "An kwafa!",
       "share": "Raba gayyata",
+      "shareCodeHint": "Raba wannan lambar gayyata",
+      "checkPayoutOrder": "Duba tsarin biyan",
       "done": "An gama",
       "joinedProgress": "{{joined}} cikin {{total}} sun shiga",
-      "membersTitle": "Mahalarta ({{count}})",
+      "membersTitle": "Mahalarta({{count}})",
       "noMembersYet": "Babu wanda ya shiga tukuna.",
       "statusJoined": "Ya shiga"
     },

@@ -11,19 +11,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
-import { BankDetailsModal } from "../../components/home/BankDetailsModal";
-import { HomeTabBar } from "../../components/home/HomeTabBar";
-import { NewUserGroupsContent } from "../../components/groups/NewUserGroupsContent";
-import { ReturningUserGroupsContent } from "../../components/groups/ReturningUserGroupsContent";
-import { SubScreenHeader } from "../../components/profile/SubScreenHeader";
-import { Button } from "../../components/Button";
-import { isUserGroupCreator } from "../../api/groups";
-import { useAuth } from "../../context/AuthProvider";
-import { useRequirePayoutBank } from "../../hooks/useRequirePayoutBank";
-import { useUserGroups } from "../../hooks/useUserGroups";
-import { isGroupCreator } from "../../lib/groupApiNormalize";
-import type { GroupSummary } from "../../models/group";
-import { useTheme, useThemedStyles, type Theme } from "../../theme";
+import { BankDetailsModal } from "../../../components/home/BankDetailsModal";
+import { HomeTabBar } from "../../../components/home/HomeTabBar";
+import { NewUserGroupsContent } from "../../../components/groups/NewUserGroupsContent";
+import { ReturningUserGroupsContent } from "../../../components/groups/ReturningUserGroupsContent";
+import { SubScreenHeader } from "../../../components/profile/SubScreenHeader";
+import { Button } from "../../../components/Button";
+import { isUserGroupCreator } from "../../../api/groups";
+import { useAuth } from "../../../context/AuthProvider";
+import { useRequirePayoutBank } from "../../../hooks/useRequirePayoutBank";
+import { useUserGroups } from "../../../hooks/useUserGroups";
+import { isGroupCreator } from "../../../lib/groupApiNormalize";
+import type { GroupSummary } from "../../../models/group";
+import { useTheme, useThemedStyles, type Theme } from "../../../theme";
 
 type GroupsParams = {
   joinedGroupName?: string;
@@ -127,12 +127,24 @@ export default function GroupsScreen() {
   );
 
   const handleBack = useCallback(() => {
-    router.push("/(app)/home");
+    router.replace("/(app)/home");
   }, [router]);
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <SubScreenHeader title={t("groups.title")} onBackPress={handleBack} />
+      <SubScreenHeader
+        title={t("groups.title")}
+        onBackPress={handleBack}
+        trailingAction={
+          hasGroups && !loading && !error
+            ? {
+                label: t("groups.joinButton"),
+                onPress: handleJoinGroupPress,
+                accessibilityLabel: t("groups.joinButton"),
+              }
+            : undefined
+        }
+      />
 
       {loading || payoutLoading ? (
         <View style={styles.centered}>
@@ -158,7 +170,6 @@ export default function GroupsScreen() {
             groups={groups}
             joinedSuccessMessage={joinedSuccessMessage}
             openingGroupId={openingGroupId}
-            onEnterCodePress={handleJoinGroupPress}
             onCreateGroupPress={handleCreateGroupPress}
             onGroupPress={(group) => void handleGroupPress(group)}
           />

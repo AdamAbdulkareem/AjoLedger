@@ -1,0 +1,83 @@
+import type { ActivityType, RecentActivityItem } from "../models/home";
+import { ApiError, apiRequest } from "./client";
+
+type RecentActivityApiItem = {
+  id: string;
+  type: string;
+  occurredAt: string;
+  amount?: number;
+  recipientName?: string;
+  groupId?: string;
+  groupName?: string;
+};
+
+const ACTIVITY_TYPES: ActivityType[] = [
+  "payment_paid",
+  "contribution_reminder",
+  "upcoming_payout",
+];
+
+function normalizeActivityType(raw: string): ActivityType | null {
+  const value = raw.trim().toLowerCase();
+  if (ACTIVITY_TYPES.includes(value as ActivityType)) {
+    return value as ActivityType;
+  }
+
+  if (value === "payment" || value === "contribution_paid") {
+    return "payment_paid";
+  }
+
+  if (value === "reminder" || value === "contribution_due") {
+    return "contribution_reminder";
+  }
+
+  if (value === "payout" || value === "payout_upcoming") {
+    return "upcoming_payout";
+  }
+
+  return null;
+}
+
+function normalizeRecentActivityItem(
+  raw: RecentActivityApiItem,
+): RecentActivityItem | null {
+  const type = normalizeActivityType(raw.type);
+  if (!type || !raw.id?.trim() || !raw.occurredAt?.trim()) {
+    return null;
+  }
+
+  return {
+    id: raw.id,
+    type,
+    occurredAt: raw.occurredAt,
+    amount: raw.amount,
+    recipientName: raw.recipientName,
+    groupId: raw.groupId,
+    groupName: raw.groupName,
+  };
+}
+
+/** Fetches recent home activity when the backend endpoint is available. */
+export async function getRecentActivity(
+  token: string,
+): Promise<RecentActivityItem[]> {
+  try {
+    const envelope = await apiRequest<RecentActivityApiItem[]>(
+      "/activity/recent",
+      { token },
+    );
+
+    return (envelope.data ?? [])
+      .map(normalizeRecentActivityItem)
+      .filter((item): item is RecentActivityItem => item != null);
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      (error.status === 404 || error.status === 501)
+    ) {
+      return [];
+    }
+
+    throw error;
+  }
+}

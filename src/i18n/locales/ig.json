@@ -102,6 +102,15 @@
     "dueTodayShort": "Ga-erute taa",
     "recentActivity": "Ihe Omume Na-adịbeghị Anyụ",
     "viewAll": "Lelee ha niile",
+    "groupCarousel": "Carousel Otu",
+    "urgentDuePrefix": "Ngwa ngwa: Ga-ada na ",
+    "urgentDueDays": "ụbọchị {{count}}",
+    "urgentDueDays_one": "ụbọchị 1",
+    "balancePrefix": "Balance: ",
+    "totalDueThisWeek": "Mkpokọta ị ga-akwụ this week:",
+    "totalDueSubtitle": "Mkpokọta ụgwọ dị n'ọrụ n'otu niile na-arụ ọrụ",
+    "settleAll": "Kwụọ Niile",
+    "activityTag": "Tag: {{name}}",
     "accessibility": "Ịnweta",
     "loading": "Na-ebubata dashboard gị…",
     "errors": {
@@ -113,7 +122,6 @@
     "tabs": {
       "home": "Ụlọ",
       "groups": "Otu",
-      "ledger": "Akụkọ",
       "profile": "Profaịlụ"
     },
     "activity": {
@@ -199,6 +207,7 @@
   "groups": {
     "title": "Otu",
     "enterCode": "Tinye Koodu",
+    "joinButton": "Sonye",
     "loading": "Na-ebu otu gị…",
     "bankRequired": {
       "title": "Tinye banki ị na-enweta ugwo mbụ",
@@ -246,6 +255,17 @@
     "list": {
       "heading": "Otu gị",
       "contributionLine": "{{amount}} · {{frequency}}",
+      "contributionLabel": "Onyinye",
+      "statusLabel": "Ọnọdụ",
+      "positionLabel": "Ohere",
+      "status": {
+        "partial": "Nkeji",
+        "paid": "Akụrụ",
+        "notPaid": "Akụbeghị"
+      },
+      "potProgress": "{{collected}} n'ime {{target}}",
+      "cycleLabel": "Usoro {{number}}",
+      "nextPayout": "Ugwo na-abịa: {{date}}",
       "creatorBadge": "Ị kere otu a",
       "createNew": "Mepụta otu nchekwa ọhụrụ",
       "createNewSubtitle": "(Tọọ aha, ego, oge)"
@@ -258,9 +278,11 @@
       "copyLink": "Detuo njikọ sonye",
       "copied": "Edeturu!",
       "share": "Kesaa enyo",
+      "shareCodeHint": "Kesaa koodu enyo a",
+      "checkPayoutOrder": "Lelee usoro ụgwọ",
       "done": "Emechaala",
       "joinedProgress": "{{joined}} n'ime {{total}} sonyere",
-      "membersTitle": "Ndị otu ({{count}})",
+      "membersTitle": "Ndị otu({{count}})",
       "noMembersYet": "Ọ dịghị onye sonyere ya.",
       "statusJoined": "Sonyere"
     },

@@ -20,7 +20,7 @@ export function HomeHeader({ displayName, avatarUrl }: HomeHeaderProps) {
   return (
     <View style={styles.row}>
       <View style={styles.brandRow}>
-        <AjoLedgerLogoMark size={50} variant="circle" />
+        <AjoLedgerLogoMark size={50} variant="square" />
         <View style={styles.textWrap}>
           <Text style={styles.greeting}>
             {t(`home.${greetingKey}`, { name: displayName })}

@@ -106,7 +106,10 @@ export default function CreateGroupScreen() {
 
     router.replace({
       pathname: "/(app)/groups/invite",
-      params: { groupId: created.id },
+      params: {
+        groupId: created.id,
+        expectedParticipants: String(parsedParticipants),
+      },
     });
     setSubmitting(false);
   }, [

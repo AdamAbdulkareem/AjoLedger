@@ -71,6 +71,10 @@ export default function GroupDetailScreen() {
   }, [groupId, loadGroup]);
 
   const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
     router.replace("/(app)/groups");
   }, [router]);
 

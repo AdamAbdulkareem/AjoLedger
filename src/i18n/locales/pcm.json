@@ -101,6 +101,15 @@
     "dueTodayShort": "E go due today",
     "recentActivity": "Recent Activity",
     "viewAll": "See all",
+    "groupCarousel": "Group Carousel",
+    "urgentDuePrefix": "Urgent: Due in ",
+    "urgentDueDays": "{{count}} days",
+    "urgentDueDays_one": "1 day",
+    "balancePrefix": "Balance: ",
+    "totalDueThisWeek": "Total Due This Week:",
+    "totalDueSubtitle": "Aggregated urgent liability across all active group",
+    "settleAll": "Settle All",
+    "activityTag": "Tag: {{name}}",
     "accessibility": "Accessibility",
     "loading": "Dey load your dashboard…",
     "errors": {
@@ -112,7 +121,6 @@
     "tabs": {
       "home": "Home",
       "groups": "Groups",
-      "ledger": "Ledger",
       "profile": "Profile"
     },
     "activity": {
@@ -198,6 +206,7 @@
   "groups": {
     "title": "Groups",
     "enterCode": "Enter Code",
+    "joinButton": "Join",
     "loading": "Dey load your groups…",
     "bankRequired": {
       "title": "Add payout bank first",
@@ -245,6 +254,17 @@
     "list": {
       "heading": "Your groups",
       "contributionLine": "{{amount}} · {{frequency}}",
+      "contributionLabel": "Contribution",
+      "statusLabel": "Status",
+      "positionLabel": "Position",
+      "status": {
+        "partial": "Partial",
+        "paid": "Paid",
+        "notPaid": "Not paid"
+      },
+      "potProgress": "{{collected}} out of {{target}}",
+      "cycleLabel": "Cycle {{number}}",
+      "nextPayout": "Next payout: {{date}}",
       "creatorBadge": "You create dis group",
       "createNew": "Create new savings group",
       "createNewSubtitle": "(Set name, amount, frequency)"
@@ -257,9 +277,11 @@
       "copyLink": "Copy join link",
       "copied": "Copied!",
       "share": "Share invitation",
+      "shareCodeHint": "Share dis invitation code",
+      "checkPayoutOrder": "Check Payout order",
       "done": "Done",
       "joinedProgress": "{{joined}} out of {{total}} don join",
-      "membersTitle": "Members ({{count}})",
+      "membersTitle": "Members({{count}})",
       "noMembersYet": "Nobody don join yet.",
       "statusJoined": "Joined"
     },

@@ -8,6 +8,7 @@ import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 type RecentActivitySectionProps = {
   items: RecentActivityItem[];
+  showGroupTags?: boolean;
   onViewAllPress?: () => void;
   onItemPress?: (item: RecentActivityItem) => void;
   viewAllLabel: string;
@@ -32,6 +33,7 @@ function activityIconStyle(
 
 export function RecentActivitySection({
   items,
+  showGroupTags = false,
   onViewAllPress,
   onItemPress,
   viewAllLabel,
@@ -84,7 +86,16 @@ export function RecentActivitySection({
                 </View>
 
                 <View style={styles.itemBody}>
-                  <Text style={styles.itemTitle}>{copy.title}</Text>
+                  <View style={styles.titleRow}>
+                    <Text style={styles.itemTitle}>{copy.title}</Text>
+                    {showGroupTags && item.groupName ? (
+                      <View style={styles.tag}>
+                        <Text style={styles.tagText}>
+                          {t("home.activityTag", { name: item.groupName })}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
                   <View style={styles.itemMeta}>
                     <Text style={styles.itemSubtitle}>{copy.subtitle}</Text>
                     <Text style={styles.itemDate}>{copy.dateLabel}</Text>
@@ -175,6 +186,23 @@ const createStyles = (theme: Theme) =>
     itemBody: {
       flex: 1,
       gap: 4,
+    },
+    titleRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: "center",
+      gap: 4,
+    },
+    tag: {
+      backgroundColor: theme.colors.activityTagBg,
+      borderRadius: 9,
+      paddingHorizontal: 4,
+      paddingVertical: 4,
+    },
+    tagText: {
+      ...theme.typography.micro,
+      fontFamily: theme.fontFamily.semibold,
+      color: theme.colors.textPrimary,
     },
     itemMeta: {
       gap: 2,

@@ -1,9 +1,8 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 
-import { GroupListCard } from "./GroupListCard";
+import { ReturningGroupListCard } from "./ReturningGroupListCard";
 import { GroupsActionCard } from "./GroupsActionCard";
-import { GroupsHeader } from "./GroupsHeader";
 import type { GroupSummary } from "../../models/group";
 import { useThemedStyles, type Theme } from "../../theme";
 
@@ -11,7 +10,6 @@ type ReturningUserGroupsContentProps = {
   groups: GroupSummary[];
   joinedSuccessMessage?: string;
   openingGroupId?: string | null;
-  onEnterCodePress: () => void;
   onCreateGroupPress: () => void;
   onGroupPress: (group: GroupSummary) => void;
 };
@@ -20,7 +18,6 @@ export function ReturningUserGroupsContent({
   groups,
   joinedSuccessMessage,
   openingGroupId = null,
-  onEnterCodePress,
   onCreateGroupPress,
   onGroupPress,
 }: ReturningUserGroupsContentProps) {
@@ -29,28 +26,22 @@ export function ReturningUserGroupsContent({
 
   return (
     <View style={styles.container}>
-      <View style={styles.paddedSection}>
-        <GroupsHeader onEnterCodePress={onEnterCodePress} />
-      </View>
-
       {joinedSuccessMessage ? (
         <View style={styles.successBanner}>
           <Text style={styles.successText}>{joinedSuccessMessage}</Text>
         </View>
       ) : null}
 
-      <View style={styles.listSection}>
-        <Text style={styles.listHeading}>{t("groups.list.heading")}</Text>
-        <View style={styles.list}>
-          {groups.map((group) => (
-            <GroupListCard
-              key={group.id}
-              group={group}
-              loading={openingGroupId === group.id}
-              onPress={() => onGroupPress(group)}
-            />
-          ))}
-        </View>
+      <View style={styles.list}>
+        {groups.map((group, index) => (
+          <ReturningGroupListCard
+            key={group.id}
+            group={group}
+            index={index}
+            loading={openingGroupId === group.id}
+            onPress={() => onGroupPress(group)}
+          />
+        ))}
       </View>
 
       <View style={styles.paddedSection}>
@@ -87,17 +78,8 @@ const createStyles = (theme: Theme) =>
       color: theme.colors.successDark,
       textAlign: "center",
     },
-    listSection: {
-      paddingHorizontal: theme.spacing.md,
-      gap: theme.spacing.sm,
-    },
-    listHeading: {
-      fontFamily: theme.fontFamily.semibold,
-      fontSize: 16,
-      lineHeight: 24,
-      color: theme.colors.textPrimary,
-    },
     list: {
-      gap: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.md,
+      gap: 20,
     },
   });
