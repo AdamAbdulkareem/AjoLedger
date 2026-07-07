@@ -32,6 +32,7 @@ export const colors = {
   toastSuccessIcon: "#73B18E",
   toastSuccessText: "#0C0C0C",
   carouselCardBg: "#FFF8E8",
+  inviteCardBorder: "#B7CBE4",
   carouselDotInactive: "#FFECC9",
   progressUrgent: "#F75C5C",
   progressUrgentBg: "#FCDBDB",

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { AmountRemainsCard } from "./AmountRemainsCard";
@@ -32,6 +32,12 @@ export function RegisteredHomeContent({
   const styles = useThemedStyles(createStyles);
   const isMultiGroup = data.groups.length > 1;
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  useEffect(() => {
+    setSelectedIndex((current) =>
+      Math.min(current, Math.max(data.groups.length - 1, 0)),
+    );
+  }, [data.groups]);
 
   const primaryDashboard = data.groups[selectedIndex] ?? data.groups[0];
 
@@ -76,7 +82,9 @@ export function RegisteredHomeContent({
         </>
       ) : null}
 
-      {data.recentActivity.length > 0 ? (
+      {data.recentActivityError ? (
+        <Text style={styles.activityError}>{data.recentActivityError}</Text>
+      ) : data.recentActivity.length > 0 ? (
         <RecentActivitySection
           items={data.recentActivity}
           showGroupTags={isMultiGroup}
@@ -96,5 +104,10 @@ const createStyles = (theme: Theme) =>
     },
     multiGroupBlock: {
       gap: 14,
+    },
+    activityError: {
+      ...theme.typography.caption,
+      color: theme.colors.error,
+      textAlign: "center",
     },
   });

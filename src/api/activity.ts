@@ -35,6 +35,7 @@ function normalizeActivityType(raw: string): ActivityType | null {
     return "upcoming_payout";
   }
 
+  console.warn("[activity] Unrecognized activity type:", raw);
   return null;
 }
 
@@ -43,6 +44,9 @@ function normalizeRecentActivityItem(
 ): RecentActivityItem | null {
   const type = normalizeActivityType(raw.type);
   if (!type || !raw.id?.trim() || !raw.occurredAt?.trim()) {
+    if (raw.type?.trim() && !type) {
+      console.warn("[activity] Dropping activity item:", raw.id, raw.type);
+    }
     return null;
   }
 

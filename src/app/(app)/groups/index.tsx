@@ -21,6 +21,7 @@ import { isUserGroupCreator } from "../../../api/groups";
 import { useAuth } from "../../../context/AuthProvider";
 import { useRequirePayoutBank } from "../../../hooks/useRequirePayoutBank";
 import { useUserGroups } from "../../../hooks/useUserGroups";
+import { openGroupDetail } from "../../../lib/appNavigation";
 import { isGroupCreator } from "../../../lib/groupApiNormalize";
 import type { GroupSummary } from "../../../models/group";
 import { useTheme, useThemedStyles, type Theme } from "../../../theme";
@@ -80,16 +81,6 @@ export default function GroupsScreen() {
     [router],
   );
 
-  const openGroupDetail = useCallback(
-    (groupId: string) => {
-      router.push({
-        pathname: "/(app)/groups/[groupId]",
-        params: { groupId },
-      });
-    },
-    [router],
-  );
-
   const handleGroupPress = useCallback(
     async (group: GroupSummary) => {
       if (openingGroupId) {
@@ -115,7 +106,7 @@ export default function GroupsScreen() {
           return;
         }
 
-        openGroupDetail(group.id);
+        openGroupDetail(router, group.id);
       } catch (error) {
         console.error("Failed to check group creator status:", error);
         Alert.alert(t("home.errors.generic"));
@@ -123,7 +114,7 @@ export default function GroupsScreen() {
         setOpeningGroupId(null);
       }
     },
-    [accessToken, openGroupDetail, openInvitationScreen, openingGroupId, t],
+    [accessToken, openInvitationScreen, openingGroupId, router, t],
   );
 
   const handleBack = useCallback(() => {

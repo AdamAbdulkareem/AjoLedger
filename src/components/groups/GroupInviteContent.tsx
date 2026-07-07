@@ -205,7 +205,7 @@ const createStyles = (theme: Theme) =>
     inviteCard: {
       backgroundColor: theme.colors.carouselCardBg,
       borderWidth: 1,
-      borderColor: "#B7CBE4",
+      borderColor: theme.colors.inviteCardBorder,
       borderRadius: 20,
       padding: theme.spacing.md,
       alignItems: "center",

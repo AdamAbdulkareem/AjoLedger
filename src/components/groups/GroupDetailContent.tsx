@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { useTranslation } from "react-i18next";
 
+import { mapContributionStatusKey } from "../../lib/buildGroupListCardViewModel";
 import { formatNaira } from "../../lib/formatMoney";
 import type { ContributionFrequency, GroupDetails } from "../../models/group";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
@@ -63,7 +64,9 @@ export function GroupDetailContent({ group }: GroupDetailContentProps) {
   }, [virtualAccount]);
 
   const position = group.myDetails?.position;
-  const status = group.myDetails?.status;
+  const statusKey = group.myDetails?.status?.trim()
+    ? mapContributionStatusKey(group.myDetails.status)
+    : null;
 
   return (
     <View style={styles.container}>
@@ -85,7 +88,7 @@ export function GroupDetailContent({ group }: GroupDetailContentProps) {
         ) : null}
       </View>
 
-      {position != null || status ? (
+      {position != null || statusKey ? (
         <View style={styles.infoCard}>
           <Text style={styles.cardTitle}>{t("groups.detail.membershipTitle")}</Text>
           {position != null ? (
@@ -95,8 +98,10 @@ export function GroupDetailContent({ group }: GroupDetailContentProps) {
           ) : (
             <Text style={styles.infoMuted}>{t("groups.detail.payoutPending")}</Text>
           )}
-          {status ? (
-            <Text style={styles.statusBadge}>{status}</Text>
+          {statusKey ? (
+            <Text style={styles.statusBadge}>
+              {t(`groups.list.status.${statusKey}`)}
+            </Text>
           ) : null}
         </View>
       ) : null}

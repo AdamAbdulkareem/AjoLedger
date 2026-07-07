@@ -4,7 +4,6 @@ import Animated, {
   Extrapolation,
   interpolate,
   runOnJS,
-  useAnimatedReaction,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -149,19 +148,6 @@ export function HomeGroupCarousel({
       runOnJS(updateSelectedIndex)(event.contentOffset.x);
     },
   });
-
-  useAnimatedReaction(
-    () => {
-      const index = Math.round(scrollX.value / layout.itemWidth);
-      return Math.min(Math.max(index, 0), Math.max(groups.length - 1, 0));
-    },
-    (nextIndex, prevIndex) => {
-      if (nextIndex !== prevIndex) {
-        runOnJS(onSelectedIndexChange)(nextIndex);
-      }
-    },
-    [groups.length, layout.itemWidth],
-  );
 
   const centerOnIndex = useCallback(
     (index: number, animated = false) => {

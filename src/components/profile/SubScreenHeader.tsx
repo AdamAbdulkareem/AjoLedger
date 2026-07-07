@@ -67,7 +67,9 @@ export function SubScreenHeader({
               pressed && styles.pressed,
             ]}
           >
-            <Text style={styles.trailingLabel}>{trailingAction.label}</Text>
+            <Text style={styles.trailingLabel} numberOfLines={1}>
+              {trailingAction.label}
+            </Text>
           </Pressable>
         ) : (
           <View style={styles.sideSpacer} />
@@ -118,6 +120,7 @@ const createStyles = (theme: Theme) =>
       paddingVertical: 10,
       alignItems: "center",
       justifyContent: "center",
+      maxWidth: SIDE_SLOT_WIDTH,
     },
     trailingLabel: {
       fontFamily: theme.fontFamily.semibold,

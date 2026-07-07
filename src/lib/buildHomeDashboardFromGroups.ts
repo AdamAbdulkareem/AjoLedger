@@ -129,7 +129,17 @@ function buildMockRecentActivity(
 }
 
 function computeTotalDueThisWeek(groups: GroupHomeDashboard[]): number {
-  return groups.reduce((sum, entry) => sum + entry.amountRemains.amount, 0);
+  return groups.reduce((sum, entry) => {
+    if (entry.amountRemains.amount <= 0) {
+      return sum;
+    }
+
+    if (entry.amountRemains.daysUntilDue > 7) {
+      return sum;
+    }
+
+    return sum + entry.amountRemains.amount;
+  }, 0);
 }
 
 /** Builds registered-user home data from GET /groups. */

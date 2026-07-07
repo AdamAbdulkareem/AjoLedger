@@ -84,9 +84,7 @@ export default function EnterAccessPasscodeScreen() {
           setFormError(message);
         }
       } finally {
-        if (!options?.isCancelled?.()) {
-          setBiometricUnlocking(false);
-        }
+        setBiometricUnlocking(false);
       }
     },
     [

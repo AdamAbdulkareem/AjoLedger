@@ -60,8 +60,10 @@ export default function GroupInviteScreen() {
   const loadGroup = useCallback(
     async (options?: { silent?: boolean }) => {
       if (!groupId || !accessToken) {
-        setError(t("home.errors.generic"));
-        setLoading(false);
+        if (!options?.silent) {
+          setError(t("home.errors.generic"));
+          setLoading(false);
+        }
         return;
       }
 

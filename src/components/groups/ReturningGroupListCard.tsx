@@ -60,8 +60,10 @@ export function ReturningGroupListCard({
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={loading ? undefined : onPress}
+      disabled={loading}
       accessibilityRole="button"
+      accessibilityState={{ disabled: loading, busy: loading }}
       accessibilityLabel={group.name}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >

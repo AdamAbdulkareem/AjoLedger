@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getRecentActivity } from "../api/activity";
 import { ApiError } from "../api/client";
@@ -18,8 +18,11 @@ export function useRecentActivity(
   const [items, setItems] = useState<RecentActivityItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
 
   const refresh = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
+
     if (!accessToken || !enabled) {
       setItems([]);
       setError(null);
@@ -32,8 +35,16 @@ export function useRecentActivity(
 
     try {
       const activity = await getRecentActivity(accessToken);
+      if (requestId !== requestIdRef.current) {
+        return;
+      }
+
       setItems(activity);
     } catch (err) {
+      if (requestId !== requestIdRef.current) {
+        return;
+      }
+
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
@@ -41,7 +52,9 @@ export function useRecentActivity(
       }
       setItems([]);
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) {
+        setLoading(false);
+      }
     }
   }, [accessToken, enabled]);
 

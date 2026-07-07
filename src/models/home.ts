@@ -88,4 +88,5 @@ export type RegisteredHomeData = {
   /** Sum of outstanding amounts due this week across active groups. */
   totalDueThisWeek: number;
   recentActivity: RecentActivityItem[];
+  recentActivityError?: string | null;
 };

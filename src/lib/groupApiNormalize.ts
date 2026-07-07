@@ -328,10 +328,9 @@ function readMembers(raw: UnknownRecord): GroupMember[] {
 
 export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
   const record = asRecord(raw) ?? {};
-  const cycleDetails = asRecord(record.cycleDetails);
+  const cycleDetails = readCycleDetails(record);
   const contributionAmount =
-    readNumber(record.contributionAmount) ??
-    (cycleDetails ? readNumber(cycleDetails.contributionAmount) : undefined);
+    readNumber(record.contributionAmount) ?? cycleDetails?.contributionAmount;
 
   return {
     id: readString(record.id) ?? "",
@@ -344,7 +343,7 @@ export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
     numberOfParticipants: readParticipantCount(record),
     joinedCount: readJoinedCount(record),
     myDetails: readMyDetails(record),
-    cycleDetails: readCycleDetails(record),
+    cycleDetails,
   };
 }
 

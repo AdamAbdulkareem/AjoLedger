@@ -4,8 +4,8 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT_DIR="$PROJECT_ROOT/.cursor/agent-memory/chats"
-OLD_WORKSPACE="/Users/adamadulkareem/Documents/AjoLedger"
-OLD_TRANSCRIPTS="$HOME/.cursor/projects/Users-adamadulkareem-Documents-AjoLedger/agent-transcripts"
+OLD_WORKSPACE="${OLD_WORKSPACE:-$HOME/Documents/AjoLedger}"
+OLD_TRANSCRIPTS="${OLD_TRANSCRIPTS:-$HOME/.cursor/projects/Users-adamadulkareem-Documents-AjoLedger/agent-transcripts}"
 
 mkdir -p "$OUT_DIR"
 
@@ -67,7 +67,7 @@ INDEX="$OUT_DIR/INDEX.md"
   echo "## Files"
   echo ""
   find "$OUT_DIR" -type f \( -name '*.md' ! -name 'INDEX.md' \) | sort | while read -r f; do
-    rel="${f#$OUT_DIR/}"
+    rel="${f#"$OUT_DIR"/}"
     echo "- [\`$rel\`](./$rel)"
   done
 } > "$INDEX"

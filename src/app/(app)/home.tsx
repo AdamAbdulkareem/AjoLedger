@@ -58,6 +58,8 @@ export default function HomeScreen() {
 
   const {
     items: recentActivity,
+    loading: activityLoading,
+    error: activityError,
     refresh: refreshActivity,
   } = useRecentActivity(accessToken, hasGroups);
 
@@ -134,21 +136,7 @@ export default function HomeScreen() {
     });
   }, [requireBank, router]);
 
-  const handleGroupPress = useCallback(
-    (groupId: string) => {
-      openGroupDetail(router, groupId);
-    },
-    [router],
-  );
-
-  const handlePayNowPress = useCallback(
-    (groupId: string) => {
-      openGroupDetail(router, groupId);
-    },
-    [router],
-  );
-
-  const handleDetailsPress = useCallback(
+  const handleOpenGroup = useCallback(
     (groupId: string) => {
       openGroupDetail(router, groupId);
     },
@@ -161,17 +149,13 @@ export default function HomeScreen() {
 
   const handleActivityPress = useCallback(
     (item: RecentActivityItem) => {
-      if (item.groupId) {
-        openGroupDetail(router, item.groupId);
+      if (!item.groupId) {
         return;
       }
 
-      const fallbackGroupId = groups[0]?.id;
-      if (fallbackGroupId) {
-        openGroupDetail(router, fallbackGroupId);
-      }
+      openGroupDetail(router, item.groupId);
     },
-    [groups, router],
+    [router],
   );
 
   const dismissBankSaveSuccess = useCallback(() => {
@@ -209,10 +193,14 @@ export default function HomeScreen() {
 
     return {
       ...base,
-      recentActivity:
-        recentActivity.length > 0 ? recentActivity : base.recentActivity,
+      recentActivity: activityError
+        ? []
+        : activityLoading
+          ? base.recentActivity
+          : recentActivity,
+      recentActivityError: activityError,
     };
-  }, [hasGroups, groups, displayName, avatarUrl, recentActivity]);
+  }, [hasGroups, groups, displayName, avatarUrl, recentActivity, activityLoading, activityError]);
 
   const handleRetry = () => {
     void refreshGroups();
@@ -241,9 +229,9 @@ export default function HomeScreen() {
     return (
       <RegisteredHomeContent
         data={registeredHomeData}
-        onGroupPress={handleGroupPress}
-        onPayNowPress={handlePayNowPress}
-        onDetailsPress={handleDetailsPress}
+        onGroupPress={handleOpenGroup}
+        onPayNowPress={handleOpenGroup}
+        onDetailsPress={handleOpenGroup}
         onViewAllActivityPress={handleViewAllActivityPress}
         onActivityPress={handleActivityPress}
       />

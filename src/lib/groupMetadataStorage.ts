@@ -36,11 +36,15 @@ export async function rememberGroupMetadata(
   groupId: string,
   metadata: StoredGroupMetadata,
 ): Promise<void> {
-  metadataWriteChain = metadataWriteChain.then(async () => {
-    const map = await readMetadataMap();
-    map[groupId] = metadata;
-    await AsyncStorage.setItem(GROUP_METADATA_KEY, JSON.stringify(map));
-  });
+  metadataWriteChain = metadataWriteChain
+    .then(async () => {
+      const map = await readMetadataMap();
+      map[groupId] = metadata;
+      await AsyncStorage.setItem(GROUP_METADATA_KEY, JSON.stringify(map));
+    })
+    .catch(() => {
+      // Allow later writes even if one metadata update fails.
+    });
 
   await metadataWriteChain;
 }

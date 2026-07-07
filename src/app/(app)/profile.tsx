@@ -107,6 +107,8 @@ export default function ProfileScreen() {
         const saved = await setBiometricsEnabled(user.id, false);
         if (saved) {
           setBiometricsEnabledState(false);
+        } else {
+          Alert.alert(t("home.errors.generic"));
         }
         return;
       }
@@ -147,6 +149,8 @@ export default function ProfileScreen() {
         const saved = await setBiometricsEnabled(user.id, true);
         if (saved) {
           setBiometricsEnabledState(true);
+        } else {
+          Alert.alert(t("home.errors.generic"));
         }
       } finally {
         setBiometricsLoading(false);
