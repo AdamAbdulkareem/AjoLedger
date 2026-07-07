@@ -209,11 +209,11 @@
       "message": "Sonye na otu nchekwa na-enyo naanị ma ọ bụ malite Ajo gị na ndị ị na-enwe obi ike",
       "join": {
         "title": "Sonye na Otu (na-enyo)",
-        "subtitle": "Achọrọ koodu enyo ma ọ bụ njikọ"
+        "subtitle": "(Achọrọ koodu enyo ma ọ bụ njikọ)"
       },
       "create": {
         "title": "Mepụta otu nchekwa",
-        "subtitle": "Tọọ aha, ego, oge"
+        "subtitle": "(Tọọ aha, ego, oge)"
       }
     },
     "create": {
@@ -248,7 +248,7 @@
       "contributionLine": "{{amount}} · {{frequency}}",
       "creatorBadge": "Ị kere otu a",
       "createNew": "Mepụta otu nchekwa ọhụrụ",
-      "createNewSubtitle": "Tọọ aha, ego, oge"
+      "createNewSubtitle": "(Tọọ aha, ego, oge)"
     },
     "invite": {
       "title": "Enyo",
@@ -275,6 +275,16 @@
         "required": "Tinye koodu enyo.",
         "invalid": "Tinye koodu ziri ezi dị ka AJO-7JM200."
       }
+    },
+    "detail": {
+      "title": "Otu",
+      "membershipTitle": "Onye otu gị",
+      "payoutPosition": "Oge ị na-enweta ugwo: {{position}}",
+      "payoutPending": "E nyebebeghị oge ị na-enweta ugwo.",
+      "payInTitle": "Kwụọ ego na otu a",
+      "payInBody": "Ziga nkwụke gị na akaụnt a.",
+      "copyAccount": "Kọpịa nọmba akaụnt",
+      "accountPending": "A na-emepe akaụnt otu gị. Lelee ọzọ."
     }
   },
   "profile": {

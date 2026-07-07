@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Pressable, Share, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
@@ -29,6 +29,7 @@ export function GroupInviteContent({
   const { t } = useTranslation();
   const styles = useThemedStyles(createStyles);
   const [copiedField, setCopiedField] = useState<"code" | "link" | null>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const joinUrl = useMemo(() => buildJoinUrl(inviteCode), [inviteCode]);
 
@@ -36,7 +37,15 @@ export function GroupInviteContent({
     async (value: string, field: "code" | "link") => {
       await Clipboard.setStringAsync(value);
       setCopiedField(field);
-      setTimeout(() => setCopiedField(null), 2000);
+
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopiedField(null);
+        copyTimeoutRef.current = null;
+      }, 2000);
     },
     [],
   );

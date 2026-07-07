@@ -209,11 +209,11 @@
       "message": "Shiga ƙungiyar ajiya ta gayyata ko fara Ajo naka tare da mutane da ka amince da su",
       "join": {
         "title": "Shiga Ƙungiya (da gayyata)",
-        "subtitle": "Yana buƙatar lambar gayyata ko hanyar haɗi"
+        "subtitle": "(Yana buƙatar lambar gayyata ko hanyar haɗi)"
       },
       "create": {
         "title": "Ƙirƙiri ƙungiyar ajiya",
-        "subtitle": "Saita suna, adadi, lokaci"
+        "subtitle": "(Saita suna, adadi, lokaci)"
       }
     },
     "create": {
@@ -248,7 +248,7 @@
       "contributionLine": "{{amount}} · {{frequency}}",
       "creatorBadge": "Kun ƙirƙiri wannan ƙungiyar",
       "createNew": "Ƙirƙiri sabuwar ƙungiyar ajiya",
-      "createNewSubtitle": "Saita suna, adadi, lokaci"
+      "createNewSubtitle": "(Saita suna, adadi, lokaci)"
     },
     "invite": {
       "title": "Gayyata",
@@ -275,6 +275,16 @@
         "required": "Shigar da lambar gayyata.",
         "invalid": "Shigar da lamba mai inganci kamar AJO-7JM200."
       }
+    },
+    "detail": {
+      "title": "Ƙungiya",
+      "membershipTitle": "Membobinka",
+      "payoutPosition": "Lambar biyan kuɗi: {{position}}",
+      "payoutPending": "Ba a sanya lambar biyan kuɗi ba tukuna.",
+      "payInTitle": "Biya cikin wannan ƙungiyar",
+      "payInBody": "Aika gudummawarka zuwa wannan asusun.",
+      "copyAccount": "Kwafi lambar asusu",
+      "accountPending": "Ana shirya asusun ƙungiyar ku. Duba daga baya."
     }
   },
   "profile": {

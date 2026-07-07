@@ -8,12 +8,14 @@ type QuickActionsSectionProps = {
   onJoinGroupPress: () => void;
   onCreateGroupPress: () => void;
   onContactSupportPress: () => void;
+  actionsLoading?: boolean;
 };
 
 export function QuickActionsSection({
   onJoinGroupPress,
   onCreateGroupPress,
   onContactSupportPress,
+  actionsLoading = false,
 }: QuickActionsSectionProps) {
   const { t } = useTranslation();
   const styles = useThemedStyles(createStyles);
@@ -26,12 +28,14 @@ export function QuickActionsSection({
         title={t("home.firstTime.actions.join.title")}
         subtitle={t("home.firstTime.actions.join.subtitle")}
         onPress={onJoinGroupPress}
+        disabled={actionsLoading}
       />
       <QuickActionRow
         icon="add-circle-outline"
         title={t("home.firstTime.actions.create.title")}
         subtitle={t("home.firstTime.actions.create.subtitle")}
         onPress={onCreateGroupPress}
+        disabled={actionsLoading}
       />
       <QuickActionRow
         icon="help-circle-outline"

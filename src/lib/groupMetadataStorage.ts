@@ -8,6 +8,8 @@ export type StoredGroupMetadata = {
 
 type GroupMetadataMap = Record<string, StoredGroupMetadata>;
 
+let metadataWriteChain: Promise<void> = Promise.resolve();
+
 async function readMetadataMap(): Promise<GroupMetadataMap> {
   try {
     const raw = await AsyncStorage.getItem(GROUP_METADATA_KEY);
@@ -26,13 +28,21 @@ async function readMetadataMap(): Promise<GroupMetadataMap> {
   }
 }
 
+export async function getAllGroupMetadata(): Promise<GroupMetadataMap> {
+  return readMetadataMap();
+}
+
 export async function rememberGroupMetadata(
   groupId: string,
   metadata: StoredGroupMetadata,
 ): Promise<void> {
-  const map = await readMetadataMap();
-  map[groupId] = metadata;
-  await AsyncStorage.setItem(GROUP_METADATA_KEY, JSON.stringify(map));
+  metadataWriteChain = metadataWriteChain.then(async () => {
+    const map = await readMetadataMap();
+    map[groupId] = metadata;
+    await AsyncStorage.setItem(GROUP_METADATA_KEY, JSON.stringify(map));
+  });
+
+  await metadataWriteChain;
 }
 
 export async function getStoredGroupMetadata(

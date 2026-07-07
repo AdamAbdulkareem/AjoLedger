@@ -43,7 +43,7 @@ export function GroupsActionCard({
       <View style={styles.textWrap}>
         <Text style={[styles.title, !isJoin && styles.createTitle]}>{title}</Text>
         <Text style={[styles.subtitle, !isJoin && styles.createSubtitle]}>
-          ({subtitle})
+          {subtitle}
         </Text>
       </View>
     </Pressable>

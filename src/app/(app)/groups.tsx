@@ -16,6 +16,7 @@ import { HomeTabBar } from "../../components/home/HomeTabBar";
 import { NewUserGroupsContent } from "../../components/groups/NewUserGroupsContent";
 import { ReturningUserGroupsContent } from "../../components/groups/ReturningUserGroupsContent";
 import { SubScreenHeader } from "../../components/profile/SubScreenHeader";
+import { Button } from "../../components/Button";
 import { isUserGroupCreator } from "../../api/groups";
 import { useAuth } from "../../context/AuthProvider";
 import { useRequirePayoutBank } from "../../hooks/useRequirePayoutBank";
@@ -79,6 +80,16 @@ export default function GroupsScreen() {
     [router],
   );
 
+  const openGroupDetail = useCallback(
+    (groupId: string) => {
+      router.push({
+        pathname: "/(app)/groups/[groupId]",
+        params: { groupId },
+      });
+    },
+    [router],
+  );
+
   const handleGroupPress = useCallback(
     async (group: GroupSummary) => {
       if (openingGroupId) {
@@ -91,7 +102,7 @@ export default function GroupsScreen() {
       }
 
       if (!accessToken) {
-        Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
+        Alert.alert(t("home.errors.generic"));
         return;
       }
 
@@ -103,16 +114,16 @@ export default function GroupsScreen() {
           openInvitationScreen(group.id);
           return;
         }
-      } catch {
+
+        openGroupDetail(group.id);
+      } catch (error) {
+        console.error("Failed to check group creator status:", error);
         Alert.alert(t("home.errors.generic"));
-        return;
       } finally {
         setOpeningGroupId(null);
       }
-
-      Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
     },
-    [accessToken, openInvitationScreen, openingGroupId, t],
+    [accessToken, openGroupDetail, openInvitationScreen, openingGroupId, t],
   );
 
   const handleBack = useCallback(() => {
@@ -131,6 +142,11 @@ export default function GroupsScreen() {
       ) : error ? (
         <View style={styles.centered}>
           <Text style={styles.errorText}>{error}</Text>
+          <Button
+            label={t("home.errors.retry")}
+            onPress={() => void refresh()}
+            variant="secondary"
+          />
         </View>
       ) : hasGroups ? (
         <ScrollView

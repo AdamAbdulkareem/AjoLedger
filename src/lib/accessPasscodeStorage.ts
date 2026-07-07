@@ -1,10 +1,13 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { pbkdf2 } from "@noble/hashes/pbkdf2.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex, hexToBytes, utf8ToBytes } from "@noble/hashes/utils.js";
 import * as Crypto from "expo-crypto";
-import * as SecureStore from "expo-secure-store";
-import { Platform } from "react-native";
+
+import {
+  deleteSecureItem,
+  getSecureItem,
+  setSecureItem,
+} from "./secureStorage";
 
 export const ACCESS_PASSCODE_LENGTH = 6;
 
@@ -37,29 +40,6 @@ function legacySaltKey(userId: string) {
 
 function legacyPinConfiguredKey(userId: string) {
   return `${LEGACY_PIN_CONFIGURED_PREFIX}${userId}`;
-}
-
-async function setSecureItem(key: string, value: string): Promise<void> {
-  if (Platform.OS === "web") {
-    await AsyncStorage.setItem(key, value);
-    return;
-  }
-  await SecureStore.setItemAsync(key, value);
-}
-
-async function getSecureItem(key: string): Promise<string | null> {
-  if (Platform.OS === "web") {
-    return AsyncStorage.getItem(key);
-  }
-  return SecureStore.getItemAsync(key);
-}
-
-async function deleteSecureItem(key: string): Promise<void> {
-  if (Platform.OS === "web") {
-    await AsyncStorage.removeItem(key);
-    return;
-  }
-  await SecureStore.deleteItemAsync(key);
 }
 
 async function readStoredCredentials(userId: string): Promise<{

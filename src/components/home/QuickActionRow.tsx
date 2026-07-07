@@ -10,6 +10,7 @@ type QuickActionRowProps = {
   onPress: () => void;
   trailingLabel?: string;
   accessibilityLabel?: string;
+  disabled?: boolean;
 };
 
 export function QuickActionRow({
@@ -19,6 +20,7 @@ export function QuickActionRow({
   onPress,
   trailingLabel,
   accessibilityLabel,
+  disabled = false,
 }: QuickActionRowProps) {
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
@@ -26,9 +28,15 @@ export function QuickActionRow({
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      accessibilityState={{ disabled }}
+      style={({ pressed }) => [
+        styles.row,
+        pressed && !disabled && styles.pressed,
+        disabled && styles.disabled,
+      ]}
     >
       <View style={styles.left}>
         <View style={styles.iconWrap}>
@@ -76,6 +84,9 @@ const createStyles = (theme: Theme) =>
     },
     pressed: {
       opacity: 0.85,
+    },
+    disabled: {
+      opacity: 0.5,
     },
     left: {
       flex: 1,

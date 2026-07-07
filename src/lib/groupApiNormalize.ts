@@ -1,4 +1,10 @@
-import type { GroupDetails, GroupMember, GroupSummary } from "../models/group";
+import type {
+  GroupCycleDetails,
+  GroupDetails,
+  GroupMember,
+  GroupMyDetails,
+  GroupSummary,
+} from "../models/group";
 import { deriveDisplayName } from "./greeting";
 
 const CREATOR_ROLES = new Set([
@@ -221,6 +227,71 @@ function readMemberName(member: UnknownRecord): string {
   return "Member";
 }
 
+function readMyDetails(raw: UnknownRecord): GroupMyDetails | undefined {
+  const myDetails = asRecord(raw.myDetails);
+  if (!myDetails) {
+    return undefined;
+  }
+
+  const position = readNumber(myDetails.position);
+  const virtualAccountNumber = readString(myDetails.virtualAccountNumber);
+  const virtualBankName = readString(myDetails.virtualBankName);
+  const virtualAccountName = readString(myDetails.virtualAccountName);
+  const status = readString(myDetails.status);
+
+  if (
+    position == null &&
+    !virtualAccountNumber &&
+    !virtualBankName &&
+    !virtualAccountName &&
+    !status
+  ) {
+    return undefined;
+  }
+
+  return {
+    position: position ?? null,
+    status,
+    virtualAccountNumber,
+    virtualBankName,
+    virtualAccountName,
+  };
+}
+
+function readCycleDetails(raw: UnknownRecord): GroupCycleDetails | undefined {
+  const cycleDetails = asRecord(raw.cycleDetails);
+  const activeCycle = asRecord(raw.activeCycle);
+  const source = cycleDetails ?? activeCycle;
+
+  if (!source) {
+    return undefined;
+  }
+
+  const currentCycle = readNumber(source.currentCycle);
+  const contributionAmount = readNumber(source.contributionAmount);
+  const potCollected = readNumber(source.potCollected);
+  const potTarget = readNumber(source.potTarget);
+  const nextPayoutDate = readString(source.nextPayoutDate);
+
+  if (
+    currentCycle == null &&
+    contributionAmount == null &&
+    potCollected == null &&
+    potTarget == null &&
+    !nextPayoutDate
+  ) {
+    return undefined;
+  }
+
+  return {
+    currentCycle,
+    contributionAmount,
+    potCollected,
+    potTarget,
+    nextPayoutDate,
+  };
+}
+
 function readMembers(raw: UnknownRecord): GroupMember[] {
   if (!Array.isArray(raw.members)) {
     return [];
@@ -272,6 +343,8 @@ export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
     frequency: readFrequency(record),
     numberOfParticipants: readParticipantCount(record),
     joinedCount: readJoinedCount(record),
+    myDetails: readMyDetails(record),
+    cycleDetails: readCycleDetails(record),
   };
 }
 
@@ -299,14 +372,23 @@ export function normalizeGroupDetailsFromApi(raw: unknown): GroupDetails {
     });
   }
 
+  const cycleDetails = readCycleDetails(record);
+  const contributionAmount =
+    readNumber(record.contributionAmount) ?? cycleDetails?.contributionAmount;
+
   return {
     id: readString(record.id) ?? "",
     name: readString(record.name) ?? "",
+    description: readString(record.description),
     inviteCode: readString(record.inviteCode) ?? "",
     numberOfParticipants,
     joinedCount,
     members,
     isCreator,
+    contributionAmount,
+    frequency: readFrequency(record),
+    myDetails: readMyDetails(record),
+    cycleDetails,
   };
 }
 

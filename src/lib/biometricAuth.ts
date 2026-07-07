@@ -1,6 +1,8 @@
 import * as LocalAuthentication from "expo-local-authentication";
 import { Platform } from "react-native";
 
+import { isBiometricsEnabled } from "./biometricStorage";
+
 export type BiometricKind = "faceId" | "fingerprint" | "biometrics";
 
 export type BiometricCapabilities = {
@@ -25,6 +27,25 @@ export async function getBiometricCapabilities(): Promise<BiometricCapabilities>
     enrolled: isEnrolled,
     kind: resolveBiometricKind(types),
   };
+}
+
+export async function loadBiometricStatus(userId: string): Promise<{
+  enabled: boolean;
+  caps: BiometricCapabilities;
+} | null> {
+  if (Platform.OS === "web") {
+    return null;
+  }
+
+  try {
+    const [enabled, caps] = await Promise.all([
+      isBiometricsEnabled(userId),
+      getBiometricCapabilities(),
+    ]);
+    return { enabled, caps };
+  } catch {
+    return null;
+  }
 }
 
 function resolveBiometricKind(

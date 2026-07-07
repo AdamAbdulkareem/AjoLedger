@@ -8,6 +8,22 @@ export type GroupMember = {
   status: GroupMemberStatus;
 };
 
+export type GroupMyDetails = {
+  position?: number | null;
+  status?: string;
+  virtualAccountNumber?: string;
+  virtualBankName?: string;
+  virtualAccountName?: string;
+};
+
+export type GroupCycleDetails = {
+  currentCycle?: number;
+  contributionAmount?: number;
+  potCollected?: number;
+  potTarget?: number;
+  nextPayoutDate?: string;
+};
+
 export type GroupSummary = {
   id: string;
   name: string;
@@ -18,16 +34,23 @@ export type GroupSummary = {
   frequency?: ContributionFrequency;
   numberOfParticipants?: number;
   joinedCount?: number;
+  myDetails?: GroupMyDetails;
+  cycleDetails?: GroupCycleDetails;
 };
 
 export type GroupDetails = {
   id: string;
   name: string;
+  description?: string;
   inviteCode: string;
   numberOfParticipants: number;
   joinedCount: number;
   members: GroupMember[];
   isCreator?: boolean;
+  contributionAmount?: number;
+  frequency?: ContributionFrequency;
+  myDetails?: GroupMyDetails;
+  cycleDetails?: GroupCycleDetails;
 };
 
 export type CreateGroupPayload = {

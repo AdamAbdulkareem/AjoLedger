@@ -208,11 +208,11 @@
       "message": "Join invite-only savings group or start your own Ajo with people wey you trust",
       "join": {
         "title": "Join a Group (with invite)",
-        "subtitle": "E need invitation code or link"
+        "subtitle": "(E need invitation code or link)"
       },
       "create": {
         "title": "Create savings group",
-        "subtitle": "Set name, amount, frequency"
+        "subtitle": "(Set name, amount, frequency)"
       }
     },
     "create": {
@@ -247,7 +247,7 @@
       "contributionLine": "{{amount}} · {{frequency}}",
       "creatorBadge": "You create dis group",
       "createNew": "Create new savings group",
-      "createNewSubtitle": "Set name, amount, frequency"
+      "createNewSubtitle": "(Set name, amount, frequency)"
     },
     "invite": {
       "title": "Invitation",
@@ -274,6 +274,16 @@
         "required": "Enter invitation code.",
         "invalid": "Enter valid code like AJO-7JM200."
       }
+    },
+    "detail": {
+      "title": "Group",
+      "membershipTitle": "Your membership",
+      "payoutPosition": "Your payout turn: {{position}}",
+      "payoutPending": "Payout turn never assign yet.",
+      "payInTitle": "Pay into dis group",
+      "payInBody": "Transfer your contribution go dis dedicated account.",
+      "copyAccount": "Copy account number",
+      "accountPending": "Your group account dey setup. Check back later."
     }
   },
   "profile": {

@@ -63,7 +63,7 @@ export default function HomeScreen() {
     clearError,
   } = usePayoutAccountGate();
 
-  const { requireBank, bankModalProps: requiredBankModalProps } =
+  const { requireBank, payoutLoading, bankModalProps: requiredBankModalProps } =
     useRequirePayoutBank();
 
   const [bankSetupSkipped, setBankSetupSkippedState] = useState(false);
@@ -106,6 +106,10 @@ export default function HomeScreen() {
       setBankSetupSkippedState(true);
     });
   };
+
+  const handleJoinOrCreatePress = useCallback(() => {
+    router.push("/(app)/groups");
+  }, [router]);
 
   const showComingSoon = useCallback(() => {
     Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
@@ -159,12 +163,13 @@ export default function HomeScreen() {
       return (
         <>
           <HomeHeader displayName={displayName} avatarUrl={avatarUrl} />
-          <FirstTimeHomeHero onJoinOrCreatePress={showComingSoon} />
+          <FirstTimeHomeHero onJoinOrCreatePress={handleJoinOrCreatePress} />
           <WhySaveWithAjoLedger />
           <QuickActionsSection
             onJoinGroupPress={handleJoinGroupPress}
             onCreateGroupPress={handleCreateGroupPress}
             onContactSupportPress={showComingSoon}
+            actionsLoading={payoutLoading}
           />
         </>
       );

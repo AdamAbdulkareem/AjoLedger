@@ -10,7 +10,7 @@ import {
   normalizeGroupDetailsFromApi,
   normalizeGroupSummaryFromApi,
 } from "../lib/groupApiNormalize";
-import { getStoredGroupMetadata } from "../lib/groupMetadataStorage";
+import { getAllGroupMetadata, getStoredGroupMetadata } from "../lib/groupMetadataStorage";
 import { getJoinedMembers } from "../lib/groupMembers";
 import { apiRequest } from "./client";
 
@@ -49,24 +49,23 @@ function finalizeGroupDetails(
 export async function getUserGroups(token: string): Promise<GroupSummary[]> {
   const envelope = await apiRequest<unknown[]>("/groups", { token });
   const groups = (envelope.data ?? []).map(normalizeGroupSummaryFromApi);
+  const metadataMap = await getAllGroupMetadata();
 
-  return Promise.all(
-    groups.map(async (group) => {
-      const stored = await getStoredGroupMetadata(group.id);
-      if (!stored?.numberOfParticipants) {
-        return group;
-      }
+  return groups.map((group) => {
+    const stored = metadataMap[group.id];
+    if (!stored?.numberOfParticipants) {
+      return group;
+    }
 
-      return {
-        ...group,
-        numberOfParticipants: resolveParticipantCount(
-          group.numberOfParticipants ?? 0,
-          group.joinedCount ?? 0,
-          stored.numberOfParticipants,
-        ),
-      };
-    }),
-  );
+    return {
+      ...group,
+      numberOfParticipants: resolveParticipantCount(
+        group.numberOfParticipants ?? 0,
+        group.joinedCount ?? 0,
+        stored.numberOfParticipants,
+      ),
+    };
+  });
 }
 
 export async function createGroup(

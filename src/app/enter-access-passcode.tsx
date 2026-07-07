@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState, useCallback, useRef } from "react";
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Redirect, useRouter, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,13 +14,7 @@ import { useAuth } from "../context/AuthProvider";
 import { useProfile } from "../context/ProfileProvider";
 import { ApiError } from "../api/client";
 import { INCORRECT_ACCESS_PASSCODE } from "../models/auth";
-import {
-  getBiometricCapabilities,
-  getBiometricUnlockLabelKey,
-  promptBiometricAuth,
-  type BiometricCapabilities,
-} from "../lib/biometricAuth";
-import { isBiometricsEnabled } from "../lib/biometricStorage";
+import { loadBiometricStatus, promptBiometricAuth, getBiometricUnlockLabelKey, type BiometricCapabilities } from "../lib/biometricAuth";
 import { waitForNextFrame } from "../lib/waitForNextFrame";
 import { useTheme, useThemedStyles, type Theme } from "../theme";
 
@@ -45,17 +39,34 @@ export default function EnterAccessPasscodeScreen() {
 
   const isFormValid = passcode.length === ACCESS_PASSCODE_LENGTH;
 
-  const handleBiometricUnlock = useCallback(async () => {
-      if (biometricUnlocking || submitting || !biometricsEnabled) return;
+  type BiometricUnlockOptions = {
+    /** Auto-prompt on focus — skip enabled check and swallow errors. */
+    autoPrompt?: boolean;
+    isCancelled?: () => boolean;
+  };
+
+  const handleBiometricUnlock = useCallback(
+    async (options?: BiometricUnlockOptions) => {
+      const autoPrompt = options?.autoPrompt ?? false;
+
+      if (biometricUnlocking || submitting) return;
+      if (!autoPrompt && !biometricsEnabled) return;
 
       setBiometricUnlocking(true);
-      setFormError(undefined);
+      if (!autoPrompt) {
+        setFormError(undefined);
+      }
 
       try {
         const result = await promptBiometricAuth(t("auth.biometricPrompt"));
 
-        if (!result.success) {
-          if (!result.cancelled && result.error === "not_enrolled") {
+        if (options?.isCancelled?.() || !result.success) {
+          if (
+            !autoPrompt &&
+            !result.success &&
+            !result.cancelled &&
+            result.error === "not_enrolled"
+          ) {
             Alert.alert(
               t("profile.biometrics.notEnrolledTitle"),
               t("profile.biometrics.notEnrolledBody"),
@@ -67,11 +78,15 @@ export default function EnterAccessPasscodeScreen() {
         await unlockWithBiometrics();
         router.replace("/(app)/home");
       } catch (error) {
-        const message =
-          error instanceof ApiError ? error.message : t("auth.errors.generic");
-        setFormError(message);
+        if (!autoPrompt) {
+          const message =
+            error instanceof ApiError ? error.message : t("auth.errors.generic");
+          setFormError(message);
+        }
       } finally {
-        setBiometricUnlocking(false);
+        if (!options?.isCancelled?.()) {
+          setBiometricUnlocking(false);
+        }
       }
     },
     [
@@ -84,47 +99,36 @@ export default function EnterAccessPasscodeScreen() {
     ],
   );
 
+  const handleBiometricUnlockRef = useRef(handleBiometricUnlock);
+  handleBiometricUnlockRef.current = handleBiometricUnlock;
+
   useFocusEffect(
     useCallback(() => {
-      if (!user) return;
+      if (!user || Platform.OS === "web") return;
 
       let cancelled = false;
 
       void (async () => {
-        const [enabled, caps] = await Promise.all([
-          isBiometricsEnabled(user.id),
-          getBiometricCapabilities(),
-        ]);
+        const status = await loadBiometricStatus(user.id);
+        if (cancelled || !status) return;
 
-        if (cancelled) return;
+        setBiometricsEnabledState(status.enabled);
+        setBiometricCaps(status.caps);
 
-        setBiometricsEnabledState(enabled);
-        setBiometricCaps(caps);
-
-        if (!enabled || !caps.available || !caps.enrolled) return;
-
-        setBiometricUnlocking(true);
-        setFormError(undefined);
-
-        try {
-          const result = await promptBiometricAuth(t("auth.biometricPrompt"));
-          if (cancelled || !result.success) return;
-
-          await unlockWithBiometrics();
-          router.replace("/(app)/home");
-        } catch {
-          // Fall back to passcode entry silently on auto-prompt failure.
-        } finally {
-          if (!cancelled) {
-            setBiometricUnlocking(false);
-          }
+        if (!status.enabled || !status.caps.available || !status.caps.enrolled) {
+          return;
         }
+
+        await handleBiometricUnlockRef.current({
+          autoPrompt: true,
+          isCancelled: () => cancelled,
+        });
       })();
 
       return () => {
         cancelled = true;
       };
-    }, [user, t, unlockWithBiometrics, router]),
+    }, [user]),
   );
 
   const handleSubmit = async (code?: string) => {

@@ -208,11 +208,11 @@
       "message": "Darapọ mọ ẹgbẹ ajọ ti a pe ni eniyan kan tabi bẹrẹ Ajo tirẹ pẹlu awọn eniyan ti o gba lẹkan",
       "join": {
         "title": "Darapọ mọ Ẹgbẹ (pẹlu ifiwepe)",
-        "subtitle": "Nilo koodu ifiwepe tabi ọna asopọ"
+        "subtitle": "(Nilo koodu ifiwepe tabi ọna asopọ)"
       },
       "create": {
         "title": "Ṣẹda ẹgbẹ ajọ",
-        "subtitle": "Ṣeto orukọ, iye, igba"
+        "subtitle": "(Ṣeto orukọ, iye, igba)"
       }
     },
     "create": {
@@ -247,7 +247,7 @@
       "contributionLine": "{{amount}} · {{frequency}}",
       "creatorBadge": "O ṣẹda ẹgbẹ yii",
       "createNew": "Ṣẹda ẹgbẹ ajọ tuntun",
-      "createNewSubtitle": "Ṣeto orukọ, iye, igba"
+      "createNewSubtitle": "(Ṣeto orukọ, iye, igba)"
     },
     "invite": {
       "title": "Ifiwepe",
@@ -274,6 +274,16 @@
         "required": "Tẹ koodu ifiwepe kan.",
         "invalid": "Tẹ koodu ti o tọ bii AJO-7JM200."
       }
+    },
+    "detail": {
+      "title": "Ẹgbẹ",
+      "membershipTitle": "Memba rẹ",
+      "payoutPosition": "Igbà gbigba rẹ: {{position}}",
+      "payoutPending": "A ko ti yan igba gbigba rẹ.",
+      "payInTitle": "San si ẹgbẹ yii",
+      "payInBody": "Fi ifowopamọ rẹ ranṣẹ si akọọlẹ yii.",
+      "copyAccount": "Daakọ nọmba akọọlẹ",
+      "accountPending": "A n ṣeto akọọlẹ ẹgbẹ rẹ. Ṣayẹwo lẹhinna."
     }
   },
   "profile": {

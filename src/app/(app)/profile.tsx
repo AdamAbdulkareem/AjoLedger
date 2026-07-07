@@ -29,15 +29,12 @@ import { setStoredLanguage } from "../../i18n/languageStorage";
 import { getLanguageLabel } from "../../i18n/languages";
 import { showLanguagePicker } from "../../lib/showLanguagePicker";
 import {
-  getBiometricCapabilities,
   getBiometricProfileLabelKey,
+  loadBiometricStatus,
   promptBiometricAuth,
   type BiometricCapabilities,
 } from "../../lib/biometricAuth";
-import {
-  isBiometricsEnabled,
-  setBiometricsEnabled,
-} from "../../lib/biometricStorage";
+import { setBiometricsEnabled } from "../../lib/biometricStorage";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 export default function ProfileScreen() {
@@ -89,15 +86,11 @@ export default function ProfileScreen() {
       let cancelled = false;
 
       void (async () => {
-        const [enabled, caps] = await Promise.all([
-          isBiometricsEnabled(user.id),
-          getBiometricCapabilities(),
-        ]);
+        const status = await loadBiometricStatus(user.id);
+        if (cancelled || !status) return;
 
-        if (cancelled) return;
-
-        setBiometricsEnabledState(enabled);
-        setBiometricCaps(caps);
+        setBiometricsEnabledState(status.enabled);
+        setBiometricCaps(status.caps);
       })();
 
       return () => {
@@ -111,8 +104,10 @@ export default function ProfileScreen() {
       if (!user || biometricsLoading) return;
 
       if (!nextValue) {
-        await setBiometricsEnabled(user.id, false);
-        setBiometricsEnabledState(false);
+        const saved = await setBiometricsEnabled(user.id, false);
+        if (saved) {
+          setBiometricsEnabledState(false);
+        }
         return;
       }
 
@@ -149,8 +144,10 @@ export default function ProfileScreen() {
           return;
         }
 
-        await setBiometricsEnabled(user.id, true);
-        setBiometricsEnabledState(true);
+        const saved = await setBiometricsEnabled(user.id, true);
+        if (saved) {
+          setBiometricsEnabledState(true);
+        }
       } finally {
         setBiometricsLoading(false);
       }
@@ -235,9 +232,7 @@ export default function ProfileScreen() {
                 onToggleChange={(value) => {
                   void handleBiometricsToggle(value);
                 }}
-                toggleDisabled={
-                  biometricsLoading || biometricCaps?.enrolled === false
-                }
+                toggleDisabled={biometricsLoading}
               />
             ) : null}
             <ProfileMenuRow
