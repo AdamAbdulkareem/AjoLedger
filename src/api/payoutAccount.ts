@@ -1,4 +1,3 @@
-import { USE_MOCK_AUTH } from "../config/api";
 import type { PayoutAccountStatus } from "../models/payoutAccount";
 import type { SetupBankPayload } from "../models/payoutAccount";
 import {
@@ -9,23 +8,12 @@ import {
   payoutAccountFromUser,
   setupBank,
 } from "./banks";
-import { apiRequest } from "./client";
-import {
-  mockGetPayoutAccountStatus,
-  mockSetupBank,
-} from "./mockPayoutAccount";
 
 export async function getPayoutAccountStatus(
   token: string,
   _userId: string,
 ): Promise<PayoutAccountStatus> {
-  if (USE_MOCK_AUTH) {
-    const envelope = await mockGetPayoutAccountStatus(_userId);
-    if (!envelope.data) {
-      throw new Error("Mock payout account status returned no data.");
-    }
-    return envelope.data;
-  }
+  void _userId;
 
   const user = await getCurrentUser(token);
   const configured = isPayoutConfigured(user);
@@ -51,21 +39,7 @@ export async function getPayoutAccountStatus(
 export async function saveSetupBank(
   token: string,
   payload: SetupBankPayload,
-  userId?: string,
-  bankName?: string,
 ): Promise<PayoutAccountStatus> {
-  if (USE_MOCK_AUTH) {
-    const envelope = await mockSetupBank(
-      payload,
-      userId ?? "mock-user",
-      bankName ?? payload.bankCode,
-    );
-    if (!envelope.data) {
-      throw new Error("Mock bank setup returned no data.");
-    }
-    return envelope.data;
-  }
-
   const user = await setupBank(token, payload);
   return {
     configured: isPayoutConfigured(user),

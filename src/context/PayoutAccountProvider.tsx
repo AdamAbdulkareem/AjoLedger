@@ -100,12 +100,7 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       try {
-        const status = await saveSetupBank(
-          accessToken,
-          payload,
-          userId,
-          bankName,
-        );
+        const status = await saveSetupBank(accessToken, payload);
         setHasPayoutAccount(status.configured);
         setAccount(
           status.account

@@ -31,6 +31,8 @@ export const colors = {
   toastSuccessBg: "#FEFFFF",
   toastSuccessIcon: "#73B18E",
   toastSuccessText: "#0C0C0C",
+  groupsScreenBg: "#FFFDF7",
+  groupCreateBg: "#00903B",
 } as const;
 
 export const shadows = {

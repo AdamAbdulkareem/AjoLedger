@@ -50,9 +50,11 @@
     "forgetPasscodeConfirm": "Tun koodu iwọle",
     "forgetPasscodeCancel": "Fagilee",
     "switchAccount": "Yipada akọọlẹ",
-    "loginWithFingerprint": "Wọle pẹlu itẹka",
-    "fingerprintComingSoonTitle": "Nbọ laipe",
-    "fingerprintComingSoonBody": "Iwọle pẹlu itẹka yoo wa ni imudojuiwọn to n bọ.",
+    "unlockWithFingerprint": "Ṣii áàpù pẹlu itẹka",
+    "unlockWithFaceId": "Ṣii áàpù pẹlu Face ID",
+    "unlockWithBiometrics": "Ṣii áàpù pẹlu biometrics",
+    "biometricPrompt": "Ṣii AjoLedger",
+    "submittingBiometric": "N ṣe ayẹwo biometrics…",
     "useAnotherAccount": "Lo akọọlẹ miiran",
     "enterPinTitle": "Tẹ PIN iṣowo rẹ",
     "enterPinSubtitle": "Tẹ PIN oni-nọmba 4 lati tẹsiwaju.",
@@ -193,6 +195,87 @@
       }
     }
   },
+  "groups": {
+    "title": "Awọn Ẹgbẹ",
+    "enterCode": "Tẹ Koodu",
+    "loading": "N ṣe ikojọpọ awọn ẹgbẹ rẹ…",
+    "bankRequired": {
+      "title": "Fi banki gbigba sii akọkọ",
+      "body": "O nilo iwe akọọlẹ banki ibi ti o ma gba owo Ajo rẹ ṣaaju ki o to darapọ tabi ṣẹda ẹgbẹ kan."
+    },
+    "empty": {
+      "headline": "Ṣe awọn ibi ni kiakia, papọ.",
+      "message": "Darapọ mọ ẹgbẹ ajọ ti a pe ni eniyan kan tabi bẹrẹ Ajo tirẹ pẹlu awọn eniyan ti o gba lẹkan",
+      "join": {
+        "title": "Darapọ mọ Ẹgbẹ (pẹlu ifiwepe)",
+        "subtitle": "Nilo koodu ifiwepe tabi ọna asopọ"
+      },
+      "create": {
+        "title": "Ṣẹda ẹgbẹ ajọ",
+        "subtitle": "Ṣeto orukọ, iye, igba"
+      }
+    },
+    "create": {
+      "title": "Ṣẹda ẹgbẹ ajọ",
+      "nameLabel": "Orukọ ẹgbẹ",
+      "namePlaceholder": "e.g Lagos Traders Ajo",
+      "descriptionLabel": "Apejuwe",
+      "descriptionPlaceholder": "Kini ni ẹgbẹ yii n ṣafipamọ?",
+      "frequencyLabel": "Igba ifiweranṣẹ",
+      "amountLabel": "Iye ifiweranṣẹ",
+      "amountPlaceholder": "₦50,000",
+      "participantsLabel": "Iye awọn olukopa",
+      "participantsPlaceholder": "10",
+      "submit": "Ṣẹda ẹgbẹ",
+      "frequency": {
+        "daily": "Ojoojumọ",
+        "weekly": "Osẹ",
+        "monthly": "Oṣooṣu"
+      },
+      "errors": {
+        "nameRequired": "A nilo orukọ ẹgbẹ.",
+        "nameLength": "Orukọ ẹgbẹ gbọdọ wa laarin awọn lẹta 3 ati 100.",
+        "descriptionLength": "Apejuwe gbọdọ jẹ awọn lẹta 500 tabi kere si.",
+        "amountRequired": "Tẹ iye ifiweranṣẹ.",
+        "amountMinimum": "Iye ifiweranṣẹ to kere julo jẹ ₦500.",
+        "participantsRequired": "Tẹ iye awọn olukopa.",
+        "participantsMinimum": "Ẹgbẹ nilo o kere ju awọn olukopa 2 lọ."
+      }
+    },
+    "list": {
+      "heading": "Awọn ẹgbẹ rẹ",
+      "contributionLine": "{{amount}} · {{frequency}}",
+      "creatorBadge": "O ṣẹda ẹgbẹ yii",
+      "createNew": "Ṣẹda ẹgbẹ ajọ tuntun",
+      "createNewSubtitle": "Ṣeto orukọ, iye, igba"
+    },
+    "invite": {
+      "title": "Ifiwepe",
+      "codeLabel": "Koodu ifiwepe",
+      "linkLabel": "Ọna asopọ",
+      "copyCode": "Daakọ koodu ifiwepe",
+      "copyLink": "Daakọ ọna asopọ",
+      "copied": "Ti daakọ!",
+      "share": "Pin ifiwepe",
+      "done": "Parí",
+      "joinedProgress": "{{joined}} ninu {{total}} ti darapọ",
+      "membersTitle": "Awọn memba ({{count}})",
+      "noMembersYet": "Ko si ẹnikan ti darapọ sibẹsibẹ.",
+      "statusJoined": "Ti darapọ"
+    },
+    "join": {
+      "title": "Tẹ Koodu",
+      "subtitle": "Tẹ koodu ifiwepe ti alakoso ẹgbẹ rẹ pin",
+      "codeLabel": "Koodu ifiwepe",
+      "codePlaceholder": "AJO-7JM200",
+      "submit": "Darapọ mọ ẹgbẹ",
+      "successMessage": "O darapọ mọ {{name}} ni aṣeyọri!",
+      "errors": {
+        "required": "Tẹ koodu ifiwepe kan.",
+        "invalid": "Tẹ koodu ti o tọ bii AJO-7JM200."
+      }
+    }
+  },
   "profile": {
     "title": "Profaili",
     "defaultName": "Omọ ẹgbẹ",
@@ -206,6 +289,8 @@
       "editProfile": "Ṣatunkọ Profaili",
       "changePassword": "Yi Password Padà",
       "biometrics": "Biometrics",
+      "faceId": "Face ID",
+      "fingerprint": "Itẹka",
       "privacyPolicy": "Ilana Asiri",
       "bankDetails": "Alaye Banki",
       "pushNotifications": "Awọn Ifitonileti",
@@ -218,6 +303,13 @@
     "logoutMessage": "Ṣe o da ọ loju pe o fẹ jade?",
     "logoutConfirm": "Jade",
     "logoutCancel": "Fagilee",
+    "biometrics": {
+      "enablePrompt": "Jẹrisi lati mu biometrics ṣiṣẹ",
+      "notAvailableTitle": "Biometrics ko si",
+      "notAvailableBody": "Ẹrọ yii ko ṣe atilẹyin itẹka tabi Face ID.",
+      "notEnrolledTitle": "A ko ṣeto biometrics",
+      "notEnrolledBody": "Fi itẹka tabi Face ID kun ninu eto ẹrọ rẹ, lẹhinna gbiyanju lẹẹkansi."
+    },
     "edit": {
       "title": "Ṣatunkọ Profaili",
       "changePhoto": "Yi aworan pada",

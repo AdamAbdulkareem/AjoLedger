@@ -9,7 +9,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AjoLedgerLogo } from "./AjoLedgerLogo";
-import { LanguagePicker } from "./LanguagePicker";
 import { useThemedStyles, type Theme } from "../theme";
 
 type AuthScreenLayoutProps = {
@@ -35,9 +34,6 @@ export function AuthScreenLayout({ children, footer }: AuthScreenLayoutProps) {
           {footer}
         </ScrollView>
       </KeyboardAvoidingView>
-      <View style={styles.languagePicker}>
-        <LanguagePicker />
-      </View>
     </SafeAreaView>
   );
 }
@@ -62,9 +58,5 @@ const createStyles = (theme: Theme) =>
     },
     content: {
       gap: theme.spacing.lg,
-    },
-    languagePicker: {
-      paddingHorizontal: theme.spacing.lg,
-      paddingBottom: theme.spacing.md,
     },
   });

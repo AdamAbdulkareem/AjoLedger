@@ -25,10 +25,11 @@ import { Button } from "../../components/Button";
 import { useAuth } from "../../context/AuthProvider";
 import { useCurrentUser } from "../../context/CurrentUserProvider";
 import { useProfile } from "../../context/ProfileProvider";
-import { useHomeDashboard } from "../../hooks/useHomeDashboard";
 import { usePayoutAccountGate } from "../../hooks/usePayoutAccountGate";
+import { useRequirePayoutBank } from "../../hooks/useRequirePayoutBank";
 import { useUserGroups } from "../../hooks/useUserGroups";
 import { hasCustomAvatar } from "../../lib/avatarSource";
+import { buildHomeDashboardFromGroups } from "../../lib/buildHomeDashboardFromGroups";
 import {
   getBankSetupSkipped,
   setBankSetupSkipped,
@@ -54,13 +55,6 @@ export default function HomeScreen() {
   const hasGroups = groups.length > 0;
 
   const {
-    data,
-    loading: dashboardLoading,
-    error: dashboardError,
-    refresh: refreshDashboard,
-  } = useHomeDashboard(accessToken, displayName, { enabled: hasGroups });
-
-  const {
     hasPayoutAccount,
     saving: savingPayoutAccount,
     error: payoutAccountError,
@@ -68,6 +62,9 @@ export default function HomeScreen() {
     refresh: refreshPayoutAccount,
     clearError,
   } = usePayoutAccountGate();
+
+  const { requireBank, bankModalProps: requiredBankModalProps } =
+    useRequirePayoutBank();
 
   const [bankSetupSkipped, setBankSetupSkippedState] = useState(false);
   const [skipStateLoaded, setSkipStateLoaded] = useState(false);
@@ -114,6 +111,18 @@ export default function HomeScreen() {
     Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
   }, [t]);
 
+  const handleCreateGroupPress = useCallback(() => {
+    requireBank(() => {
+      router.push("/(app)/groups/create");
+    });
+  }, [requireBank, router]);
+
+  const handleJoinGroupPress = useCallback(() => {
+    requireBank(() => {
+      router.push("/(app)/groups/join");
+    });
+  }, [requireBank, router]);
+
   const dismissBankSaveSuccess = useCallback(() => {
     setShowBankSaveSuccess(false);
   }, []);
@@ -135,16 +144,15 @@ export default function HomeScreen() {
   const avatarUrl =
     profile?.avatarUri && hasCustomAvatar(profile.avatarUri)
       ? profile.avatarUri
-      : data?.avatarUrl ?? null;
+      : null;
+
+  const dashboard = hasGroups
+    ? buildHomeDashboardFromGroups(groups, displayName, avatarUrl)
+    : null;
 
   const handleRetry = () => {
     void refreshGroups();
-    if (hasGroups) void refreshDashboard();
   };
-
-  const isLoading =
-    groupsLoading || (hasGroups && dashboardLoading) || (hasGroups && !data && !dashboardError);
-  const loadError = groupsError ?? (hasGroups ? dashboardError : null);
 
   const renderBody = () => {
     if (isFirstTimeUser) {
@@ -154,50 +162,54 @@ export default function HomeScreen() {
           <FirstTimeHomeHero onJoinOrCreatePress={showComingSoon} />
           <WhySaveWithAjoLedger />
           <QuickActionsSection
-            onJoinGroupPress={showComingSoon}
-            onCreateGroupPress={showComingSoon}
+            onJoinGroupPress={handleJoinGroupPress}
+            onCreateGroupPress={handleCreateGroupPress}
             onContactSupportPress={showComingSoon}
           />
         </>
       );
     }
 
-    if (!data) return null;
+    if (!dashboard) return null;
 
     return (
       <>
         <HomeHeader displayName={displayName} avatarUrl={avatarUrl} />
         <SavingsOverviewCard
-          group={data.group}
-          progress={data.progress}
-          payout={data.payout}
+          group={dashboard.group}
+          progress={dashboard.progress}
+          payout={dashboard.payout}
           onGroupPress={showComingSoon}
           onDetailsPress={showComingSoon}
         />
-        <AmountRemainsCard
-          amountRemains={data.amountRemains}
-          onPayNowPress={showComingSoon}
-        />
-        <RecentActivitySection
-          items={data.recentActivity}
-          viewAllLabel={t("home.viewAll")}
-          onViewAllPress={showComingSoon}
-          onItemPress={showComingSoon}
-        />
+        {dashboard.amountRemains.amount > 0 ? (
+          <AmountRemainsCard
+            amountRemains={dashboard.amountRemains}
+            onPayNowPress={showComingSoon}
+          />
+        ) : null}
+        {dashboard.recentActivity.length > 0 ? (
+          <RecentActivitySection
+            items={dashboard.recentActivity}
+            viewAllLabel={t("home.viewAll")}
+            onViewAllPress={showComingSoon}
+            onItemPress={showComingSoon}
+          />
+        ) : null}
       </>
     );
   };
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {isLoading ? (
+      {groupsLoading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={theme.colors.brand} />
           <Text style={styles.loadingText}>{t("home.loading")}</Text>
         </View>
-      ) : loadError ? (
+      ) : groupsError ? (
         <View style={styles.centered}>
-          <Text style={styles.errorText}>{loadError}</Text>
+          <Text style={styles.errorText}>{groupsError}</Text>
           <Button
             label={t("home.errors.retry")}
             onPress={handleRetry}
@@ -243,6 +255,8 @@ export default function HomeScreen() {
             visible={showBankSaveSuccess}
             onDismiss={dismissBankSaveSuccess}
           />
+
+          <BankDetailsModal {...requiredBankModalProps} />
         </>
       )}
     </SafeAreaView>

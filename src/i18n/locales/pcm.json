@@ -50,9 +50,11 @@
     "forgetPasscodeConfirm": "Reset passcode",
     "forgetPasscodeCancel": "Cancel",
     "switchAccount": "Switch Account",
-    "loginWithFingerprint": "Login with fingerprint",
-    "fingerprintComingSoonTitle": "E dey come soon",
-    "fingerprintComingSoonBody": "Fingerprint login go ready for future update.",
+    "unlockWithFingerprint": "Unlock app with fingerprint",
+    "unlockWithFaceId": "Unlock app with Face ID",
+    "unlockWithBiometrics": "Unlock app with biometrics",
+    "biometricPrompt": "Unlock AjoLedger",
+    "submittingBiometric": "Dey verify biometrics…",
     "useAnotherAccount": "Use different account",
     "enterPinTitle": "Enter your transaction PIN",
     "enterPinSubtitle": "Enter your 4-digit PIN make you continue.",
@@ -193,6 +195,87 @@
       }
     }
   },
+  "groups": {
+    "title": "Groups",
+    "enterCode": "Enter Code",
+    "loading": "Dey load your groups…",
+    "bankRequired": {
+      "title": "Add payout bank first",
+      "body": "You need bank account where you go receive your Ajo payout before you fit join or create group."
+    },
+    "empty": {
+      "headline": "Reach goals faster, together.",
+      "message": "Join invite-only savings group or start your own Ajo with people wey you trust",
+      "join": {
+        "title": "Join a Group (with invite)",
+        "subtitle": "E need invitation code or link"
+      },
+      "create": {
+        "title": "Create savings group",
+        "subtitle": "Set name, amount, frequency"
+      }
+    },
+    "create": {
+      "title": "Create savings group",
+      "nameLabel": "Group name",
+      "namePlaceholder": "e.g Lagos Traders Ajo",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Wetin dis group dey save for?",
+      "frequencyLabel": "Contribution frequency",
+      "amountLabel": "Contribution amount",
+      "amountPlaceholder": "₦50,000",
+      "participantsLabel": "Number of participants",
+      "participantsPlaceholder": "10",
+      "submit": "Create group",
+      "frequency": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      },
+      "errors": {
+        "nameRequired": "Group name dey required.",
+        "nameLength": "Group name must be between 3 and 100 characters.",
+        "descriptionLength": "Description must be 500 characters or fewer.",
+        "amountRequired": "Enter contribution amount.",
+        "amountMinimum": "Minimum contribution na ₦500.",
+        "participantsRequired": "Enter number of participants.",
+        "participantsMinimum": "Group need at least 2 participants."
+      }
+    },
+    "list": {
+      "heading": "Your groups",
+      "contributionLine": "{{amount}} · {{frequency}}",
+      "creatorBadge": "You create dis group",
+      "createNew": "Create new savings group",
+      "createNewSubtitle": "Set name, amount, frequency"
+    },
+    "invite": {
+      "title": "Invitation",
+      "codeLabel": "Invite code",
+      "linkLabel": "Join link",
+      "copyCode": "Copy invite code",
+      "copyLink": "Copy join link",
+      "copied": "Copied!",
+      "share": "Share invitation",
+      "done": "Done",
+      "joinedProgress": "{{joined}} out of {{total}} don join",
+      "membersTitle": "Members ({{count}})",
+      "noMembersYet": "Nobody don join yet.",
+      "statusJoined": "Joined"
+    },
+    "join": {
+      "title": "Enter Code",
+      "subtitle": "Enter di invitation code wey your group admin share",
+      "codeLabel": "Invitation code",
+      "codePlaceholder": "AJO-7JM200",
+      "submit": "Join group",
+      "successMessage": "You don join {{name}} successfully!",
+      "errors": {
+        "required": "Enter invitation code.",
+        "invalid": "Enter valid code like AJO-7JM200."
+      }
+    }
+  },
   "profile": {
     "title": "Profile",
     "defaultName": "Member",
@@ -206,6 +289,8 @@
       "editProfile": "Edit Profile",
       "changePassword": "Change Password",
       "biometrics": "Biometrics",
+      "faceId": "Face ID",
+      "fingerprint": "Fingerprint",
       "privacyPolicy": "Privacy Policy",
       "bankDetails": "Bank Details",
       "pushNotifications": "Push Notifications",
@@ -218,6 +303,13 @@
     "logoutMessage": "You sure say you wan log out?",
     "logoutConfirm": "Log Out",
     "logoutCancel": "Cancel",
+    "biometrics": {
+      "enablePrompt": "Confirm to enable biometric unlock",
+      "notAvailableTitle": "Biometrics no dey available",
+      "notAvailableBody": "This device no support fingerprint or Face ID.",
+      "notEnrolledTitle": "Biometrics no set up",
+      "notEnrolledBody": "Add fingerprint or Face ID for your device settings, then try again."
+    },
     "edit": {
       "title": "Edit Profile",
       "changePhoto": "Change photo",

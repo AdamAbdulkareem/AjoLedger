@@ -1,4 +1,3 @@
-import { USE_MOCK_AUTH } from "../config/api";
 import type {
   UpdateProfilePayload,
   UpdateProfileResult,
@@ -7,12 +6,6 @@ import type {
 import type { UserWithPayout } from "../models/bank";
 import { getCurrentUser } from "./banks";
 import { apiRequest } from "./client";
-import {
-  mockDeleteUserAvatar,
-  mockGetUserProfile,
-  mockUpdateUserAvatar,
-  mockUpdateUserProfile,
-} from "./mockProfile";
 
 export type UserIdentity = {
   profile: UserProfile;
@@ -32,13 +25,11 @@ export function userProfileFromMe(
 
 export async function getUserIdentity(
   token: string,
-  userId: string,
-  email: string,
+  _userId: string,
+  _email: string,
 ): Promise<UserIdentity> {
-  if (USE_MOCK_AUTH) {
-    const profile = await mockGetUserProfile(userId, email);
-    return { profile, email };
-  }
+  void _userId;
+  void _email;
 
   const user = await getCurrentUser(token);
   return {
@@ -59,13 +50,12 @@ export async function getUserProfile(
 
 export async function updateUserProfile(
   token: string,
-  userId: string,
-  currentEmail: string,
+  _userId: string,
+  _currentEmail: string,
   payload: UpdateProfilePayload,
 ): Promise<UpdateProfileResult> {
-  if (USE_MOCK_AUTH) {
-    return mockUpdateUserProfile(userId, currentEmail, payload);
-  }
+  void _userId;
+  void _currentEmail;
 
   const envelope = await apiRequest<UpdateProfileResult>("/users/me/profile", {
     method: "PUT",
@@ -80,13 +70,12 @@ export async function updateUserProfile(
 
 export async function updateUserAvatar(
   token: string,
-  userId: string,
-  email: string,
+  _userId: string,
+  _email: string,
   avatarUri: string | null,
 ): Promise<UserProfile> {
-  if (USE_MOCK_AUTH) {
-    return mockUpdateUserAvatar(userId, email, avatarUri);
-  }
+  void _userId;
+  void _email;
 
   const envelope = await apiRequest<UserProfile>("/users/me/profile/avatar", {
     method: "PUT",
@@ -101,12 +90,11 @@ export async function updateUserAvatar(
 
 export async function deleteUserAvatar(
   token: string,
-  userId: string,
-  email: string,
+  _userId: string,
+  _email: string,
 ): Promise<UserProfile> {
-  if (USE_MOCK_AUTH) {
-    return mockDeleteUserAvatar(userId, email);
-  }
+  void _userId;
+  void _email;
 
   const envelope = await apiRequest<UserProfile>("/users/me/profile/avatar", {
     method: "DELETE",
