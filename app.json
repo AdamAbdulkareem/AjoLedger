@@ -1,17 +1,21 @@
 {
   "expo": {
-    "name": "expo_app",
-    "slug": "expo_app",
+    "name": "AjoLedger",
+    "slug": "ajoledger",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "expoapp",
+    "scheme": "ajoledger",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.thecodestark.expo-app"
+      "icon": "./assets/images/icon.png",
+      "bundleIdentifier": "com.thecodestark.ajoledger",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.thecodestark.ajoledger",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -59,6 +63,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d6191f5e-dea7-4a21-a298-67c0e33e15e6"
+      }
     }
   }
 }
