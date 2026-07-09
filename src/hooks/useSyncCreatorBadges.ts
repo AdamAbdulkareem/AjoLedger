@@ -47,13 +47,16 @@ export function useSyncCreatorBadges(
       const identity = { id: user.id, email: user.email };
 
       void (async () => {
-        await Promise.all(
-          groupIds.map((groupId) =>
-            getGroupDetails(accessToken, groupId, {
-              currentUser: identity,
-            }).catch(() => null),
-          ),
-        );
+        // Sequential: getGroupDetails remember/forget the same AsyncStorage key.
+        for (const groupId of groupIds) {
+          if (cancelled) {
+            return;
+          }
+
+          await getGroupDetails(accessToken, groupId, {
+            currentUser: identity,
+          }).catch(() => null);
+        }
 
         if (cancelled) {
           return;
