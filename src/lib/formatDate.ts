@@ -5,6 +5,10 @@ export function formatShortDate(
   isoDate: string,
   locale = getDateLocale(i18n.language),
 ): string {
+  if (!isoDate?.trim()) {
+    return "—";
+  }
+
   const date = new Date(isoDate);
   if (Number.isNaN(date.getTime())) return isoDate;
 

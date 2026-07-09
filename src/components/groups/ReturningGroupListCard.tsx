@@ -3,7 +3,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
 import { AjoLedgerLogoMark } from "../AjoLedgerLogoMark";
+import { GroupRoleBadge } from "./GroupRoleBadge";
 import { buildGroupListCardViewModel } from "../../lib/buildGroupListCardViewModel";
+import { isGroupCreator } from "../../lib/groupApiNormalize";
 import { formatShortDate } from "../../lib/formatDate";
 import { formatOrdinal } from "../../lib/formatOrdinal";
 import { formatNaira } from "../../lib/formatMoney";
@@ -57,6 +59,7 @@ export function ReturningGroupListCard({
       : viewModel.statusKey === "notPaid"
         ? theme.colors.amountDue
         : theme.colors.textPrimary;
+  const creator = isGroupCreator(group);
 
   return (
     <Pressable
@@ -64,7 +67,7 @@ export function ReturningGroupListCard({
       disabled={loading}
       accessibilityRole="button"
       accessibilityState={{ disabled: loading, busy: loading }}
-      accessibilityLabel={group.name}
+      accessibilityLabel={`${group.name}. ${creator ? t("groups.list.creatorBadge") : t("groups.list.memberBadge")}`}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={styles.headerRow}>
@@ -79,6 +82,7 @@ export function ReturningGroupListCard({
                 {group.description}
               </Text>
             ) : null}
+            <GroupRoleBadge isCreator={creator} />
           </View>
         </View>
         {loading ? (

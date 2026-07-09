@@ -1,11 +1,14 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 
-import { AjoLedgerLogoMark } from "../AjoLedgerLogoMark";
+import { CachedAvatar } from "../CachedAvatar";
 import { getGreetingKey } from "../../lib/greeting";
 import { useThemedStyles, type Theme } from "../../theme";
 
-const DEFAULT_AVATAR = require("../../../assets/home/avatar-default.png");
+const LOGO = require("../../../assets/brand/ajoledger-logo.png");
+
+/** Figma registered-home header logo block (icon + wordmark + tagline). */
+const LOGO_SIZE = 56;
 
 type HomeHeaderProps = {
   displayName: string;
@@ -20,7 +23,13 @@ export function HomeHeader({ displayName, avatarUrl }: HomeHeaderProps) {
   return (
     <View style={styles.row}>
       <View style={styles.brandRow}>
-        <AjoLedgerLogoMark size={50} variant="square" />
+        <Image
+          source={LOGO}
+          style={styles.logo}
+          resizeMode="contain"
+          accessibilityRole="image"
+          accessibilityLabel="AjoLedger"
+        />
         <View style={styles.textWrap}>
           <Text style={styles.greeting}>
             {t(`home.${greetingKey}`, { name: displayName })}
@@ -29,8 +38,8 @@ export function HomeHeader({ displayName, avatarUrl }: HomeHeaderProps) {
         </View>
       </View>
       <View style={styles.avatarWrap}>
-        <Image
-          source={avatarUrl ? { uri: avatarUrl } : DEFAULT_AVATAR}
+        <CachedAvatar
+          avatarUri={avatarUrl}
           style={styles.avatar}
           accessibilityLabel={displayName}
         />
@@ -52,13 +61,17 @@ const createStyles = (theme: Theme) =>
       flex: 1,
       flexDirection: "row",
       alignItems: "center",
-      gap: 0,
-      maxWidth: 260,
+      gap: theme.spacing.sm,
+      minWidth: 0,
+    },
+    logo: {
+      width: LOGO_SIZE,
+      height: LOGO_SIZE,
     },
     textWrap: {
       flex: 1,
       gap: 4,
-      paddingLeft: 0,
+      minWidth: 0,
     },
     greeting: {
       ...theme.typography.subtitle,

@@ -1,10 +1,19 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const CREATOR_GROUP_IDS_KEY = "ajoledger.creatorGroupIds";
+/** Legacy device-global key — cleared on read/logout so it cannot leak across users. */
+const LEGACY_CREATOR_GROUP_IDS_KEY = "ajoledger.creatorGroupIds";
 
-async function readCreatorGroupIds(): Promise<Set<string>> {
+function creatorGroupIdsKey(userId: string): string {
+  return `ajoledger.creatorGroupIds.${userId}`;
+}
+
+async function readCreatorGroupIds(userId: string): Promise<Set<string>> {
+  if (!userId.trim()) {
+    return new Set();
+  }
+
   try {
-    const raw = await AsyncStorage.getItem(CREATOR_GROUP_IDS_KEY);
+    const raw = await AsyncStorage.getItem(creatorGroupIdsKey(userId));
     if (!raw) {
       return new Set();
     }
@@ -20,22 +29,64 @@ async function readCreatorGroupIds(): Promise<Set<string>> {
   }
 }
 
-export async function rememberCreatorGroup(groupId: string): Promise<void> {
-  const ids = await readCreatorGroupIds();
-  ids.add(groupId);
+async function writeCreatorGroupIds(
+  userId: string,
+  ids: Set<string>,
+): Promise<void> {
   await AsyncStorage.setItem(
-    CREATOR_GROUP_IDS_KEY,
+    creatorGroupIdsKey(userId),
     JSON.stringify([...ids]),
   );
 }
 
-export async function getRememberedCreatorGroupIds(): Promise<Set<string>> {
-  return readCreatorGroupIds();
+/** Best-effort UI hint only — never used for Invite/Payout authorization. */
+export async function rememberCreatorGroup(
+  userId: string,
+  groupId: string,
+): Promise<void> {
+  if (!userId.trim() || !groupId.trim()) {
+    return;
+  }
+
+  const ids = await readCreatorGroupIds(userId);
+  ids.add(groupId);
+  await writeCreatorGroupIds(userId, ids);
 }
 
-export async function isRememberedCreatorGroup(
+/** Display-only. Do not use for access control. */
+export async function getRememberedCreatorGroupIds(
+  userId: string,
+): Promise<Set<string>> {
+  return readCreatorGroupIds(userId);
+}
+
+/** Drop a group from this user's creator badge hints (e.g. after join as CONTRIBUTOR). */
+export async function forgetCreatorGroup(
+  userId: string,
   groupId: string,
-): Promise<boolean> {
-  const ids = await readCreatorGroupIds();
-  return ids.has(groupId);
+): Promise<void> {
+  if (!userId.trim() || !groupId.trim()) {
+    return;
+  }
+
+  const ids = await readCreatorGroupIds(userId);
+  if (!ids.delete(groupId)) {
+    return;
+  }
+  await writeCreatorGroupIds(userId, ids);
+}
+
+/** Clears per-user + legacy device-global creator hints (call on logout). */
+export async function clearRememberedCreatorGroups(
+  userId?: string | null,
+): Promise<void> {
+  const tasks: Promise<void>[] = [
+    AsyncStorage.removeItem(LEGACY_CREATOR_GROUP_IDS_KEY),
+  ];
+
+  if (userId?.trim()) {
+    tasks.push(AsyncStorage.removeItem(creatorGroupIdsKey(userId)));
+  }
+
+  await Promise.all(tasks);
 }

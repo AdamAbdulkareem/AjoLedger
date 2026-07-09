@@ -51,8 +51,6 @@ const createStyles = (theme: Theme) =>
       paddingVertical: 12,
       gap: 20,
       alignItems: "center",
-      borderWidth: 1,
-      borderColor: theme.colors.cardBorderMuted,
     },
     copy: {
       gap: 4,

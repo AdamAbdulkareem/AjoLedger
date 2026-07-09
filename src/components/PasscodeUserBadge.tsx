@@ -1,7 +1,7 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
+import { CachedAvatar } from "./CachedAvatar";
 import { maskEmail } from "../lib/maskEmail";
-import { resolveAvatarSource } from "../lib/avatarSource";
 import { useThemedStyles, type Theme } from "../theme";
 
 type PasscodeUserBadgeProps = {
@@ -15,8 +15,8 @@ export function PasscodeUserBadge({ email, avatarUri }: PasscodeUserBadgeProps) 
   return (
     <View style={styles.container}>
       <View style={styles.avatarWrap}>
-        <Image
-          source={resolveAvatarSource(avatarUri)}
+        <CachedAvatar
+          avatarUri={avatarUri}
           style={styles.avatar}
           accessibilityLabel={email}
         />

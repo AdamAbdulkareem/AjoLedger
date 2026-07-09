@@ -1,5 +1,11 @@
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import { FlatList, StyleSheet, View, useWindowDimensions } from "react-native";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+  type LayoutChangeEvent,
+} from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -71,7 +77,7 @@ const CarouselSlide = memo(function CarouselSlide({
     const translateY = interpolate(
       distance,
       [0, itemWidth],
-      [0, 12],
+      [0, 10],
       Extrapolation.CLAMP,
     );
 
@@ -103,8 +109,12 @@ export function HomeGroupCarousel({
   onGroupPress,
 }: HomeGroupCarouselProps) {
   const styles = useThemedStyles(createStyles);
-  const { width: screenWidth } = useWindowDimensions();
-  const layout = useMemo(() => getCarouselLayout(screenWidth), [screenWidth]);
+  const { width: windowWidth } = useWindowDimensions();
+  const [viewportWidth, setViewportWidth] = useState(windowWidth);
+  const layout = useMemo(
+    () => getCarouselLayout(viewportWidth, groups.length),
+    [groups.length, viewportWidth],
+  );
   const listRef = useRef<FlatList<GroupHomeDashboard>>(null);
   const selectedIndexRef = useRef(selectedIndex);
   const initialOffset = getCarouselSnapOffset(selectedIndex, layout.itemWidth);
@@ -160,19 +170,37 @@ export function HomeGroupCarousel({
     [groups.length, layout.itemWidth, scrollX],
   );
 
-  const ensureInitialPosition = useCallback(() => {
+  const ensureCenteredPosition = useCallback(() => {
     centerOnIndex(selectedIndexRef.current, false);
   }, [centerOnIndex]);
 
+  const handleViewportLayout = useCallback((event: LayoutChangeEvent) => {
+    const nextWidth = Math.round(event.nativeEvent.layout.width);
+    if (nextWidth > 0) {
+      setViewportWidth((current) => (current === nextWidth ? current : nextWidth));
+    }
+  }, []);
+
   useEffect(() => {
-    centerOnIndex(selectedIndexRef.current, false);
+    setViewportWidth(windowWidth);
+  }, [windowWidth]);
+
+  useEffect(() => {
+    ensureCenteredPosition();
 
     const frame = requestAnimationFrame(() => {
-      centerOnIndex(selectedIndexRef.current, false);
+      ensureCenteredPosition();
     });
 
     return () => cancelAnimationFrame(frame);
-  }, [centerOnIndex, groups.length, layout.itemWidth, layout.sidePadding]);
+  }, [
+    ensureCenteredPosition,
+    groups.length,
+    layout.itemWidth,
+    layout.sidePadding,
+    selectedIndex,
+    viewportWidth,
+  ]);
 
   const scrollToIndex = useCallback(
     (index: number, animated = true) => {
@@ -204,7 +232,7 @@ export function HomeGroupCarousel({
   );
 
   return (
-    <View style={styles.section}>
+    <View style={[styles.section, { width: windowWidth }]} onLayout={handleViewportLayout}>
       <View style={[styles.carouselViewport, { height: layout.activeHeight + 8 }]}>
         <AnimatedFlatList
           ref={listRef}
@@ -226,8 +254,8 @@ export function HomeGroupCarousel({
           ]}
           getItemLayout={getItemLayout}
           initialNumToRender={groups.length}
-          onContentSizeChange={ensureInitialPosition}
-          onLayout={ensureInitialPosition}
+          onContentSizeChange={ensureCenteredPosition}
+          onLayout={ensureCenteredPosition}
           renderItem={({ item, index }) => (
             <CarouselSlide
               dashboard={item}
@@ -254,6 +282,7 @@ const slideStyles = StyleSheet.create({
   },
   slide: {
     justifyContent: "flex-end",
+    alignItems: "center",
   },
   cardWrap: {
     width: "100%",
@@ -266,7 +295,6 @@ const createStyles = (theme: Theme) =>
     section: {
       gap: 4,
       marginHorizontal: -theme.spacing.md,
-      marginTop: theme.spacing.xs,
     },
     carouselViewport: {
       overflow: "hidden",

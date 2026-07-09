@@ -1,10 +1,12 @@
 import { API_BASE_URL } from "../config/api";
+import { notifyUnauthorized } from "../lib/authSessionHandler";
 import type { ApiEnvelope } from "../models/auth";
 
 export class ApiError extends Error {
   constructor(
     message: string,
     readonly status?: number,
+    readonly meta?: Record<string, unknown>,
   ) {
     super(message);
     this.name = "ApiError";
@@ -69,6 +71,10 @@ export async function apiRequest<T>(
   }
 
   if (!response.ok || !payload.success) {
+    if (response.status === 401) {
+      notifyUnauthorized();
+    }
+
     throw new ApiError(
       payload.message || "Something went wrong. Please try again.",
       response.status,

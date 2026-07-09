@@ -84,6 +84,16 @@ export function formatAmountRemainsDue(
   daysUntilDue: number,
   dueDate: string,
 ): string {
+  if (!dueDate?.trim()) {
+    if (daysUntilDue <= 0) {
+      return t("home.dueTodayShort");
+    }
+    if (daysUntilDue === 1) {
+      return t("home.urgentDueDays", { count: 1 });
+    }
+    return t("home.urgentDueDays", { count: daysUntilDue });
+  }
+
   const date = formatShortDate(dueDate);
   if (daysUntilDue <= 0) {
     return t("home.dueTodayDash", { date });

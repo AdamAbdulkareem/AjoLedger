@@ -1,6 +1,7 @@
 {
   "common": {
-    "goBack": "Koma baya"
+    "goBack": "Koma baya",
+    "ok": "To"
   },
   "onboarding": {
     "welcome": {
@@ -46,7 +47,7 @@
     "enterAccessPasscodeSubtitle": "Shigar da lambar shiga mai lamba 6 don ci gaba.",
     "forgetPasscode": "Ka manta lambar shiga?",
     "forgetPasscodeTitle": "Sake saita lambar shiga?",
-    "forgetPasscodeBody": "Za ka buƙaci ƙirƙirar sabuwar lambar shiga mai lamba 6 kafin ka sake buɗe app.",
+    "forgetPasscodeBody": "A ga fitar da ku kuma dole ne ku shiga da imel da kalmar sirri don saita sabuwar lambar shiga.",
     "forgetPasscodeConfirm": "Sake saita lambar shiga",
     "forgetPasscodeCancel": "Soke",
     "switchAccount": "Canza asusu",
@@ -70,6 +71,7 @@
       "accessPasscodeLength": "Lambar shiga dole ta kasance lambobi 6.",
       "accessPasscodeMismatch": "Lambobin shiga ba su dace ba. Sake gwadawa.",
       "incorrectAccessPasscode": "Lambar shiga ba daidai ba ce. Sake gwadawa.",
+      "passcodeLockedOut": "Yunƙurin da yawa. Sake gwadawa cikin {{seconds}} daƙiƙa.",
       "pinLength": "PIN dole ta kasance lambobi 4.",
       "pinMismatch": "PINs ba su dace ba. Sake gwadawa.",
       "generic": "Wani abu ya faru. Sake gwadawa."
@@ -102,7 +104,6 @@
     "dueTodayShort": "Za a yi biya yau",
     "recentActivity": "Ayyukan Kwanan Nan",
     "viewAll": "Duba duka",
-    "groupCarousel": "Carousel na Ƙungiya",
     "urgentDuePrefix": "Gaggawa: Za a biya cikin ",
     "urgentDueDays": "kwanaki {{count}}",
     "urgentDueDays_one": "kwana 1",
@@ -267,6 +268,9 @@
       "cycleLabel": "Zagayowar {{number}}",
       "nextPayout": "Biyan gaba: {{date}}",
       "creatorBadge": "Kun ƙirƙiri wannan ƙungiyar",
+      "memberBadge": "Kun shiga wannan ƙungiyar a matsayin memba",
+      "roleCreator": "Mai ƙirƙira",
+      "roleMember": "Memba",
       "createNew": "Ƙirƙiri sabuwar ƙungiyar ajiya",
       "createNewSubtitle": "(Saita suna, adadi, lokaci)"
     },
@@ -285,6 +289,27 @@
       "membersTitle": "Mahalarta({{count}})",
       "noMembersYet": "Babu wanda ya shiga tukuna.",
       "statusJoined": "Ya shiga"
+    },
+    "payoutOrder": {
+      "title": "Tsarin Biyan",
+      "assignTitle": "Sanya Juyin Biyan",
+      "assignBody": "Taɓa membobi ɗaya bayan ɗaya don saita tsarin da za su karɓi biyan su.",
+      "membersTitle": "Mahalarta({{count}})",
+      "slotsFilled": "{{joined}} cikin {{total}} an cika",
+      "noMembers": "Babu wanda ya shiga tukuna.",
+      "startContribution": "Fara Gudummawa",
+      "incompleteTitle": "Sanya duk membobi",
+      "incompleteBody": "Taɓa kowane memba don saita juyin biyan su kafin farawa.",
+      "adminOnlyTitle": "Admin kawai",
+      "adminOnlyBody": "Mahaliccin ƙungiyar kawai zai iya saita tsarin biyan.",
+      "successTitle": "An saita tsarin biyan",
+      "successBody": "An adana juyoyi kuma an fara zagayen gudummawa.",
+      "memberAssignedA11y": "{{name}}, juyin biya {{turn}}. Taɓa don share.",
+      "memberUnassignedA11y": "{{name}}, ba a sanya ba. Taɓa don saita na gaba.",
+      "errors": {
+        "title": "An kasa farawa",
+        "generic": "Wani abu ya faru. Sake gwadawa."
+      }
     },
     "join": {
       "title": "Shigar da Lamba",

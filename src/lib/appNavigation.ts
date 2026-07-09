@@ -5,10 +5,53 @@ type AppRouter = {
   replace: (href: Href) => void;
 };
 
-export function openGroupDetail(router: Pick<AppRouter, "push">, groupId: string) {
-  router.push({
-    pathname: "/(app)/groups/[groupId]",
+export function openGroupDetail(
+  router: Pick<AppRouter, "push" | "replace">,
+  groupId: string,
+  options?: { replace?: boolean },
+) {
+  const href = {
+    pathname: "/(app)/groups/[groupId]" as const,
     params: { groupId },
+  };
+
+  if (options?.replace) {
+    router.replace(href);
+    return;
+  }
+
+  router.push(href);
+}
+
+export function openGroupInvite(
+  router: Pick<AppRouter, "push">,
+  groupId: string,
+  expectedParticipants?: number,
+) {
+  router.push({
+    pathname: "/(app)/groups/invite",
+    params: {
+      groupId,
+      ...(expectedParticipants != null
+        ? { expectedParticipants: String(expectedParticipants) }
+        : {}),
+    },
+  });
+}
+
+export function openPayoutOrder(
+  router: Pick<AppRouter, "push">,
+  groupId: string,
+  expectedParticipants?: number,
+) {
+  router.push({
+    pathname: "/(app)/groups/payout-order",
+    params: {
+      groupId,
+      ...(expectedParticipants != null
+        ? { expectedParticipants: String(expectedParticipants) }
+        : {}),
+    },
   });
 }
 

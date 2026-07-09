@@ -1,6 +1,7 @@
 {
   "common": {
-    "goBack": "Padà"
+    "goBack": "Padà",
+    "ok": "Ó dára"
   },
   "onboarding": {
     "welcome": {
@@ -46,7 +47,7 @@
     "enterAccessPasscodeSubtitle": "Tẹ koodu iwọle oni-nọmba 6 rẹ lati tẹsiwaju.",
     "forgetPasscode": "Gbagbe koodu iwọle?",
     "forgetPasscodeTitle": "Tun koodu iwọle?",
-    "forgetPasscodeBody": "O yoo nilo lati ṣẹda koodu iwọle oni-nọmba 6 tuntun ṣaaju ki o le ṣi app pada.",
+    "forgetPasscodeBody": "A o jade ọ kuro lọ, o si nilo lati wọle pẹlu imeeli ati ọrọ aṣina rẹ lati ṣeto koodu iwọle tuntun.",
     "forgetPasscodeConfirm": "Tun koodu iwọle",
     "forgetPasscodeCancel": "Fagilee",
     "switchAccount": "Yipada akọọlẹ",
@@ -70,6 +71,7 @@
       "accessPasscodeLength": "Koodu iwọle gbọdọ jẹ oni-nọmba 6.",
       "accessPasscodeMismatch": "Awọn koodu ko ba ara wọn mu. Jọwọ gbiyanju lẹkan si.",
       "incorrectAccessPasscode": "Koodu ko tọ. Jọwọ gbiyanju lẹkan si.",
+      "passcodeLockedOut": "Gbiyanju pupọ ju. Gbiyanju lẹkan si ni {{seconds}} aaya.",
       "pinLength": "PIN gbọdọ jẹ nọmba 4.",
       "pinMismatch": "Awọn PIN ko ba ara wọn mu. Jọwọ gbiyanju lẹkan si.",
       "generic": "Nkọkan kan ṣẹlẹ. Jọwọ gbiyanju lẹkan si."
@@ -101,7 +103,6 @@
     "dueTodayShort": "Yoo pe loni",
     "recentActivity": "Iṣẹ Laipe",
     "viewAll": "Wo gbogbo",
-    "groupCarousel": "Carousel Ẹgbẹ",
     "urgentDuePrefix": "Pajawiri: Yoo pari ni ",
     "urgentDueDays": "ọjọ {{count}}",
     "urgentDueDays_one": "ọjọ 1",
@@ -266,6 +267,9 @@
       "cycleLabel": "Ayika {{number}}",
       "nextPayout": "Isanwo ti nbọ: {{date}}",
       "creatorBadge": "O ṣẹda ẹgbẹ yii",
+      "memberBadge": "O darapọ mọ ẹgbẹ yii gẹgẹ bi memba",
+      "roleCreator": "Oludasile",
+      "roleMember": "Memba",
       "createNew": "Ṣẹda ẹgbẹ ajọ tuntun",
       "createNewSubtitle": "(Ṣeto orukọ, iye, igba)"
     },
@@ -284,6 +288,27 @@
       "membersTitle": "Awọn memba({{count}})",
       "noMembersYet": "Ko si ẹnikan ti darapọ sibẹsibẹ.",
       "statusJoined": "Ti darapọ"
+    },
+    "payoutOrder": {
+      "title": "Ilana Isanwo",
+      "assignTitle": "Yan Ilana Isanwo",
+      "assignBody": "Tẹ awọn ọmọ ẹgbẹ lẹẹkan-lẹẹkan lati ṣeto ilana ti wọn yoo gba isanwo.",
+      "membersTitle": "Awọn memba({{count}})",
+      "slotsFilled": "{{joined}} ninu {{total}} ti kun",
+      "noMembers": "Ko si ẹnikan ti o ti darapọ sibẹ.",
+      "startContribution": "Bẹrẹ Idasi",
+      "incompleteTitle": "Yan gbogbo awọn memba",
+      "incompleteBody": "Tẹ gbogbo memba lati ṣeto ilana isanwo ṣaaju ibẹrẹ.",
+      "adminOnlyTitle": "Awọn alabojuto nikan",
+      "adminOnlyBody": "Oludasile ẹgbẹ nikan le ṣeto ilana isanwo.",
+      "successTitle": "A ti ṣeto ilana isanwo",
+      "successBody": "A ti fi awọn ilana pamọ ati pe a ti bẹrẹ iyipo idasi.",
+      "memberAssignedA11y": "{{name}}, ilana isanwo {{turn}}. Tẹ lati pa.",
+      "memberUnassignedA11y": "{{name}}, ko ti yan. Tẹ lati ṣeto eyi ti o tẹle.",
+      "errors": {
+        "title": "Ko le bẹrẹ",
+        "generic": "Nkankan o ṣẹlẹ. Gbiyanju lẹẹkansi."
+      }
     },
     "join": {
       "title": "Tẹ Koodu",

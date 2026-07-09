@@ -1,0 +1,514 @@
+import {
+  isCreatorRole,
+  isGroupAdminForCurrentUser,
+  normalizeGroupDetailsFromApi,
+  normalizeGroupSummaryFromApi,
+  resolveGroupDetailsIsCreator,
+} from "../groupApiNormalize";
+
+describe("isCreatorRole", () => {
+  it("returns true for known creator roles", () => {
+    expect(isCreatorRole("ADMIN")).toBe(true);
+    expect(isCreatorRole("creator")).toBe(true);
+    expect(isCreatorRole("OWNER")).toBe(true);
+  });
+
+  it("returns false for member roles", () => {
+    expect(isCreatorRole("MEMBER")).toBe(false);
+    expect(isCreatorRole(undefined)).toBe(false);
+  });
+});
+
+describe("normalizeGroupSummaryFromApi", () => {
+  it("maps core fields; ignores top-level isCreator for list badges", () => {
+    const summary = normalizeGroupSummaryFromApi({
+      id: "group-1",
+      name: "Office Ajo",
+      inviteCode: "AJO-ABC123",
+      isCreator: true,
+      contributionAmount: 50000,
+      frequency: "MONTHLY",
+      memberLimit: 10,
+      joinedCount: 3,
+    });
+
+    expect(summary).toMatchObject({
+      id: "group-1",
+      name: "Office Ajo",
+      inviteCode: "AJO-ABC123",
+      isCreator: false,
+      contributionAmount: 50000,
+      frequency: "MONTHLY",
+      numberOfParticipants: 10,
+      joinedCount: 3,
+    });
+  });
+
+  it("derives list badge from myDetails.role, not a bare top-level role", () => {
+    const fromMyDetails = normalizeGroupSummaryFromApi({
+      id: "group-2",
+      name: "Family Fund",
+      myDetails: { role: "COORDINATOR" },
+    });
+    expect(fromMyDetails.isCreator).toBe(true);
+
+    const fromTopLevelRole = normalizeGroupSummaryFromApi({
+      id: "group-2b",
+      name: "Joined Fund",
+      role: "OWNER",
+    });
+    expect(fromTopLevelRole.isCreator).toBe(false);
+
+    const fromTopLevelFlag = normalizeGroupSummaryFromApi({
+      id: "group-2c",
+      name: "Flagged Joined",
+      isCreator: true,
+      isAdmin: true,
+    });
+    expect(fromTopLevelFlag.isCreator).toBe(false);
+  });
+});
+
+describe("normalizeGroupDetailsFromApi", () => {
+  it("normalizes members and invite code", () => {
+    const details = normalizeGroupDetailsFromApi({
+      id: "group-3",
+      name: "Test Group",
+      inviteCode: "AJO-XYZ789",
+      members: [
+        { id: "m1", name: "Ada Lovelace", status: "JOINED" },
+        { id: "m2", displayName: "Bob", membershipStatus: "PENDING" },
+      ],
+      maxParticipants: 5,
+    });
+
+    expect(details.inviteCode).toBe("AJO-XYZ789");
+    expect(details.members).toHaveLength(2);
+    expect(details.members[0]).toMatchObject({
+      id: "m1",
+      name: "Ada Lovelace",
+      status: "JOINED",
+    });
+    expect(details.members[1]?.status).toBe("PENDING");
+    expect(details.numberOfParticipants).toBe(5);
+  });
+
+  it("reads payoutTurn from member payloads", () => {
+    const details = normalizeGroupDetailsFromApi({
+      id: "g1",
+      name: "Test",
+      inviteCode: "AJO-ABCDEF",
+      members: [
+        { membershipId: "m1", displayName: "Ada", payoutTurn: 2 },
+        { id: "m2", name: "Bob", position: 1 },
+      ],
+    });
+
+    expect(details.members[0]?.payoutTurn).toBe(2);
+    expect(details.members[1]?.payoutTurn).toBe(1);
+  });
+
+  it("derives isCreator from members[].role matched to current user", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g2",
+        name: "Owned Group",
+        inviteCode: "AJO-OWNED1",
+        members: [
+          {
+            membershipId: "m-owner",
+            displayName: "Adam",
+            role: "OWNER",
+            userId: "user-1",
+            email: "adam@example.com",
+          },
+          {
+            membershipId: "m-member",
+            displayName: "Bob",
+            role: "MEMBER",
+            userId: "user-2",
+          },
+        ],
+      },
+      { id: "user-1", email: "adam@example.com" },
+    );
+
+    expect(details.isCreator).toBe(true);
+    expect(details.members[0]?.role).toBe("OWNER");
+  });
+
+  it("does not mark non-owners as creator even with matching identity", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g3",
+        name: "Joined Group",
+        inviteCode: "AJO-JOIN01",
+        members: [
+          {
+            membershipId: "m-owner",
+            displayName: "Owner",
+            role: "OWNER",
+            userId: "user-owner",
+          },
+          {
+            membershipId: "m-me",
+            displayName: "Adam",
+            role: "MEMBER",
+            userId: "user-1",
+          },
+        ],
+      },
+      { id: "user-1" },
+    );
+
+    expect(details.isCreator).toBe(false);
+  });
+
+  it("ignores top-level group role so members are not treated as creators", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g4",
+        name: "Shared Group",
+        inviteCode: "AJO-SHARE1",
+        role: "OWNER",
+        isCreator: true,
+        members: [
+          {
+            membershipId: "m-owner",
+            displayName: "Owner",
+            role: "OWNER",
+            userId: "user-owner",
+          },
+          {
+            membershipId: "m-me",
+            displayName: "Adam",
+            role: "MEMBER",
+            userId: "user-1",
+            isMe: true,
+          },
+        ],
+      },
+      { id: "user-1" },
+    );
+
+    expect(details.isCreator).toBe(false);
+  });
+
+  it("prefers userId over isMe when isMe is set on the owner row for everyone", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g5",
+        name: "Buggy isMe Group",
+        inviteCode: "AJO-ISME01",
+        isCreator: true,
+        myDetails: { role: "OWNER" },
+        members: [
+          {
+            membershipId: "m-owner",
+            displayName: "Owner",
+            role: "OWNER",
+            userId: "user-owner",
+            isMe: true,
+          },
+          {
+            membershipId: "m-me",
+            displayName: "Adam",
+            role: "MEMBER",
+            userId: "user-1",
+            isMe: true,
+          },
+        ],
+      },
+      { id: "user-1" },
+    );
+
+    expect(details.isCreator).toBe(false);
+  });
+
+  it("membership MEMBER wins over top-level isCreator / myDetails.role", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g6",
+        name: "Flagged Group",
+        inviteCode: "AJO-FLAG01",
+        isCreator: true,
+        isAdmin: true,
+        myDetails: { role: "ADMIN" },
+        members: [
+          {
+            membershipId: "m-me",
+            displayName: "Adam",
+            role: "MEMBER",
+            userId: "user-1",
+          },
+        ],
+      },
+      { id: "user-1" },
+    );
+
+    expect(details.isCreator).toBe(false);
+  });
+
+  it("never trusts a single isMe row when userId/email are missing", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g7",
+        name: "Legacy Group",
+        inviteCode: "AJO-LEGACY",
+        isCreator: true,
+        members: [
+          {
+            membershipId: "m-owner",
+            displayName: "Adam",
+            role: "OWNER",
+            isMe: true,
+          },
+          {
+            membershipId: "m-other",
+            displayName: "Bob",
+            role: "MEMBER",
+          },
+        ],
+      },
+      { id: "user-1", email: "adam@example.com" },
+    );
+
+    // Without identity fields on members, fall through to myDetails — none here → false
+    expect(details.isCreator).toBe(false);
+  });
+
+  it("does not trust isMe when multiple rows claim it without identity fields", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g8",
+        name: "Ambiguous Group",
+        inviteCode: "AJO-AMBIG1",
+        members: [
+          {
+            membershipId: "m-owner",
+            displayName: "Owner",
+            role: "OWNER",
+            isMe: true,
+          },
+          {
+            membershipId: "m-me",
+            displayName: "Adam",
+            role: "MEMBER",
+            isMe: true,
+          },
+        ],
+      },
+      { id: "user-1" },
+    );
+
+    expect(details.isCreator).toBe(false);
+  });
+
+  it("denies when members have identity but none match the current user", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g9",
+        name: "Other Users Group",
+        inviteCode: "AJO-OTHER1",
+        isCreator: true,
+        myDetails: { role: "OWNER" },
+        members: [
+          {
+            membershipId: "m1",
+            displayName: "Owner",
+            role: "OWNER",
+            userId: "user-owner",
+          },
+          {
+            membershipId: "m2",
+            displayName: "Someone",
+            role: "MEMBER",
+            userId: "user-2",
+          },
+        ],
+      },
+      { id: "user-1" },
+    );
+
+    expect(details.isCreator).toBe(false);
+  });
+
+  it("denies myDetails.role / createdBy fallbacks — members[].role only", () => {
+    const viaMyDetails = normalizeGroupDetailsFromApi(
+      {
+        id: "g10",
+        name: "No Identity Members",
+        inviteCode: "AJO-NOID01",
+        myDetails: { role: "COORDINATOR" },
+        members: [
+          { membershipId: "m1", displayName: "Adam", role: "OWNER" },
+          { membershipId: "m2", displayName: "Bob", role: "MEMBER" },
+        ],
+      },
+      { id: "user-1", email: "adam@example.com" },
+    );
+    expect(viaMyDetails.isCreator).toBe(false);
+
+    const viaCreatedBy = normalizeGroupDetailsFromApi(
+      {
+        id: "g11",
+        name: "Empty Members",
+        inviteCode: "AJO-EMPTY1",
+        createdBy: "user-1",
+        isCreator: true,
+        members: [],
+      },
+      { id: "user-1", email: "adam@example.com" },
+    );
+    expect(viaCreatedBy.isCreator).toBe(false);
+  });
+
+  it("denies empty members with only top-level isCreator for a different user", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g12",
+        name: "Flag Only",
+        inviteCode: "AJO-FLAG02",
+        isCreator: true,
+        isAdmin: true,
+        createdBy: "user-owner",
+        members: [],
+      },
+      { id: "user-1" },
+    );
+
+    expect(details.isCreator).toBe(false);
+  });
+
+  it("denies without current user identity even if flags say creator", () => {
+    const details = normalizeGroupDetailsFromApi({
+      id: "g13",
+      name: "No Identity",
+      inviteCode: "AJO-NOUSR1",
+      isCreator: true,
+      myDetails: { role: "OWNER" },
+      members: [
+        {
+          membershipId: "m1",
+          displayName: "Adam",
+          role: "OWNER",
+          userId: "user-1",
+          isMe: true,
+        },
+      ],
+    });
+
+    expect(details.isCreator).toBe(false);
+  });
+
+  it("ignores nested user.role so account roles do not grant group admin", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g14",
+        name: "Nested Role",
+        inviteCode: "AJO-NEST01",
+        members: [
+          {
+            membershipId: "m-me",
+            displayName: "Adam",
+            role: "MEMBER",
+            userId: "user-1",
+            user: { id: "user-1", role: "OWNER" },
+          },
+        ],
+      },
+      { id: "user-1" },
+    );
+
+    expect(details.isCreator).toBe(false);
+    expect(details.members[0]?.role).toBe("MEMBER");
+  });
+
+  it("live API: COORDINATOR creator vs CONTRIBUTOR joiner by email", () => {
+    const payload = {
+      id: "9361d44c-d25c-45e6-9655-f0c0073fd81b",
+      name: "Hadam Ajo Group",
+      description: "savings",
+      inviteCode: "AJO-F87C45",
+      activeCycle: null,
+      myDetails: {
+        virtualAccountNumber: "8457658887",
+        virtualBankName: "Nombank MFB",
+        virtualAccountName: "Nomba/Ajo HadamAjoGroup",
+      },
+      members: [
+        {
+          membershipId: "08824d35-9991-4f2b-a991-ca1749c4351d",
+          email: "hadam@gmail.com",
+          role: "COORDINATOR",
+          payoutTurn: null,
+        },
+        {
+          membershipId: "e710f09f-9feb-40ce-af5d-e4e36994165d",
+          email: "dmabdulkareem@gmail.com",
+          role: "CONTRIBUTOR",
+          payoutTurn: null,
+        },
+      ],
+    };
+
+    const creator = normalizeGroupDetailsFromApi(payload, {
+      id: "any-id",
+      email: "hadam@gmail.com",
+    });
+    const joiner = normalizeGroupDetailsFromApi(payload, {
+      id: "any-other-id",
+      email: "dmabdulkareem@gmail.com",
+    });
+
+    expect(creator.isCreator).toBe(true);
+    expect(joiner.isCreator).toBe(false);
+    expect(
+      isGroupAdminForCurrentUser(joiner, {
+        email: "dmabdulkareem@gmail.com",
+      }),
+    ).toBe(false);
+    expect(
+      isGroupAdminForCurrentUser(creator, { email: "hadam@gmail.com" }),
+    ).toBe(true);
+  });
+
+  it("prefers email match over userId when roster has emails", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g15",
+        name: "Email First",
+        inviteCode: "AJO-EMAIL1",
+        members: [
+          {
+            membershipId: "m-coord",
+            email: "owner@example.com",
+            role: "COORDINATOR",
+            userId: "wrong-id",
+          },
+          {
+            membershipId: "m-me",
+            email: "joiner@example.com",
+            role: "CONTRIBUTOR",
+            userId: "user-1",
+          },
+        ],
+      },
+      { id: "user-1", email: "joiner@example.com" },
+    );
+
+    expect(details.isCreator).toBe(false);
+  });
+});
+
+describe("resolveGroupDetailsIsCreator", () => {
+  it("never grants access from top-level isCreator alone", () => {
+    expect(
+      resolveGroupDetailsIsCreator(
+        { isCreator: true, isAdmin: true },
+        [],
+        { id: "user-1" },
+      ),
+    ).toBe(false);
+  });
+});

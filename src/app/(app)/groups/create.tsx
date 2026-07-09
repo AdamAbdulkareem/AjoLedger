@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next";
 import { CreateGroupForm } from "../../../components/groups/CreateGroupForm";
 import { SubScreenHeader } from "../../../components/profile/SubScreenHeader";
 import { ApiError } from "../../../api/client";
-import { createGroup } from "../../../api/groups";
 import { useAuth } from "../../../context/AuthProvider";
+import { useCreateGroupMutation } from "../../../hooks/mutations/useCreateGroupMutation";
 import { rememberCreatorGroup } from "../../../lib/creatorGroupsStorage";
 import { rememberGroupMetadata } from "../../../lib/groupMetadataStorage";
 import {
@@ -23,7 +23,8 @@ export default function CreateGroupScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
+  const createGroupMutation = useCreateGroupMutation(accessToken);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -78,7 +79,7 @@ export default function CreateGroupScreen() {
 
     let created;
     try {
-      created = await createGroup(accessToken, {
+      created = await createGroupMutation.mutateAsync({
         name: name.trim(),
         description: description.trim() || undefined,
         frequency,
@@ -96,7 +97,9 @@ export default function CreateGroupScreen() {
     }
 
     try {
-      await rememberCreatorGroup(created.id);
+      if (user?.id) {
+        await rememberCreatorGroup(user.id, created.id);
+      }
       await rememberGroupMetadata(created.id, {
         numberOfParticipants: parsedParticipants,
       });
@@ -120,6 +123,8 @@ export default function CreateGroupScreen() {
     frequency,
     name,
     numberOfParticipants,
+    createGroupMutation,
+    user?.id,
     router,
     t,
   ]);

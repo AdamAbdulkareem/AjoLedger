@@ -1,6 +1,7 @@
 {
   "common": {
-    "goBack": "Go back"
+    "goBack": "Go back",
+    "ok": "OK"
   },
   "onboarding": {
     "welcome": {
@@ -46,7 +47,7 @@
     "enterAccessPasscodeSubtitle": "Enter your 6-digit access passcode to continue.",
     "forgetPasscode": "Forget passcode?",
     "forgetPasscodeTitle": "Reset passcode?",
-    "forgetPasscodeBody": "You will need to create a new 6-digit passcode before you can unlock the app again.",
+    "forgetPasscodeBody": "You will be signed out and must sign in with your email and password to set a new passcode.",
     "forgetPasscodeConfirm": "Reset passcode",
     "forgetPasscodeCancel": "Cancel",
     "switchAccount": "Switch Account",
@@ -70,6 +71,7 @@
       "accessPasscodeLength": "Access passcode must be 6 digits.",
       "accessPasscodeMismatch": "Passcodes do not match. Please try again.",
       "incorrectAccessPasscode": "Incorrect passcode. Please try again.",
+      "passcodeLockedOut": "Too many attempts. Try again in {{seconds}} seconds.",
       "pinLength": "PIN must be 4 digits.",
       "pinMismatch": "PINs do not match. Please try again.",
       "generic": "Something went wrong. Please try again."
@@ -103,7 +105,6 @@
     "dueTodayShort": "Due today",
     "recentActivity": "Recent Activity",
     "viewAll": "View all",
-    "groupCarousel": "Group Carousel",
     "urgentDuePrefix": "Urgent: Due in ",
     "urgentDueDays": "{{count}} days",
     "urgentDueDays_one": "1 day",
@@ -268,6 +269,9 @@
       "cycleLabel": "Cycle {{number}}",
       "nextPayout": "Next payout: {{date}}",
       "creatorBadge": "You created this group",
+      "memberBadge": "You joined this group as a member",
+      "roleCreator": "Creator",
+      "roleMember": "Member",
       "createNew": "Create a new savings group",
       "createNewSubtitle": "(Set name, amount, frequency)"
     },
@@ -286,6 +290,27 @@
       "membersTitle": "Members({{count}})",
       "noMembersYet": "No one has joined yet.",
       "statusJoined": "Joined"
+    },
+    "payoutOrder": {
+      "title": "Payout Order",
+      "assignTitle": "Assign Payout Turns",
+      "assignBody": "Tap members one by one to set the order they will receive their payouts.",
+      "membersTitle": "Members({{count}})",
+      "slotsFilled": "{{joined}} of {{total}} slots filled",
+      "noMembers": "No members have joined yet.",
+      "startContribution": "Start Contribution",
+      "incompleteTitle": "Assign all members",
+      "incompleteBody": "Tap every member to set their payout turn before starting contributions.",
+      "adminOnlyTitle": "Admins only",
+      "adminOnlyBody": "Only the group creator can assign payout order.",
+      "successTitle": "Payout order set",
+      "successBody": "Turns are saved and the contribution cycle has started.",
+      "memberAssignedA11y": "{{name}}, payout turn {{turn}}. Tap to clear.",
+      "memberUnassignedA11y": "{{name}}, not assigned. Tap to set next turn.",
+      "errors": {
+        "title": "Could not start",
+        "generic": "Something went wrong. Please try again."
+      }
     },
     "join": {
       "title": "Enter Code",

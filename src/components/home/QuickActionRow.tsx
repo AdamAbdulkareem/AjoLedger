@@ -53,7 +53,7 @@ export function QuickActionRow({
           <Ionicons
             name="chevron-forward"
             size={12}
-            color={theme.colors.viewAllLink}
+            color={theme.colors.brand}
           />
         </View>
       ) : (
@@ -74,9 +74,9 @@ const createStyles = (theme: Theme) =>
       alignItems: "center",
       justifyContent: "space-between",
       backgroundColor: theme.colors.surface,
-      borderRadius: 12,
+      borderRadius: 10,
       borderWidth: 1,
-      borderColor: theme.colors.activityListBorder,
+      borderColor: theme.colors.cardBorderMuted,
       paddingHorizontal: 10,
       paddingVertical: 10,
       minHeight: 72,
@@ -98,7 +98,7 @@ const createStyles = (theme: Theme) =>
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: theme.colors.cardFooterBg,
+      backgroundColor: theme.colors.payoutIconBg,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -127,6 +127,6 @@ const createStyles = (theme: Theme) =>
       fontFamily: theme.fontFamily.semibold,
       fontSize: 12,
       lineHeight: 16,
-      color: theme.colors.viewAllLink,
+      color: theme.colors.brand,
     },
   });

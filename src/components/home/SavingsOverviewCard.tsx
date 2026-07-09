@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
 import { AjoLedgerLogoMark } from "../AjoLedgerLogoMark";
+import { GroupRoleBadge } from "../groups/GroupRoleBadge";
 import { formatShortDate } from "../../lib/formatDate";
 import { formatNaira } from "../../lib/formatMoney";
 import { formatDaysToGo, groupStatusKey } from "../../lib/homeSpeech";
@@ -14,6 +15,7 @@ type SavingsOverviewCardProps = {
   group: HomeDashboard["group"];
   progress: HomeDashboard["progress"];
   payout: HomeDashboard["payout"];
+  isCreator?: boolean;
   onGroupPress?: () => void;
   onDetailsPress?: () => void;
 };
@@ -22,6 +24,7 @@ export function SavingsOverviewCard({
   group,
   progress,
   payout,
+  isCreator = false,
   onGroupPress,
   onDetailsPress,
 }: SavingsOverviewCardProps) {
@@ -39,7 +42,7 @@ export function SavingsOverviewCard({
       <Pressable
         onPress={onGroupPress}
         accessibilityRole="button"
-        accessibilityLabel={group.name}
+        accessibilityLabel={`${group.name}. ${isCreator ? t("groups.list.creatorBadge") : t("groups.list.memberBadge")}`}
         style={({ pressed }) => [styles.groupRow, pressed && styles.pressed]}
       >
         <View style={styles.groupLeft}>
@@ -47,10 +50,13 @@ export function SavingsOverviewCard({
           <View style={styles.groupDetails}>
             <View style={styles.titleRow}>
               <Text style={styles.groupName}>{group.name}</Text>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>
-                  {t(`home.${groupStatusKey(group.status)}`)}
-                </Text>
+              <View style={styles.badgeRow}>
+                <GroupRoleBadge isCreator={isCreator} />
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {t(`home.${groupStatusKey(group.status)}`)}
+                  </Text>
+                </View>
               </View>
             </View>
             <Text style={styles.cycle}>
@@ -158,7 +164,13 @@ const createStyles = (theme: Theme) =>
       flexDirection: "row",
       flexWrap: "wrap",
       alignItems: "center",
-      gap: 10,
+      gap: 8,
+    },
+    badgeRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: "center",
+      gap: 6,
     },
     groupName: {
       ...theme.typography.subtitle,

@@ -18,7 +18,16 @@ function mapCycleFrequency(
 }
 
 function daysUntil(isoDate: string): number {
-  const diffMs = new Date(isoDate).getTime() - Date.now();
+  if (!isoDate.trim()) {
+    return 0;
+  }
+
+  const dueMs = new Date(isoDate).getTime();
+  if (!Number.isFinite(dueMs)) {
+    return 0;
+  }
+
+  const diffMs = dueMs - Date.now();
   return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 }
 
@@ -49,6 +58,7 @@ function buildGroupHomeDashboard(
 
   return {
     groupId: group.id,
+    isCreator: group.isCreator === true,
     contributionStatusKey: viewModel.statusKey,
     group: {
       id: group.id,
@@ -68,6 +78,8 @@ function buildGroupHomeDashboard(
       date: viewModel.nextPayoutDate,
       daysRemaining: daysUntil(viewModel.nextPayoutDate),
     },
+    // Outstanding contribution for the current cycle from GET /groups
+    // (`cycleDetails` + `myDetails.status`). No dedicated balance endpoint yet.
     amountRemains: {
       amount:
         viewModel.statusKey === "paid" ? 0 : viewModel.contributionAmount,

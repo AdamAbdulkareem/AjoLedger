@@ -28,7 +28,9 @@ import { usePayoutAccountGate } from "../../hooks/usePayoutAccountGate";
 import { useRecentActivity } from "../../hooks/useRecentActivity";
 import { useRequirePayoutBank } from "../../hooks/useRequirePayoutBank";
 import { useUserGroups } from "../../hooks/useUserGroups";
-import { openGroupDetail, openGroupsTab } from "../../lib/appNavigation";
+import { useOpenGroup } from "../../hooks/useOpenGroup";
+import { useSyncCreatorBadges } from "../../hooks/useSyncCreatorBadges";
+import { openGroupsTab } from "../../lib/appNavigation";
 import { hasCustomAvatar } from "../../lib/avatarSource";
 import { buildRegisteredHomeData } from "../../lib/buildHomeDashboardFromGroups";
 import {
@@ -42,26 +44,30 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
-  const { accessToken, user } = useAuth();
+  const { accessToken, user, status } = useAuth();
   const { displayName, refresh: refreshCurrentUser } = useCurrentUser();
   const { profile } = useProfile();
   const styles = useThemedStyles(createStyles);
-
+  const isAuthenticated = status === "authenticated";
   const {
     groups,
     loading: groupsLoading,
     error: groupsError,
     refresh: refreshGroups,
-  } = useUserGroups(accessToken);
+  } = useUserGroups(accessToken, isAuthenticated);
+
+  const { openGroupById, openGroupForPayment } = useOpenGroup();
 
   const hasGroups = groups.length > 0;
+
+  useSyncCreatorBadges(accessToken, groups, isAuthenticated && hasGroups);
 
   const {
     items: recentActivity,
     loading: activityLoading,
     error: activityError,
     refresh: refreshActivity,
-  } = useRecentActivity(accessToken, hasGroups);
+  } = useRecentActivity(accessToken, isAuthenticated && hasGroups);
 
   const {
     hasPayoutAccount,
@@ -138,9 +144,16 @@ export default function HomeScreen() {
 
   const handleOpenGroup = useCallback(
     (groupId: string) => {
-      openGroupDetail(router, groupId);
+      void openGroupById(groupId, groups);
     },
-    [router],
+    [groups, openGroupById],
+  );
+
+  const handlePayNow = useCallback(
+    (groupId: string) => {
+      openGroupForPayment(groupId);
+    },
+    [openGroupForPayment],
   );
 
   const handleViewAllActivityPress = useCallback(() => {
@@ -153,9 +166,9 @@ export default function HomeScreen() {
         return;
       }
 
-      openGroupDetail(router, item.groupId);
+      void openGroupById(item.groupId, groups);
     },
-    [router],
+    [groups, openGroupById],
   );
 
   const dismissBankSaveSuccess = useCallback(() => {
@@ -191,14 +204,18 @@ export default function HomeScreen() {
       return null;
     }
 
+    // Prefer live activity when the API returns items. Fall back to mock
+    // placeholders while loading, on empty responses (endpoint not live yet),
+    // or on fetch errors so the home section still renders.
+    const resolvedActivity =
+      !activityLoading && !activityError && recentActivity.length > 0
+        ? recentActivity
+        : base.recentActivity;
+
     return {
       ...base,
-      recentActivity: activityError
-        ? []
-        : activityLoading
-          ? base.recentActivity
-          : recentActivity,
-      recentActivityError: activityError,
+      recentActivity: resolvedActivity,
+      recentActivityError: null,
     };
   }, [hasGroups, groups, displayName, avatarUrl, recentActivity, activityLoading, activityError]);
 
@@ -230,7 +247,7 @@ export default function HomeScreen() {
       <RegisteredHomeContent
         data={registeredHomeData}
         onGroupPress={handleOpenGroup}
-        onPayNowPress={handleOpenGroup}
+        onPayNowPress={handlePayNow}
         onDetailsPress={handleOpenGroup}
         onViewAllActivityPress={handleViewAllActivityPress}
         onActivityPress={handleActivityPress}

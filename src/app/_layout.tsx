@@ -1,3 +1,5 @@
+import "../lib/sentryInit";
+
 import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import {
@@ -6,18 +8,22 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import * as SplashScreen from "expo-splash-screen";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { initI18n } from "../i18n";
 import { AuthProvider } from "../context/AuthProvider";
 import { CurrentUserProvider } from "../context/CurrentUserProvider";
 import { PayoutAccountProvider } from "../context/PayoutAccountProvider";
 import { ProfileProvider } from "../context/ProfileProvider";
+import { queryClient } from "../lib/queryClient";
+import { Sentry } from "../lib/observability";
 import { ThemeProvider } from "../theme";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_600SemiBold,
@@ -40,17 +46,23 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <CurrentUserProvider>
-            <ProfileProvider>
-              <PayoutAccountProvider>
-                <Stack screenOptions={{ headerShown: false }} />
-              </PayoutAccountProvider>
-            </ProfileProvider>
-          </CurrentUserProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <ErrorBoundary>
+            <AuthProvider>
+              <CurrentUserProvider>
+                <ProfileProvider>
+                  <PayoutAccountProvider>
+                    <Stack screenOptions={{ headerShown: false }} />
+                  </PayoutAccountProvider>
+                </ProfileProvider>
+              </CurrentUserProvider>
+            </AuthProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);

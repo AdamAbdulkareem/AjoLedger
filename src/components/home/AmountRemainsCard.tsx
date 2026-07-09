@@ -23,7 +23,7 @@ export function AmountRemainsCard({
     <View style={styles.card}>
       <View style={styles.headerRow}>
         <View style={styles.headerIcon}>
-          <Ionicons name="wallet-outline" size={14} color="#2C3138" />
+          <Ionicons name="time-outline" size={14} color="#2C3138" />
         </View>
         <Text style={styles.headerLabel}>{t("home.amountRemains")}</Text>
       </View>

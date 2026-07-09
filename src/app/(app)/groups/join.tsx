@@ -7,8 +7,9 @@ import { useTranslation } from "react-i18next";
 import { EnterInviteCodeForm } from "../../../components/groups/EnterInviteCodeForm";
 import { SubScreenHeader } from "../../../components/profile/SubScreenHeader";
 import { ApiError } from "../../../api/client";
-import { getGroupDetails, joinGroup } from "../../../api/groups";
+import { getGroupDetails } from "../../../api/groups";
 import { useAuth } from "../../../context/AuthProvider";
+import { useJoinGroupMutation } from "../../../hooks/mutations/useJoinGroupMutation";
 import {
   normalizeInviteCode,
   validateInviteCode,
@@ -20,6 +21,7 @@ export default function JoinGroupScreen() {
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
   const { accessToken } = useAuth();
+  const joinGroupMutation = useJoinGroupMutation(accessToken);
 
   const [inviteCode, setInviteCode] = useState("");
   const [codeError, setCodeError] = useState<string>();
@@ -49,7 +51,7 @@ export default function JoinGroupScreen() {
     setSubmitting(true);
 
     try {
-      const result = await joinGroup(accessToken, {
+      const result = await joinGroupMutation.mutateAsync({
         inviteCode: normalizedCode,
       });
 
@@ -74,7 +76,7 @@ export default function JoinGroupScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [accessToken, inviteCode, router, t]);
+  }, [accessToken, inviteCode, joinGroupMutation, router, t]);
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -91,7 +93,7 @@ export default function JoinGroupScreen() {
           formError={formError}
           submitting={submitting}
           onInviteCodeChange={(value) => {
-            setInviteCode(value.toUpperCase());
+            setInviteCode(value);
             setCodeError(undefined);
             setFormError(undefined);
           }}

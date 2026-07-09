@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
 
-import { getRecentActivity } from "../api/activity";
 import { ApiError } from "../api/client";
+import { useRecentActivityQuery } from "./queries/useRecentActivityQuery";
 import type { RecentActivityItem } from "../models/home";
 
 type UseRecentActivityResult = {
@@ -11,56 +11,26 @@ type UseRecentActivityResult = {
   refresh: () => Promise<void>;
 };
 
+function resolveQueryError(error: unknown): string | null {
+  if (!error) return null;
+  if (error instanceof ApiError) return error.message;
+  return "Something went wrong.";
+}
+
 export function useRecentActivity(
   accessToken: string | null,
   enabled: boolean,
 ): UseRecentActivityResult {
-  const [items, setItems] = useState<RecentActivityItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const requestIdRef = useRef(0);
+  const query = useRecentActivityQuery(accessToken, enabled);
 
   const refresh = useCallback(async () => {
-    const requestId = ++requestIdRef.current;
+    await query.refetch();
+  }, [query]);
 
-    if (!accessToken || !enabled) {
-      setItems([]);
-      setError(null);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const activity = await getRecentActivity(accessToken);
-      if (requestId !== requestIdRef.current) {
-        return;
-      }
-
-      setItems(activity);
-    } catch (err) {
-      if (requestId !== requestIdRef.current) {
-        return;
-      }
-
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError("Something went wrong.");
-      }
-      setItems([]);
-    } finally {
-      if (requestId === requestIdRef.current) {
-        setLoading(false);
-      }
-    }
-  }, [accessToken, enabled]);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
-
-  return { items, loading, error, refresh };
+  return {
+    items: query.data ?? [],
+    loading: query.isFetching && !query.data,
+    error: resolveQueryError(query.error),
+    refresh,
+  };
 }

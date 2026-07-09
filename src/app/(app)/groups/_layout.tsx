@@ -15,6 +15,7 @@ export default function GroupRoutesLayout() {
       <Stack.Screen name="create" options={{ animation: "slide_from_right" }} />
       <Stack.Screen name="join" options={{ animation: "slide_from_right" }} />
       <Stack.Screen name="invite" options={{ animation: "slide_from_right" }} />
+      <Stack.Screen name="payout-order" options={{ animation: "slide_from_right" }} />
     </Stack>
   );
 }
