@@ -331,6 +331,31 @@
       "payInBody": "Transfer your contribution go dis dedicated account.",
       "copyAccount": "Copy account number",
       "accountPending": "Your group account dey setup. Check back later."
+    },
+    "ledger": {
+      "title": "Ledger",
+      "active": "Active",
+      "cycleLine": "{{frequency}} · {{amount}} for each member",
+      "weekProgress": "week {{current}} of {{total}}",
+      "dueDate": "Due Date",
+      "expectedAmount": "Money wey we dey expect",
+      "adminPaymentTitle": "Admin Payment & Virtual Account",
+      "weekContributionTitle": "Week {{week}} Contribution",
+      "myContributionStatus": "My Contribution Status",
+      "weekPayment": "Week {{week}} Payment",
+      "virtualAccountTitle": "Your Virtual Account",
+      "bankLine": "{{bank}}: {{account}}",
+      "copy": "Copy",
+      "goToPayout": "Go To Payout",
+      "payoutComingSoon": "Payout go dey available for future update.",
+      "pending": "Dey wait",
+      "totalMembers": "Total Members",
+      "memberColumn": "Member",
+      "dueAmountColumn": "Due Amount",
+      "position": "Position: #{{position}}",
+      "cleared": "Done pay",
+      "updates": "Updates",
+      "myPayoutTime": "My Payout Time"
     }
   },
   "profile": {

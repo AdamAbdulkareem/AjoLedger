@@ -3,10 +3,16 @@ import { Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
-import { isUserGroupCreator } from "../api/groups";
+import { getGroupDetails } from "../api/groups";
 import { useAuth } from "../context/AuthProvider";
 import { useCurrentUser } from "../context/CurrentUserProvider";
-import { openGroupDetail, openGroupInvite } from "../lib/appNavigation";
+import {
+  openGroupDetail,
+  openGroupInvite,
+  openGroupLedger,
+} from "../lib/appNavigation";
+import { hasActiveGroupCycle } from "../lib/groupCycle";
+import { isGroupAdminForCurrentUser } from "../lib/groupApiNormalize";
 import { invalidateGroupsQueries } from "../lib/invalidateQueries";
 import type { GroupSummary } from "../models/group";
 
@@ -28,8 +34,6 @@ export function useOpenGroup() {
         return;
       }
 
-      // Prefer the authenticated session email — that is who logged in.
-      // Live API matches members by email (no userId on roster rows).
       const currentUserIdentity = {
         id: user?.id ?? currentUser?.id,
         email: user?.email ?? currentUser?.email,
@@ -43,24 +47,31 @@ export function useOpenGroup() {
       setOpeningGroupId(group.id);
 
       try {
-        const creator = await isUserGroupCreator(
-          accessToken,
-          group.id,
-          group,
-          currentUserIdentity,
-        );
+        if (hasActiveGroupCycle(group)) {
+          openGroupLedger(router, group.id);
+          void invalidateGroupsQueries(accessToken);
+          return;
+        }
 
-        // Refresh list/home badges after membership-role sync in getGroupDetails.
+        const details = await getGroupDetails(accessToken, group.id, {
+          currentUser: currentUserIdentity,
+        });
+
         void invalidateGroupsQueries(accessToken);
 
-        if (creator) {
+        if (hasActiveGroupCycle(details)) {
+          openGroupLedger(router, group.id);
+          return;
+        }
+
+        if (isGroupAdminForCurrentUser(details, currentUserIdentity)) {
           openGroupInvite(router, group.id, group.numberOfParticipants);
           return;
         }
 
         openGroupDetail(router, group.id);
       } catch (error) {
-        console.error("Failed to check group creator status:", error);
+        console.error("Failed to open group:", error);
         Alert.alert(t("home.errors.generic"));
       } finally {
         setOpeningGroupId(null);

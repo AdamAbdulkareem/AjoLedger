@@ -18,7 +18,7 @@ import { CurrentUserProvider } from "../context/CurrentUserProvider";
 import { PayoutAccountProvider } from "../context/PayoutAccountProvider";
 import { ProfileProvider } from "../context/ProfileProvider";
 import { queryClient } from "../lib/queryClient";
-import { Sentry } from "../lib/observability";
+import { wrapRoot } from "../lib/observability";
 import { ThemeProvider } from "../theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -65,4 +65,4 @@ function RootLayout() {
   );
 }
 
-export default Sentry.wrap(RootLayout);
+export default wrapRoot(RootLayout);

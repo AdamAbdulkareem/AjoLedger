@@ -13,10 +13,7 @@ import {
   isGroupAdminForCurrentUser,
   type CurrentUserIdentity,
 } from "../lib/groupApiNormalize";
-import {
-  forgetCreatorGroup,
-  rememberCreatorGroup,
-} from "../lib/creatorGroupsStorage";
+import { syncCreatorBadge } from "../lib/creatorGroupsStorage";
 import { getAllGroupMetadata, getStoredGroupMetadata } from "../lib/groupMetadataStorage";
 import { getJoinedMembers } from "../lib/groupMembers";
 import {
@@ -153,6 +150,8 @@ export async function getGroupDetails(
   options?: {
     expectedParticipants?: number;
     currentUser?: CurrentUserIdentity | null;
+    /** When false, skip AsyncStorage creator-badge sync (caller syncs separately). */
+    syncCreatorBadge?: boolean;
   },
 ): Promise<GroupDetails> {
   const envelope = await apiRequest<unknown>(`/groups/${groupId}`, {
@@ -174,17 +173,8 @@ export async function getGroupDetails(
 
   // Badge sync only: keep per-user creator hints aligned with membership role.
   const userId = options?.currentUser?.id;
-  if (userId) {
-    const isAdmin = isGroupAdminForCurrentUser(details, options?.currentUser);
-    try {
-      if (isAdmin) {
-        await rememberCreatorGroup(userId, groupId);
-      } else {
-        await forgetCreatorGroup(userId, groupId);
-      }
-    } catch {
-      // Best-effort UI hint — never block details.
-    }
+  if (userId && options?.syncCreatorBadge !== false) {
+    await syncCreatorBadge(userId, details.id, details, options?.currentUser);
   }
 
   return details;

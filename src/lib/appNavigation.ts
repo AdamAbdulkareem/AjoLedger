@@ -55,6 +55,24 @@ export function openPayoutOrder(
   });
 }
 
+export function openGroupLedger(
+  router: Pick<AppRouter, "push" | "replace">,
+  groupId: string,
+  options?: { replace?: boolean },
+) {
+  const href = {
+    pathname: "/(app)/groups/ledger" as const,
+    params: { groupId },
+  };
+
+  if (options?.replace) {
+    router.replace(href);
+    return;
+  }
+
+  router.push(href);
+}
+
 export function openGroupsTab(router: Pick<AppRouter, "replace">) {
   router.replace("/(app)/groups");
 }

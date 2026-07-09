@@ -332,6 +332,31 @@
       "payInBody": "Ziga nkwụke gị na akaụnt a.",
       "copyAccount": "Kọpịa nọmba akaụnt",
       "accountPending": "A na-emepe akaụnt otu gị. Lelee ọzọ."
+    },
+    "ledger": {
+      "title": "Ledja",
+      "active": "Na-arụ ọrụ",
+      "cycleLine": "{{frequency}} · {{amount}} kwa onye otu",
+      "weekProgress": "izu {{current}} n'ime {{total}}",
+      "dueDate": "Ụbọchị ịkwụ ụgwọ",
+      "expectedAmount": "Ego a tụrụ anya",
+      "adminPaymentTitle": "Ịkwụ ụgwọ Admin & Akaụnt Virtual",
+      "weekContributionTitle": "Onyinye Izu {{week}}",
+      "myContributionStatus": "Ọnọdụ Onyinye M",
+      "weekPayment": "Ịkwụ ụgwọ Izu {{week}}",
+      "virtualAccountTitle": "Akaụnt Virtual Gị",
+      "bankLine": "{{bank}}: {{account}}",
+      "copy": "Detuo",
+      "goToPayout": "Gaa na Ịkwụ Ụgwọ",
+      "payoutComingSoon": "Ịkwụ ụgwọ a ga-adị na mmelite ọ bụla.",
+      "pending": "Na-echere",
+      "totalMembers": "Ngụkọta Ndị otu",
+      "memberColumn": "Onye otu",
+      "dueAmountColumn": "Ego a kwesịrị",
+      "position": "Ọnọdụ: #{{position}}",
+      "cleared": "E dochiela",
+      "updates": "Mmelite",
+      "myPayoutTime": "Oge ịkwụ ụgwọ m"
     }
   },
   "profile": {

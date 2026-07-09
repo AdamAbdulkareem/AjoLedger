@@ -332,6 +332,31 @@
       "payInBody": "Aika gudummawarka zuwa wannan asusun.",
       "copyAccount": "Kwafi lambar asusu",
       "accountPending": "Ana shirya asusun ƙungiyar ku. Duba daga baya."
+    },
+    "ledger": {
+      "title": "Daftari",
+      "active": "Mai aiki",
+      "cycleLine": "{{frequency}} · {{amount}} ga kowane memba",
+      "weekProgress": "mako {{current}} cikin {{total}}",
+      "dueDate": "Ranar Biya",
+      "expectedAmount": "Adadin da ake tsammani",
+      "adminPaymentTitle": "Biyan Admin & Asusun Virtual",
+      "weekContributionTitle": "Gudummawar Makon {{week}}",
+      "myContributionStatus": "Matsayin Gudummawata",
+      "weekPayment": "Biyan Makon {{week}}",
+      "virtualAccountTitle": "Asusun Virtual ɗinka",
+      "bankLine": "{{bank}}: {{account}}",
+      "copy": "Kwafi",
+      "goToPayout": "Je zuwa Biya",
+      "payoutComingSoon": "Za a samu biyan wannan a sabuntawa na gaba.",
+      "pending": "Ana jira",
+      "totalMembers": "Jimillar Membobi",
+      "memberColumn": "Memba",
+      "dueAmountColumn": "Adadin da ake bi",
+      "position": "Matsayi: #{{position}}",
+      "cleared": "An share",
+      "updates": "Sabuntawa",
+      "myPayoutTime": "Lokacin Biyan Ku"
     }
   },
   "profile": {

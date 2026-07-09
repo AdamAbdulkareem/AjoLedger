@@ -307,7 +307,7 @@
       "memberUnassignedA11y": "{{name}}, ko ti yan. Tẹ lati ṣeto eyi ti o tẹle.",
       "errors": {
         "title": "Ko le bẹrẹ",
-        "generic": "Nkankan o ṣẹlẹ. Gbiyanju lẹẹkansi."
+        "generic": "Nkankan ṣẹlẹ. Jọwọ gbiyanju lẹẹkansi."
       }
     },
     "join": {
@@ -331,6 +331,31 @@
       "payInBody": "Fi ifowopamọ rẹ ranṣẹ si akọọlẹ yii.",
       "copyAccount": "Daakọ nọmba akọọlẹ",
       "accountPending": "A n ṣeto akọọlẹ ẹgbẹ rẹ. Ṣayẹwo lẹhinna."
+    },
+    "ledger": {
+      "title": "Iwe-ṣiṣe",
+      "active": "Nṣiṣẹ",
+      "cycleLine": "{{frequency}} · {{amount}} fun ọmọ ẹgbẹ kan",
+      "weekProgress": "ọsẹ {{current}} ninu {{total}}",
+      "dueDate": "Ọjọ idiyele",
+      "expectedAmount": "Iye ti a reti",
+      "adminPaymentTitle": "Isanwo Alakoso & Akọọlẹ Afihan",
+      "weekContributionTitle": "Ifiṣowopọ Ọsẹ {{week}}",
+      "myContributionStatus": "Ipo Ifiṣowopọ Mi",
+      "weekPayment": "Isanwo Ọsẹ {{week}}",
+      "virtualAccountTitle": "Akọọlẹ Afihan Rẹ",
+      "bankLine": "{{bank}}: {{account}}",
+      "copy": "Daakọ",
+      "goToPayout": "Lọ si Isanwo",
+      "payoutComingSoon": "Isanwo yii yoo wa ni imudojuiwọn iwaju.",
+      "pending": "Ntẹ",
+      "totalMembers": "Apapọ Awọn Memba",
+      "memberColumn": "Memba",
+      "dueAmountColumn": "Iye Ti O Dara",
+      "position": "Ipo: #{{position}}",
+      "cleared": "Ti pari",
+      "updates": "Imudojuiwọn",
+      "myPayoutTime": "Akoko Isanwo Mi"
     }
   },
   "profile": {

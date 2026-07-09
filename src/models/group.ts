@@ -15,6 +15,10 @@ export type GroupMember = {
   isMe?: boolean;
   /** 1-indexed payout turn when assigned by the group admin. */
   payoutTurn?: number | null;
+  /** Per-member contribution status for the active cycle week (when API provides it). */
+  contributionStatus?: MemberContributionStatus | string;
+  /** Amount still due for the current week (kobo-free Naira integer). */
+  dueAmount?: number | null;
 };
 
 export type PayoutTurnAssignment = {
@@ -37,11 +41,18 @@ export type GroupMyDetails = {
 
 export type GroupCycleDetails = {
   currentCycle?: number;
+  /** Current contribution week/round within the active cycle. */
+  currentWeek?: number;
+  totalWeeks?: number;
   contributionAmount?: number;
   potCollected?: number;
   potTarget?: number;
   nextPayoutDate?: string;
+  dueDate?: string;
+  expectedAmount?: number;
 };
+
+export type MemberContributionStatus = "PAID" | "PARTIAL" | "PENDING" | "NOT_PAID";
 
 export type GroupSummary = {
   id: string;
@@ -55,6 +66,8 @@ export type GroupSummary = {
   joinedCount?: number;
   myDetails?: GroupMyDetails;
   cycleDetails?: GroupCycleDetails;
+  /** True after POST /groups/:id/cycles — cycle is live. */
+  hasActiveCycle?: boolean;
 };
 
 export type GroupDetails = {
@@ -70,6 +83,7 @@ export type GroupDetails = {
   frequency?: ContributionFrequency;
   myDetails?: GroupMyDetails;
   cycleDetails?: GroupCycleDetails;
+  hasActiveCycle?: boolean;
 };
 
 export type CreateGroupPayload = {

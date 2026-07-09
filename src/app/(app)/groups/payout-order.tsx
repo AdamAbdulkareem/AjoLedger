@@ -21,7 +21,8 @@ import { useCurrentUser } from "../../../context/CurrentUserProvider";
 import { useAssignPayoutOrderMutation } from "../../../hooks/mutations/useAssignPayoutOrderMutation";
 import { useGroupDetailsQuery } from "../../../hooks/queries/useGroupDetailsQuery";
 import { useRequireGroupCreator } from "../../../hooks/useRequireGroupCreator";
-import { openGroupDetail } from "../../../lib/appNavigation";
+import { useRedirectWhenCycleActive } from "../../../hooks/useRedirectWhenCycleActive";
+import { openGroupLedger } from "../../../lib/appNavigation";
 import { getJoinedMembers } from "../../../lib/groupMembers";
 import { useTheme, useThemedStyles, type Theme } from "../../../theme";
 
@@ -77,6 +78,12 @@ export default function PayoutOrderScreen() {
     currentUser: currentUserIdentity,
   });
 
+  useRedirectWhenCycleActive({
+    groupId,
+    details,
+    isLoading: isChecking || isLoading,
+  });
+
   const assignMutation = useAssignPayoutOrderMutation(accessToken);
 
   const members = useMemo(
@@ -110,7 +117,7 @@ export default function PayoutOrderScreen() {
                 {
                   text: t("common.ok"),
                   onPress: () => {
-                    openGroupDetail(router, groupId);
+                    openGroupLedger(router, groupId, { replace: true });
                   },
                 },
               ],

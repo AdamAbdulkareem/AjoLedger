@@ -1,5 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import {
+  isGroupAdminForCurrentUser,
+  type CurrentUserIdentity,
+} from "./groupApiNormalize";
+import type { GroupDetails } from "../models/group";
+
 /** Legacy device-global key — cleared on read/logout so it cannot leak across users. */
 const LEGACY_CREATOR_GROUP_IDS_KEY = "ajoledger.creatorGroupIds";
 
@@ -74,6 +80,29 @@ export async function forgetCreatorGroup(
     return;
   }
   await writeCreatorGroupIds(userId, ids);
+}
+
+/** Align per-user creator badge hints with membership role from group details. */
+export async function syncCreatorBadge(
+  userId: string,
+  groupId: string,
+  details: GroupDetails,
+  currentUser?: CurrentUserIdentity | null,
+): Promise<void> {
+  if (!userId.trim() || !groupId.trim()) {
+    return;
+  }
+
+  const isAdmin = isGroupAdminForCurrentUser(details, currentUser);
+  try {
+    if (isAdmin) {
+      await rememberCreatorGroup(userId, groupId);
+    } else {
+      await forgetCreatorGroup(userId, groupId);
+    }
+  } catch {
+    // Best-effort UI hint — never block callers.
+  }
 }
 
 /** Clears per-user + legacy device-global creator hints (call on logout). */

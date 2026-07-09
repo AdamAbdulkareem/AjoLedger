@@ -16,6 +16,7 @@ import { Button } from "../../../components/Button";
 import { ApiError } from "../../../api/client";
 import { getGroupDetails } from "../../../api/groups";
 import { useAuth } from "../../../context/AuthProvider";
+import { useRedirectWhenCycleActive } from "../../../hooks/useRedirectWhenCycleActive";
 import type { GroupDetails } from "../../../models/group";
 import { useTheme, useThemedStyles, type Theme } from "../../../theme";
 
@@ -71,6 +72,12 @@ export default function GroupDetailScreen() {
     if (!groupId) return;
     void loadGroup();
   }, [groupId, loadGroup]);
+
+  useRedirectWhenCycleActive({
+    groupId,
+    details: group ?? undefined,
+    isLoading: loading,
+  });
 
   const handleBack = useCallback(() => {
     if (router.canGoBack()) {
