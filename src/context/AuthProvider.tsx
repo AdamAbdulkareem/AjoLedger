@@ -38,6 +38,7 @@ import {
   getPasscodeLockoutStatus,
   recordPasscodeFailure,
 } from "../lib/passcodeLockout";
+import { clearRememberedCreatorGroups } from "../lib/creatorGroupsStorage";
 import { clearQueryCache } from "../lib/queryClient";
 import { setObservabilityUser } from "../lib/observability";
 import { isLegacyMockAccessToken } from "../config/api";
@@ -143,6 +144,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (cancelled) return;
 
+        // Drop legacy device-global creator IDs that leaked across accounts.
+        await clearRememberedCreatorGroups(storedUser?.id);
+
+        if (cancelled) return;
+
         setAccessTokenState(token);
         setUser(storedUser);
         setAccessPasscodeConfigured(passcodeConfigured);
@@ -198,6 +204,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [lockAccess]);
 
   const persistSession = useCallback(async (token: string, nextUser: User) => {
+    // Drop any previous account's cached group details / isCreator decisions.
+    clearQueryCache();
     await Promise.all([setAccessToken(token), setStoredUser(nextUser)]);
     setAccessTokenState(token);
     setUser(nextUser);
@@ -320,7 +328,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearAccessPasscode(user.id),
         clearBiometricsEnabled(user.id),
         clearPasscodeLockout(user.id),
+        clearRememberedCreatorGroups(user.id),
       ]);
+    } else {
+      await clearRememberedCreatorGroups();
     }
     await clearSessionStorage();
     clearBanksCache();

@@ -1,6 +1,7 @@
 {
   "common": {
-    "goBack": "Padà"
+    "goBack": "Padà",
+    "ok": "Ó dára"
   },
   "onboarding": {
     "welcome": {
@@ -287,6 +288,27 @@
       "membersTitle": "Awọn memba({{count}})",
       "noMembersYet": "Ko si ẹnikan ti darapọ sibẹsibẹ.",
       "statusJoined": "Ti darapọ"
+    },
+    "payoutOrder": {
+      "title": "Ilana Isanwo",
+      "assignTitle": "Yan Ilana Isanwo",
+      "assignBody": "Tẹ awọn ọmọ ẹgbẹ lẹẹkan-lẹẹkan lati ṣeto ilana ti wọn yoo gba isanwo.",
+      "membersTitle": "Awọn memba({{count}})",
+      "slotsFilled": "{{joined}} ninu {{total}} ti kun",
+      "noMembers": "Ko si ẹnikan ti o ti darapọ sibẹ.",
+      "startContribution": "Bẹrẹ Idasi",
+      "incompleteTitle": "Yan gbogbo awọn memba",
+      "incompleteBody": "Tẹ gbogbo memba lati ṣeto ilana isanwo ṣaaju ibẹrẹ.",
+      "adminOnlyTitle": "Awọn alabojuto nikan",
+      "adminOnlyBody": "Oludasile ẹgbẹ nikan le ṣeto ilana isanwo.",
+      "successTitle": "A ti ṣeto ilana isanwo",
+      "successBody": "A ti fi awọn ilana pamọ ati pe a ti bẹrẹ iyipo idasi.",
+      "memberAssignedA11y": "{{name}}, ilana isanwo {{turn}}. Tẹ lati pa.",
+      "memberUnassignedA11y": "{{name}}, ko ti yan. Tẹ lati ṣeto eyi ti o tẹle.",
+      "errors": {
+        "title": "Ko le bẹrẹ",
+        "generic": "Nkankan o ṣẹlẹ. Gbiyanju lẹẹkansi."
+      }
     },
     "join": {
       "title": "Tẹ Koodu",

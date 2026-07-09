@@ -6,6 +6,16 @@ export const queryKeys = {
     token: string | null,
     groupId: string,
     expectedParticipants?: number,
-  ) => ["groups", groupId, token, expectedParticipants] as const,
+    currentUserId?: string | null,
+    currentUserEmail?: string | null,
+  ) =>
+    [
+      "groups",
+      groupId,
+      token,
+      expectedParticipants,
+      currentUserId,
+      currentUserEmail?.trim().toLowerCase() ?? null,
+    ] as const,
   recentActivity: (token: string | null) => ["activity", "recent", token] as const,
 };

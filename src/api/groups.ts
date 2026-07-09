@@ -1,4 +1,5 @@
 import type {
+  AssignPayoutOrderPayload,
   CreateGroupPayload,
   CreatedGroup,
   GroupDetails,
@@ -9,7 +10,13 @@ import type {
 import {
   normalizeGroupDetailsFromApi,
   normalizeGroupSummaryFromApi,
+  isGroupAdminForCurrentUser,
+  type CurrentUserIdentity,
 } from "../lib/groupApiNormalize";
+import {
+  forgetCreatorGroup,
+  rememberCreatorGroup,
+} from "../lib/creatorGroupsStorage";
 import { getAllGroupMetadata, getStoredGroupMetadata } from "../lib/groupMetadataStorage";
 import { getJoinedMembers } from "../lib/groupMembers";
 import {
@@ -143,7 +150,10 @@ export async function joinGroup(
 export async function getGroupDetails(
   token: string,
   groupId: string,
-  options?: { expectedParticipants?: number },
+  options?: {
+    expectedParticipants?: number;
+    currentUser?: CurrentUserIdentity | null;
+  },
 ): Promise<GroupDetails> {
   const envelope = await apiRequest<unknown>(`/groups/${groupId}`, {
     token,
@@ -154,23 +164,68 @@ export async function getGroupDetails(
   }
 
   const stored = await getStoredGroupMetadata(groupId);
-  return finalizeGroupDetails(
-    normalizeGroupDetailsFromApi(envelope.data),
+  // Access is decided only by normalizeGroupDetailsFromApi (membership role).
+  // Never promote via device memory for Invite/Payout.
+  const details = finalizeGroupDetails(
+    normalizeGroupDetailsFromApi(envelope.data, options?.currentUser),
     stored?.numberOfParticipants,
     options?.expectedParticipants,
   );
+
+  // Badge sync only: keep per-user creator hints aligned with membership role.
+  const userId = options?.currentUser?.id;
+  if (userId) {
+    const isAdmin = isGroupAdminForCurrentUser(details, options?.currentUser);
+    try {
+      if (isAdmin) {
+        await rememberCreatorGroup(userId, groupId);
+      } else {
+        await forgetCreatorGroup(userId, groupId);
+      }
+    } catch {
+      // Best-effort UI hint — never block details.
+    }
+  }
+
+  return details;
 }
 
 /** Returns true when the authenticated user created or administers the group. */
 export async function isUserGroupCreator(
   token: string,
   groupId: string,
-  summary?: GroupSummary,
+  _summary?: GroupSummary,
+  currentUser?: CurrentUserIdentity | null,
 ): Promise<boolean> {
-  if (summary?.isCreator) {
-    return true;
+  if (!currentUser?.email && !currentUser?.id) {
+    return false;
   }
 
-  const details = await getGroupDetails(token, groupId);
-  return details.isCreator === true;
+  // Always re-check matched members[].role — never trust a cached isCreator flag.
+  const details = await getGroupDetails(token, groupId, { currentUser });
+  return isGroupAdminForCurrentUser(details, currentUser);
+}
+
+/** Admin assigns 1-indexed payout turns for every joined member. */
+export async function assignPayoutOrder(
+  token: string,
+  groupId: string,
+  payload: AssignPayoutOrderPayload,
+): Promise<void> {
+  await apiRequest(`/groups/${groupId}/payout-order`, {
+    method: "PATCH",
+    body: payload,
+    token,
+  });
+}
+
+/** Coordinator starts a new savings cycle for the group. */
+export async function startGroupCycle(
+  token: string,
+  groupId: string,
+): Promise<void> {
+  await apiRequest(`/groups/${groupId}/cycles`, {
+    method: "POST",
+    token,
+  });
 }

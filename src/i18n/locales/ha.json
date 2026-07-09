@@ -1,6 +1,7 @@
 {
   "common": {
-    "goBack": "Koma baya"
+    "goBack": "Koma baya",
+    "ok": "To"
   },
   "onboarding": {
     "welcome": {
@@ -288,6 +289,27 @@
       "membersTitle": "Mahalarta({{count}})",
       "noMembersYet": "Babu wanda ya shiga tukuna.",
       "statusJoined": "Ya shiga"
+    },
+    "payoutOrder": {
+      "title": "Tsarin Biyan",
+      "assignTitle": "Sanya Juyin Biyan",
+      "assignBody": "Taɓa membobi ɗaya bayan ɗaya don saita tsarin da za su karɓi biyan su.",
+      "membersTitle": "Mahalarta({{count}})",
+      "slotsFilled": "{{joined}} cikin {{total}} an cika",
+      "noMembers": "Babu wanda ya shiga tukuna.",
+      "startContribution": "Fara Gudummawa",
+      "incompleteTitle": "Sanya duk membobi",
+      "incompleteBody": "Taɓa kowane memba don saita juyin biyan su kafin farawa.",
+      "adminOnlyTitle": "Admin kawai",
+      "adminOnlyBody": "Mahaliccin ƙungiyar kawai zai iya saita tsarin biyan.",
+      "successTitle": "An saita tsarin biyan",
+      "successBody": "An adana juyoyi kuma an fara zagayen gudummawa.",
+      "memberAssignedA11y": "{{name}}, juyin biya {{turn}}. Taɓa don share.",
+      "memberUnassignedA11y": "{{name}}, ba a sanya ba. Taɓa don saita na gaba.",
+      "errors": {
+        "title": "An kasa farawa",
+        "generic": "Wani abu ya faru. Sake gwadawa."
+      }
     },
     "join": {
       "title": "Shigar da Lamba",

@@ -23,7 +23,7 @@ export default function CreateGroupScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const styles = useThemedStyles(createStyles);
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const createGroupMutation = useCreateGroupMutation(accessToken);
 
   const [name, setName] = useState("");
@@ -97,7 +97,9 @@ export default function CreateGroupScreen() {
     }
 
     try {
-      await rememberCreatorGroup(created.id);
+      if (user?.id) {
+        await rememberCreatorGroup(user.id, created.id);
+      }
       await rememberGroupMetadata(created.id, {
         numberOfParticipants: parsedParticipants,
       });
@@ -122,6 +124,7 @@ export default function CreateGroupScreen() {
     name,
     numberOfParticipants,
     createGroupMutation,
+    user?.id,
     router,
     t,
   ]);

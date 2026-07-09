@@ -1,6 +1,7 @@
 {
   "common": {
-    "goBack": "Laghachi"
+    "goBack": "Laghachi",
+    "ok": "Ọ dị mma"
   },
   "onboarding": {
     "welcome": {
@@ -288,6 +289,27 @@
       "membersTitle": "Ndị otu({{count}})",
       "noMembersYet": "Ọ dịghị onye sonyere ya.",
       "statusJoined": "Sonyere"
+    },
+    "payoutOrder": {
+      "title": "Usoro Ụgwọ",
+      "assignTitle": "Kenye Usoro Ụgwọ",
+      "assignBody": "Pịa ndị otu otu otu iji hazie usoro ha ga-eji nweta ụgwọ ha.",
+      "membersTitle": "Ndị otu({{count}})",
+      "slotsFilled": "{{joined}} n'ime {{total}} ejupụtala",
+      "noMembers": "Onweghị onye sonyere ugbu a.",
+      "startContribution": "Malite Onyinye",
+      "incompleteTitle": "Kenye ndị otu niile",
+      "incompleteBody": "Pịa onye ọ bụla iji hazie usoro ụgwọ tupu ịmalite.",
+      "adminOnlyTitle": "Naanị ndị nchịkwa",
+      "adminOnlyBody": "Naanị onye kere otu ahụ nwere ike ịhazi usoro ụgwọ.",
+      "successTitle": "Ehaziri usoro ụgwọ",
+      "successBody": "Echekwara usoro ahụ ma malite okirikiri onyinye.",
+      "memberAssignedA11y": "{{name}}, usoro ụgwọ {{turn}}. Pịa iji hichapụ.",
+      "memberUnassignedA11y": "{{name}}, ekenyeghị. Pịa iji tinye nke ọzọ.",
+      "errors": {
+        "title": "Enweghị ike ịmalite",
+        "generic": "Ọ nwere nsogbu. Nwaa ọzọ."
+      }
     },
     "join": {
       "title": "Tinye Koodu",

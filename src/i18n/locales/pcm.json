@@ -1,6 +1,7 @@
 {
   "common": {
-    "goBack": "Go back"
+    "goBack": "Go back",
+    "ok": "OK"
   },
   "onboarding": {
     "welcome": {
@@ -287,6 +288,27 @@
       "membersTitle": "Members({{count}})",
       "noMembersYet": "Nobody don join yet.",
       "statusJoined": "Joined"
+    },
+    "payoutOrder": {
+      "title": "Payout Order",
+      "assignTitle": "Assign Payout Turns",
+      "assignBody": "Tap members one by one to set the order dem go collect dia payout.",
+      "membersTitle": "Members({{count}})",
+      "slotsFilled": "{{joined}} of {{total}} slots filled",
+      "noMembers": "Nobody don join yet.",
+      "startContribution": "Start Contribution",
+      "incompleteTitle": "Assign all members",
+      "incompleteBody": "Tap every member to set dia payout turn before you start contribution.",
+      "adminOnlyTitle": "Admins only",
+      "adminOnlyBody": "Only di group creator fit assign payout order.",
+      "successTitle": "Payout order set",
+      "successBody": "Turns don save and contribution cycle don start.",
+      "memberAssignedA11y": "{{name}}, payout turn {{turn}}. Tap to clear.",
+      "memberUnassignedA11y": "{{name}}, not assigned. Tap to set next turn.",
+      "errors": {
+        "title": "E no work",
+        "generic": "Something go wrong. Try again."
+      }
     },
     "join": {
       "title": "Enter Code",

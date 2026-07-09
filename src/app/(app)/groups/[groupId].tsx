@@ -28,7 +28,7 @@ export default function GroupDetailScreen() {
   const router = useRouter();
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const params = useLocalSearchParams<GroupDetailParams>();
 
   const groupId = typeof params.groupId === "string" ? params.groupId : "";
@@ -48,7 +48,9 @@ export default function GroupDetailScreen() {
     setError(null);
 
     try {
-      const details = await getGroupDetails(accessToken, groupId);
+      const details = await getGroupDetails(accessToken, groupId, {
+        currentUser: { id: user?.id, email: user?.email },
+      });
       setGroup(details);
     } catch (err) {
       setError(
@@ -57,7 +59,7 @@ export default function GroupDetailScreen() {
     } finally {
       setLoading(false);
     }
-  }, [accessToken, groupId, t]);
+  }, [accessToken, groupId, t, user?.email, user?.id]);
 
   useEffect(() => {
     if (!groupId) {

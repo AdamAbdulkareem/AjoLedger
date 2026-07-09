@@ -50,32 +50,24 @@ export function isCreatorRole(role: string | undefined): boolean {
   return CREATOR_ROLES.has(role.trim().toUpperCase());
 }
 
-function readCreatorFlag(raw: UnknownRecord): boolean {
-  const direct =
-    readBoolean(raw.isCreator) ??
-    readBoolean(raw.isAdmin) ??
-    readBoolean(raw.isCoordinator) ??
-    readBoolean(raw.isOwner);
-
-  if (direct != null) {
-    return direct;
-  }
-
-  const role =
-    readString(raw.role) ??
-    readString(raw.membershipRole) ??
-    readString(raw.userRole);
-
-  if (isCreatorRole(role)) {
-    return true;
-  }
-
+/**
+ * List-card badge hint only (GET /groups has no members[]).
+ * Trust only per-user myDetails.role — never top-level isCreator/isAdmin
+ * (those have been stamped incorrectly for joiners).
+ * Invite/Payout access must still use isGroupAdminForCurrentUser.
+ */
+function readListCreatorHint(raw: UnknownRecord): boolean {
   const myDetails = asRecord(raw.myDetails);
-  if (myDetails && isCreatorRole(readString(myDetails.role))) {
-    return true;
+  if (!myDetails) {
+    return false;
   }
 
-  return false;
+  const myRole =
+    readString(myDetails.role) ??
+    readString(myDetails.membershipRole) ??
+    readString(myDetails.userRole);
+
+  return isCreatorRole(myRole);
 }
 
 function readFrequency(raw: UnknownRecord): GroupSummary["frequency"] {
@@ -238,13 +230,18 @@ function readMyDetails(raw: UnknownRecord): GroupMyDetails | undefined {
   const virtualBankName = readString(myDetails.virtualBankName);
   const virtualAccountName = readString(myDetails.virtualAccountName);
   const status = readString(myDetails.status);
+  const role =
+    readString(myDetails.role) ??
+    readString(myDetails.membershipRole) ??
+    readString(myDetails.userRole);
 
   if (
     position == null &&
     !virtualAccountNumber &&
     !virtualBankName &&
     !virtualAccountName &&
-    !status
+    !status &&
+    !role
   ) {
     return undefined;
   }
@@ -252,6 +249,7 @@ function readMyDetails(raw: UnknownRecord): GroupMyDetails | undefined {
   return {
     position: position ?? null,
     status,
+    role,
     virtualAccountNumber,
     virtualBankName,
     virtualAccountName,
@@ -304,6 +302,8 @@ function readMembers(raw: UnknownRecord): GroupMember[] {
         return null;
       }
 
+      const user = asRecord(member.user);
+
       const id =
         readString(member.id) ??
         readString(member.membershipId) ??
@@ -317,13 +317,172 @@ function readMembers(raw: UnknownRecord): GroupMember[] {
         "JOINED"
       ).toUpperCase();
 
-      return {
+      const payoutTurn =
+        readNumber(member.payoutTurn) ??
+        readNumber(member.position) ??
+        readNumber(member.turn);
+
+      // Membership role only — never nested user.role (app/account role ≠ group role).
+      const role =
+        readString(member.role) ??
+        readString(member.membershipRole) ??
+        readString(member.userRole);
+
+      const userId =
+        readString(member.userId) ??
+        readString(member.user_id) ??
+        readString(user?.id);
+
+      const email =
+        readString(member.email) ??
+        readString(member.userEmail) ??
+        readString(user?.email);
+
+      const isMe =
+        readBoolean(member.isMe) ??
+        readBoolean(member.isCurrentUser) ??
+        readBoolean(member.isSelf) ??
+        readBoolean(user?.isMe);
+
+      const normalized: GroupMember = {
         id,
         name,
         status: statusRaw === "PENDING" ? "PENDING" : "JOINED",
-      } satisfies GroupMember;
+      };
+
+      if (payoutTurn != null && payoutTurn > 0) {
+        normalized.payoutTurn = payoutTurn;
+      }
+      if (role) {
+        normalized.role = role;
+      }
+      if (userId) {
+        normalized.userId = userId;
+      }
+      if (email) {
+        normalized.email = email;
+      }
+      if (isMe != null) {
+        normalized.isMe = isMe;
+      }
+
+      return normalized;
     })
     .filter((member): member is GroupMember => member != null);
+}
+
+export type CurrentUserIdentity = {
+  id?: string;
+  email?: string;
+};
+
+function emailsMatch(a: string | undefined, b: string | undefined): boolean {
+  if (!a || !b) return false;
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+/**
+ * Resolve which membership rows belong to the signed-in user.
+ *
+ * Live API (Jul 2026) sends members with `email` + `role` only — no userId/isMe.
+ * Prefer email when any member has an email so we never miss the CONTRIBUTOR row.
+ * Fall back to userId when emails are absent.
+ */
+export function findMyMembershipRows(
+  members: GroupMember[],
+  currentUser?: CurrentUserIdentity | null,
+): GroupMember[] {
+  if (!currentUser?.id && !currentUser?.email) {
+    return [];
+  }
+
+  const membersHaveEmail = members.some((member) => Boolean(member.email));
+
+  if (currentUser.email && membersHaveEmail) {
+    const byEmail = members.filter((member) =>
+      emailsMatch(currentUser.email, member.email),
+    );
+    if (byEmail.length > 0) {
+      return byEmail;
+    }
+    // Emails exist on the roster but none match this user → not a member row.
+    return [];
+  }
+
+  if (currentUser.id) {
+    const byId = members.filter(
+      (member) => member.userId && member.userId === currentUser.id,
+    );
+    if (byId.length > 0) {
+      return byId;
+    }
+  }
+
+  if (currentUser.email) {
+    return members.filter((member) =>
+      emailsMatch(currentUser.email, member.email),
+    );
+  }
+
+  return [];
+}
+
+export function isMemberCurrentUser(
+  member: GroupMember,
+  currentUser?: CurrentUserIdentity | null,
+): boolean {
+  if (emailsMatch(currentUser?.email, member.email)) {
+    return true;
+  }
+
+  if (currentUser?.id && member.userId) {
+    return currentUser.id === member.userId;
+  }
+
+  return false;
+}
+
+/**
+ * Authoritative admin check for Invite / Payout Order.
+ * Uses only the caller's matched membership role — never details.isCreator alone,
+ * never isMe, never device memory, never top-level flags.
+ */
+export function isGroupAdminForCurrentUser(
+  details: Pick<GroupDetails, "members"> | null | undefined,
+  currentUser?: CurrentUserIdentity | null,
+): boolean {
+  if (!details?.members?.length) {
+    return false;
+  }
+
+  if (!currentUser?.email && !currentUser?.id) {
+    return false;
+  }
+
+  // Live API identifies members by email — require email when roster has emails.
+  const rosterHasEmail = details.members.some((member) => Boolean(member.email));
+  if (rosterHasEmail && !currentUser.email) {
+    return false;
+  }
+
+  const myRows = findMyMembershipRows(details.members, currentUser);
+  if (myRows.length === 0) {
+    return false;
+  }
+
+  return myRows.some((member) => isCreatorRole(member.role));
+}
+
+/**
+ * Access decision while normalizing GET /groups/:id.
+ * Deny by default. Never trust top-level isCreator / isAdmin / isOwner / isMe.
+ */
+export function resolveGroupDetailsIsCreator(
+  _raw: UnknownRecord,
+  members: GroupMember[],
+  currentUser?: CurrentUserIdentity | null,
+): boolean {
+  return isGroupAdminForCurrentUser({ members }, currentUser);
 }
 
 export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
@@ -337,7 +496,9 @@ export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
     name: readString(record.name) ?? "",
     description: readString(record.description),
     inviteCode: readString(record.inviteCode),
-    isCreator: readCreatorFlag(record),
+    // List payloads lack members[]; badge hint only (myDetails.role).
+    // Navigation must re-verify via GET /groups/:id membership role.
+    isCreator: readListCreatorHint(record),
     contributionAmount,
     frequency: readFrequency(record),
     numberOfParticipants: readParticipantCount(record),
@@ -347,29 +508,17 @@ export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
   };
 }
 
-export function normalizeGroupDetailsFromApi(raw: unknown): GroupDetails {
+export function normalizeGroupDetailsFromApi(
+  raw: unknown,
+  currentUser?: CurrentUserIdentity | null,
+): GroupDetails {
   const record = asRecord(raw) ?? {};
   const members = readMembers(record);
   const numberOfParticipants = readParticipantCount(record);
   const joinedCount = readJoinedCount(record, members);
+  const myDetails = readMyDetails(record);
 
-  let isCreator = readCreatorFlag(record);
-
-  if (!isCreator && Array.isArray(record.members)) {
-    isCreator = record.members.some((entry) => {
-      const member = asRecord(entry);
-      if (!member) {
-        return false;
-      }
-
-      const isCurrentUser =
-        readBoolean(member.isMe) ??
-        readBoolean(member.isCurrentUser) ??
-        readBoolean(member.isSelf);
-
-      return isCurrentUser === true && isCreatorRole(readString(member.role));
-    });
-  }
+  const isCreator = resolveGroupDetailsIsCreator(record, members, currentUser);
 
   const cycleDetails = readCycleDetails(record);
   const contributionAmount =
@@ -386,7 +535,7 @@ export function normalizeGroupDetailsFromApi(raw: unknown): GroupDetails {
     isCreator,
     contributionAmount,
     frequency: readFrequency(record),
-    myDetails: readMyDetails(record),
+    myDetails,
     cycleDetails,
   };
 }

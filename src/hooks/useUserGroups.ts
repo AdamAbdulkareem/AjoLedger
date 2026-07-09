@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 
 import { ApiError } from "../api/client";
+import { useAuth } from "../context/AuthProvider";
 import { useInfiniteUserGroupsQuery } from "./queries/useInfiniteUserGroupsQuery";
 import type { GroupSummary } from "../models/group";
 
@@ -24,7 +25,8 @@ export function useUserGroups(
   token: string | null,
   enabled = true,
 ): UseUserGroupsResult {
-  const query = useInfiniteUserGroupsQuery(token, enabled);
+  const { user } = useAuth();
+  const query = useInfiniteUserGroupsQuery(token, enabled, user?.id);
 
   const groups = useMemo(
     () => query.data?.pages.flat() ?? [],

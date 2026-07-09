@@ -1,35 +1,31 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   ActivityIndicator,
-  Image,
-  RefreshControl,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import Animated, { FadeIn } from "react-native-reanimated";
 
-import { GroupInviteContent } from "../../../components/groups/GroupInviteContent";
+import { PayoutOrderContent } from "../../../components/groups/PayoutOrderContent";
 import { HomeTabBar } from "../../../components/home/HomeTabBar";
 import { SubScreenHeader } from "../../../components/profile/SubScreenHeader";
 import { Button } from "../../../components/Button";
 import { ApiError } from "../../../api/client";
 import { useAuth } from "../../../context/AuthProvider";
 import { useCurrentUser } from "../../../context/CurrentUserProvider";
+import { useAssignPayoutOrderMutation } from "../../../hooks/mutations/useAssignPayoutOrderMutation";
 import { useGroupDetailsQuery } from "../../../hooks/queries/useGroupDetailsQuery";
 import { useRequireGroupCreator } from "../../../hooks/useRequireGroupCreator";
-import { openPayoutOrder } from "../../../lib/appNavigation";
-import { startInvitePolling } from "../../../lib/invitePolling";
-import { mapJoinedMembersForInvite } from "../../../lib/groupMembers";
+import { openGroupDetail } from "../../../lib/appNavigation";
+import { getJoinedMembers } from "../../../lib/groupMembers";
 import { useTheme, useThemedStyles, type Theme } from "../../../theme";
 
-const LOGO_MARK = require("../../../../assets/groups/ajoledger-logo-mark.png");
-
-type InviteParams = {
+type PayoutOrderParams = {
   groupId?: string;
   expectedParticipants?: string;
 };
@@ -43,18 +39,19 @@ function parseExpectedParticipants(value: string | undefined): number | undefine
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-export default function GroupInviteScreen() {
+export default function PayoutOrderScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
   const { accessToken, user } = useAuth();
   const { currentUser } = useCurrentUser();
-  const params = useLocalSearchParams<InviteParams>();
+  const params = useLocalSearchParams<PayoutOrderParams>();
 
   const groupId = typeof params.groupId === "string" ? params.groupId : "";
-  const expectedParticipants = parseExpectedParticipants(params.expectedParticipants);
-  const memberCountRef = useRef(0);
+  const expectedParticipants = parseExpectedParticipants(
+    params.expectedParticipants,
+  );
   const currentUserIdentity = {
     id: user?.id ?? currentUser?.id,
     email: user?.email ?? currentUser?.email,
@@ -65,7 +62,6 @@ export default function GroupInviteScreen() {
   const {
     data: details,
     isLoading,
-    isFetching,
     error: queryError,
     refetch,
   } = useGroupDetailsQuery(accessToken, groupId, {
@@ -81,14 +77,12 @@ export default function GroupInviteScreen() {
     currentUser: currentUserIdentity,
   });
 
+  const assignMutation = useAssignPayoutOrderMutation(accessToken);
+
   const members = useMemo(
-    () => (details && canAccess ? mapJoinedMembersForInvite(details.members) : []),
+    () => (details && canAccess ? getJoinedMembers(details.members) : []),
     [canAccess, details],
   );
-
-  memberCountRef.current = members.length;
-
-  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (!groupId) {
@@ -96,47 +90,44 @@ export default function GroupInviteScreen() {
     }
   }, [groupId, router]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!groupId || !accessToken || !canAccess) {
-        return;
-      }
+  const handleStartContribution = useCallback(
+    (orderedMembershipIds: string[]) => {
+      if (!groupId || !canAccess) return;
 
-      void refetch();
+      const assignments = orderedMembershipIds.map((membershipId, index) => ({
+        membershipId,
+        payoutTurn: index + 1,
+      }));
 
-      return startInvitePolling({
-        enabled: true,
-        poll: () => {
-          void refetch();
+      assignMutation.mutate(
+        { groupId, payload: { assignments } },
+        {
+          onSuccess: () => {
+            Alert.alert(
+              t("groups.payoutOrder.successTitle"),
+              t("groups.payoutOrder.successBody"),
+              [
+                {
+                  text: t("common.ok"),
+                  onPress: () => {
+                    openGroupDetail(router, groupId);
+                  },
+                },
+              ],
+            );
+          },
+          onError: (error) => {
+            const message =
+              error instanceof ApiError
+                ? error.message
+                : t("groups.payoutOrder.errors.generic");
+            Alert.alert(t("groups.payoutOrder.errors.title"), message);
+          },
         },
-        getMemberCount: () => memberCountRef.current,
-      });
-    }, [accessToken, canAccess, groupId, refetch]),
+      );
+    },
+    [assignMutation, canAccess, groupId, router, t],
   );
-
-  const handleRefresh = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      await refetch();
-    } finally {
-      setRefreshing(false);
-    }
-  }, [refetch]);
-
-  const handleCheckPayoutOrder = useCallback(() => {
-    if (!groupId || !canAccess) return;
-    openPayoutOrder(
-      router,
-      groupId,
-      details?.numberOfParticipants ?? expectedParticipants,
-    );
-  }, [
-    canAccess,
-    details?.numberOfParticipants,
-    expectedParticipants,
-    groupId,
-    router,
-  ]);
 
   const error =
     queryError instanceof ApiError
@@ -153,7 +144,7 @@ export default function GroupInviteScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <SubScreenHeader title={t("groups.invite.title")} />
+      <SubScreenHeader title={t("groups.payoutOrder.title")} />
 
       {isChecking || !showCreatorUi ? (
         <View style={styles.centered}>
@@ -175,27 +166,16 @@ export default function GroupInviteScreen() {
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing || (isFetching && !isLoading)}
-              onRefresh={() => void handleRefresh()}
-              tintColor={theme.colors.brand}
-            />
-          }
         >
-          <Animated.View entering={FadeIn.duration(350)} style={styles.logoWrap}>
-            <Image
-              source={LOGO_MARK}
-              style={styles.logo}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-          </Animated.View>
-
-          <GroupInviteContent
-            inviteCode={details.inviteCode}
+          <PayoutOrderContent
             members={members}
-            onCheckPayoutOrder={handleCheckPayoutOrder}
+            slotsTotal={
+              details.numberOfParticipants ??
+              expectedParticipants ??
+              members.length
+            }
+            submitting={assignMutation.isPending}
+            onStartContribution={handleStartContribution}
           />
         </ScrollView>
       )}
@@ -215,17 +195,10 @@ const createStyles = (theme: Theme) =>
       flex: 1,
     },
     scrollContent: {
-      paddingHorizontal: theme.spacing.md + 3,
+      flexGrow: 1,
+      paddingHorizontal: 18,
       paddingTop: theme.spacing.sm,
       paddingBottom: theme.spacing.lg,
-    },
-    logoWrap: {
-      alignItems: "center",
-      marginBottom: theme.spacing.sm + 4,
-    },
-    logo: {
-      width: 50,
-      height: 50,
     },
     centered: {
       flex: 1,

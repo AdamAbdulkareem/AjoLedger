@@ -19,6 +19,7 @@ import { Button } from "../../../components/Button";
 import { useAuth } from "../../../context/AuthProvider";
 import { useOpenGroup } from "../../../hooks/useOpenGroup";
 import { useRequirePayoutBank } from "../../../hooks/useRequirePayoutBank";
+import { useSyncCreatorBadges } from "../../../hooks/useSyncCreatorBadges";
 import { useUserGroups } from "../../../hooks/useUserGroups";
 import type { GroupSummary } from "../../../models/group";
 import { useTheme, useThemedStyles, type Theme } from "../../../theme";
@@ -40,6 +41,8 @@ export default function GroupsScreen() {
     useUserGroups(accessToken, isAuthenticated);
   const hasGroups = groups.length > 0;
   const { openGroup, openingGroupId } = useOpenGroup();
+
+  useSyncCreatorBadges(accessToken, groups, isAuthenticated && hasGroups);
 
   const joinedGroupName =
     typeof params.joinedGroupName === "string" ? params.joinedGroupName : "";

@@ -1,6 +1,7 @@
 {
   "common": {
-    "goBack": "Go back"
+    "goBack": "Go back",
+    "ok": "OK"
   },
   "onboarding": {
     "welcome": {
@@ -289,6 +290,27 @@
       "membersTitle": "Members({{count}})",
       "noMembersYet": "No one has joined yet.",
       "statusJoined": "Joined"
+    },
+    "payoutOrder": {
+      "title": "Payout Order",
+      "assignTitle": "Assign Payout Turns",
+      "assignBody": "Tap members one by one to set the order they will receive their payouts.",
+      "membersTitle": "Members({{count}})",
+      "slotsFilled": "{{joined}} of {{total}} slots filled",
+      "noMembers": "No members have joined yet.",
+      "startContribution": "Start Contribution",
+      "incompleteTitle": "Assign all members",
+      "incompleteBody": "Tap every member to set their payout turn before starting contributions.",
+      "adminOnlyTitle": "Admins only",
+      "adminOnlyBody": "Only the group creator can assign payout order.",
+      "successTitle": "Payout order set",
+      "successBody": "Turns are saved and the contribution cycle has started.",
+      "memberAssignedA11y": "{{name}}, payout turn {{turn}}. Tap to clear.",
+      "memberUnassignedA11y": "{{name}}, not assigned. Tap to set next turn.",
+      "errors": {
+        "title": "Could not start",
+        "generic": "Something went wrong. Please try again."
+      }
     },
     "join": {
       "title": "Enter Code",

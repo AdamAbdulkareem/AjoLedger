@@ -29,6 +29,7 @@ import { useRecentActivity } from "../../hooks/useRecentActivity";
 import { useRequirePayoutBank } from "../../hooks/useRequirePayoutBank";
 import { useUserGroups } from "../../hooks/useUserGroups";
 import { useOpenGroup } from "../../hooks/useOpenGroup";
+import { useSyncCreatorBadges } from "../../hooks/useSyncCreatorBadges";
 import { openGroupsTab } from "../../lib/appNavigation";
 import { hasCustomAvatar } from "../../lib/avatarSource";
 import { buildRegisteredHomeData } from "../../lib/buildHomeDashboardFromGroups";
@@ -58,6 +59,8 @@ export default function HomeScreen() {
   const { openGroupById, openGroupForPayment } = useOpenGroup();
 
   const hasGroups = groups.length > 0;
+
+  useSyncCreatorBadges(accessToken, groups, isAuthenticated && hasGroups);
 
   const {
     items: recentActivity,

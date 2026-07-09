@@ -5,14 +5,16 @@ import { useTranslation } from "react-i18next";
 
 import { isUserGroupCreator } from "../api/groups";
 import { useAuth } from "../context/AuthProvider";
+import { useCurrentUser } from "../context/CurrentUserProvider";
 import { openGroupDetail, openGroupInvite } from "../lib/appNavigation";
-import { isGroupCreator } from "../lib/groupApiNormalize";
+import { invalidateGroupsQueries } from "../lib/invalidateQueries";
 import type { GroupSummary } from "../models/group";
 
 export function useOpenGroup() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
+  const { currentUser } = useCurrentUser();
   const [openingGroupId, setOpeningGroupId] = useState<string | null>(null);
 
   const openGroup = useCallback(
@@ -21,12 +23,19 @@ export function useOpenGroup() {
         return;
       }
 
-      if (isGroupCreator(group)) {
-        openGroupInvite(router, group.id, group.numberOfParticipants);
+      if (!accessToken) {
+        Alert.alert(t("home.errors.generic"));
         return;
       }
 
-      if (!accessToken) {
+      // Prefer the authenticated session email — that is who logged in.
+      // Live API matches members by email (no userId on roster rows).
+      const currentUserIdentity = {
+        id: user?.id ?? currentUser?.id,
+        email: user?.email ?? currentUser?.email,
+      };
+
+      if (!currentUserIdentity.email) {
         Alert.alert(t("home.errors.generic"));
         return;
       }
@@ -34,7 +43,16 @@ export function useOpenGroup() {
       setOpeningGroupId(group.id);
 
       try {
-        const creator = await isUserGroupCreator(accessToken, group.id, group);
+        const creator = await isUserGroupCreator(
+          accessToken,
+          group.id,
+          group,
+          currentUserIdentity,
+        );
+
+        // Refresh list/home badges after membership-role sync in getGroupDetails.
+        void invalidateGroupsQueries(accessToken);
+
         if (creator) {
           openGroupInvite(router, group.id, group.numberOfParticipants);
           return;
@@ -48,7 +66,16 @@ export function useOpenGroup() {
         setOpeningGroupId(null);
       }
     },
-    [accessToken, openingGroupId, router, t],
+    [
+      accessToken,
+      currentUser?.email,
+      currentUser?.id,
+      openingGroupId,
+      router,
+      t,
+      user?.email,
+      user?.id,
+    ],
   );
 
   const openGroupById = useCallback(
