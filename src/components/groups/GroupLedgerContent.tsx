@@ -237,10 +237,7 @@ export function GroupLedgerContent({ group, isAdmin }: GroupLedgerContentProps) 
       </View>
 
       <View style={styles.overviewCard}>
-        <Pressable
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.overviewHeader, pressed && styles.pressed]}
-        >
+        <View style={styles.overviewHeader}>
           <AjoLedgerLogoMark size={42} variant="square" />
           <View style={styles.overviewTitleBlock}>
             <View style={styles.titleRow}>
@@ -258,12 +255,7 @@ export function GroupLedgerContent({ group, isAdmin }: GroupLedgerContentProps) 
               })}
             </Text>
           </View>
-          <Ionicons
-            name="chevron-forward"
-            size={19}
-            color={theme.colors.textPrimary}
-          />
-        </Pressable>
+        </View>
 
         <View style={styles.overviewMeta}>
           <View style={styles.metaItem}>

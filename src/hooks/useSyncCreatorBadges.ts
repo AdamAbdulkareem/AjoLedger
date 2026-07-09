@@ -3,6 +3,7 @@ import { useFocusEffect } from "expo-router";
 
 import { getGroupDetails } from "../api/groups";
 import { useAuth } from "../context/AuthProvider";
+import { syncCreatorBadge } from "../lib/creatorGroupsStorage";
 import { invalidateGroupsQueries } from "../lib/invalidateQueries";
 import type { GroupSummary } from "../models/group";
 
@@ -47,15 +48,21 @@ export function useSyncCreatorBadges(
       const identity = { id: user.id, email: user.email };
 
       void (async () => {
-        // Sequential: getGroupDetails remember/forget the same AsyncStorage key.
-        for (const groupId of groupIds) {
-          if (cancelled) {
-            return;
+        const results = await Promise.all(
+          groupIds.map((groupId) =>
+            getGroupDetails(accessToken, groupId, {
+              currentUser: identity,
+              syncCreatorBadge: false,
+            }).catch(() => null),
+          ),
+        );
+
+        for (const details of results) {
+          if (cancelled || !details) {
+            continue;
           }
 
-          await getGroupDetails(accessToken, groupId, {
-            currentUser: identity,
-          }).catch(() => null);
+          await syncCreatorBadge(user.id, details.id, details, identity);
         }
 
         if (cancelled) {

@@ -15,6 +15,15 @@ type StartPayoutOrderInput = {
 
 const CYCLE_START_ATTEMPTS = 3;
 
+function isNonRetryableClientError(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    error.status != null &&
+    error.status >= 400 &&
+    error.status < 500
+  );
+}
+
 async function startGroupCycleWithRetry(
   accessToken: string,
   groupId: string,
@@ -27,6 +36,9 @@ async function startGroupCycleWithRetry(
       return;
     } catch (error) {
       lastError = error;
+      if (isNonRetryableClientError(error)) {
+        throw error;
+      }
       if (attempt < CYCLE_START_ATTEMPTS) {
         await new Promise((resolve) => setTimeout(resolve, 400 * attempt));
       }

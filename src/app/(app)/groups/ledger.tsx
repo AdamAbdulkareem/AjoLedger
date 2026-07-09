@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -35,12 +35,16 @@ export default function GroupLedgerScreen() {
   const { accessToken, user } = useAuth();
   const { currentUser } = useCurrentUser();
   const params = useLocalSearchParams<LedgerParams>();
+  const redirectedRef = useRef(false);
 
   const groupId = typeof params.groupId === "string" ? params.groupId : "";
-  const currentUserIdentity = {
-    id: user?.id ?? currentUser?.id,
-    email: user?.email ?? currentUser?.email,
-  };
+  const currentUserIdentity = useMemo(
+    () => ({
+      id: user?.id ?? currentUser?.id,
+      email: user?.email ?? currentUser?.email,
+    }),
+    [currentUser?.email, currentUser?.id, user?.email, user?.id],
+  );
   const identityReady = Boolean(currentUserIdentity.email);
 
   const {
@@ -57,25 +61,33 @@ export default function GroupLedgerScreen() {
     details != null && isGroupAdminForCurrentUser(details, currentUserIdentity);
 
   useEffect(() => {
+    redirectedRef.current = false;
+  }, [groupId]);
+
+  useEffect(() => {
     if (!groupId) {
       router.replace("/(app)/groups");
     }
   }, [groupId, router]);
 
   useEffect(() => {
-    if (isLoading || !details || !groupId) {
+    if (isLoading || !details || !groupId || redirectedRef.current) {
       return;
     }
 
-    if (isPreCycleGroup(details)) {
-      if (isGroupAdminForCurrentUser(details, currentUserIdentity)) {
-        openGroupInvite(router, groupId, details.numberOfParticipants);
-        return;
-      }
-
-      openGroupDetail(router, groupId, { replace: true });
+    if (!isPreCycleGroup(details)) {
+      return;
     }
-  }, [currentUserIdentity, details, groupId, isLoading, router]);
+
+    redirectedRef.current = true;
+
+    if (isAdmin) {
+      openGroupInvite(router, groupId, details.numberOfParticipants);
+      return;
+    }
+
+    openGroupDetail(router, groupId, { replace: true });
+  }, [details, groupId, isAdmin, isLoading, router]);
 
   const error =
     queryError instanceof ApiError

@@ -553,4 +553,23 @@ describe("active cycle detection", () => {
 
     expect(summary.hasActiveCycle).toBe(true);
   });
+
+  it.each(["DRAFT", "PENDING_SETUP"] as const)(
+    "excludes activeCycle with status %s",
+    (status) => {
+      const details = normalizeGroupDetailsFromApi({
+        id: `g-${status}`,
+        name: "Draft Cycle",
+        inviteCode: "AJO-DRAFT1",
+        activeCycle: {
+          id: "cycle-draft",
+          currentCycle: 1,
+          status,
+        },
+        members: [],
+      });
+
+      expect(details.hasActiveCycle).toBe(false);
+    },
+  );
 });
