@@ -4,16 +4,15 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
-  useState,
   type ReactNode,
 } from "react";
 
-import { getCurrentUser } from "../api/banks";
 import { ApiError } from "../api/client";
 import { deriveDisplayName } from "../lib/greeting";
+import { invalidateUserQueries } from "../lib/invalidateQueries";
 import type { UserWithPayout } from "../models/bank";
 import { useAuth } from "./AuthProvider";
+import { useCurrentUserQuery } from "../hooks/queries/useCurrentUserQuery";
 
 type CurrentUserContextValue = {
   currentUser: UserWithPayout | null;
@@ -26,54 +25,32 @@ type CurrentUserContextValue = {
 
 const CurrentUserContext = createContext<CurrentUserContextValue | null>(null);
 
+function resolveQueryError(error: unknown): string | null {
+  if (!error) return null;
+  if (error instanceof ApiError) return error.message;
+  return "Something went wrong. Please try again.";
+}
+
 export function CurrentUserProvider({ children }: { children: ReactNode }) {
   const { user, accessToken, status, updateSessionUser } = useAuth();
-  const requestIdRef = useRef(0);
+  const isAuthenticated = status === "authenticated";
 
-  const [currentUser, setCurrentUser] = useState<UserWithPayout | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const refresh = useCallback(async () => {
-    const requestId = ++requestIdRef.current;
-
-    if (!accessToken || !user || status !== "authenticated") {
-      if (requestId !== requestIdRef.current) return;
-      setCurrentUser(null);
-      setError(null);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const nextUser = await getCurrentUser(accessToken);
-      if (requestId !== requestIdRef.current) return;
-
-      setCurrentUser(nextUser);
-
-      if (nextUser.email !== user.email) {
-        await updateSessionUser({ ...user, email: nextUser.email });
-      }
-    } catch (err) {
-      if (requestId !== requestIdRef.current) return;
-      setCurrentUser(null);
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "Something went wrong. Please try again.",
-      );
-    } finally {
-      if (requestId !== requestIdRef.current) return;
-      setLoading(false);
-    }
-  }, [accessToken, user, status, updateSessionUser]);
+  const {
+    data: currentUser = null,
+    isLoading,
+    error: queryError,
+  } = useCurrentUserQuery(accessToken, isAuthenticated);
 
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    if (!currentUser || !user) return;
+    if (currentUser.email === user.email) return;
+
+    void updateSessionUser({ ...user, email: currentUser.email });
+  }, [currentUser, user, updateSessionUser]);
+
+  const refresh = useCallback(async () => {
+    await invalidateUserQueries(accessToken);
+  }, [accessToken]);
 
   const displayName = useMemo(() => {
     const name = currentUser?.name?.trim();
@@ -88,13 +65,21 @@ export function CurrentUserProvider({ children }: { children: ReactNode }) {
   const value = useMemo<CurrentUserContextValue>(
     () => ({
       currentUser,
-      loading,
-      error,
+      loading: isAuthenticated && isLoading,
+      error: resolveQueryError(queryError),
       refresh,
       displayName,
       email,
     }),
-    [currentUser, loading, error, refresh, displayName, email],
+    [
+      currentUser,
+      isAuthenticated,
+      isLoading,
+      queryError,
+      refresh,
+      displayName,
+      email,
+    ],
   );
 
   return (

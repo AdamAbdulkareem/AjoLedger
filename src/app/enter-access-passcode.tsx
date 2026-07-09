@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Redirect, useRouter, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -13,16 +13,36 @@ import { PasscodeUserBadge } from "../components/PasscodeUserBadge";
 import { useAuth } from "../context/AuthProvider";
 import { useProfile } from "../context/ProfileProvider";
 import { ApiError } from "../api/client";
-import { INCORRECT_ACCESS_PASSCODE } from "../models/auth";
-import { loadBiometricStatus, promptBiometricAuth, getBiometricUnlockLabelKey, type BiometricCapabilities } from "../lib/biometricAuth";
+import {
+  BIOMETRIC_NOT_ENROLLED,
+  INCORRECT_ACCESS_PASSCODE,
+  PASSCODE_LOCKED_OUT,
+} from "../models/auth";
+import {
+  getBiometricUnlockLabelKey,
+  loadBiometricStatus,
+  type BiometricCapabilities,
+} from "../lib/biometricAuth";
+import {
+  getPasscodeLockoutStatus,
+  type PasscodeLockoutStatus,
+} from "../lib/passcodeLockout";
 import { waitForNextFrame } from "../lib/waitForNextFrame";
 import { useTheme, useThemedStyles, type Theme } from "../theme";
+
+function getLockoutRemainingSeconds(error: unknown): number | null {
+  if (!(error instanceof ApiError) || error.message !== PASSCODE_LOCKED_OUT) {
+    return null;
+  }
+  const remaining = error.meta?.remainingSeconds;
+  return typeof remaining === "number" ? remaining : null;
+}
 
 export default function EnterAccessPasscodeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
-  const { status, user, verifyAccessPasscode, unlockWithBiometrics, resetAccessPasscode, logout } =
+  const { status, user, verifyAccessPasscode, unlockWithBiometrics, logout } =
     useAuth();
   const { profile } = useProfile();
   const styles = useThemedStyles(createStyles);
@@ -36,53 +56,75 @@ export default function EnterAccessPasscodeScreen() {
   );
   const [biometricsEnabled, setBiometricsEnabledState] = useState(false);
   const [biometricUnlocking, setBiometricUnlocking] = useState(false);
+  const [lockout, setLockout] = useState<PasscodeLockoutStatus | null>(null);
 
-  const isFormValid = passcode.length === ACCESS_PASSCODE_LENGTH;
+  const isLockedOut = (lockout?.locked ?? false) || (lockout?.remainingSeconds ?? 0) > 0;
+  const isFormValid =
+    passcode.length === ACCESS_PASSCODE_LENGTH && !isLockedOut;
 
-  type BiometricUnlockOptions = {
-    /** Auto-prompt on focus — skip enabled check and swallow errors. */
-    autoPrompt?: boolean;
-    isCancelled?: () => boolean;
-  };
+  const refreshLockout = useCallback(async () => {
+    if (!user) {
+      setLockout(null);
+      return;
+    }
+
+    const nextLockout = await getPasscodeLockoutStatus(user.id);
+    setLockout(nextLockout);
+    if (nextLockout.locked) {
+      setFormError(
+        t("auth.errors.passcodeLockedOut", {
+          seconds: nextLockout.remainingSeconds,
+        }),
+      );
+    }
+  }, [user, t]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshLockout();
+    }, [refreshLockout]),
+  );
+
+  useEffect(() => {
+    if (!user || !isLockedOut) return;
+
+    const intervalId = setInterval(() => {
+      void refreshLockout();
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [user, isLockedOut, refreshLockout]);
 
   const handleBiometricUnlock = useCallback(
-    async (options?: BiometricUnlockOptions) => {
-      const autoPrompt = options?.autoPrompt ?? false;
-
-      if (biometricUnlocking || submitting) return;
-      if (!autoPrompt && !biometricsEnabled) return;
+    async (silentFailure = false) => {
+      if (biometricUnlocking || submitting || isLockedOut) return;
+      if (!silentFailure && !biometricsEnabled) return;
 
       setBiometricUnlocking(true);
-      if (!autoPrompt) {
+      if (!silentFailure) {
         setFormError(undefined);
       }
 
       try {
-        const result = await promptBiometricAuth(t("auth.biometricPrompt"));
+        await unlockWithBiometrics({
+          promptMessage: t("auth.biometricPrompt"),
+          silentFailure,
+        });
+        router.replace("/(app)/home");
+      } catch (error) {
+        if (silentFailure) return;
 
-        if (options?.isCancelled?.() || !result.success) {
-          if (
-            !autoPrompt &&
-            !result.success &&
-            !result.cancelled &&
-            result.error === "not_enrolled"
-          ) {
-            Alert.alert(
-              t("profile.biometrics.notEnrolledTitle"),
-              t("profile.biometrics.notEnrolledBody"),
-            );
-          }
+        if (error instanceof ApiError && error.message === BIOMETRIC_NOT_ENROLLED) {
+          Alert.alert(
+            t("profile.biometrics.notEnrolledTitle"),
+            t("profile.biometrics.notEnrolledBody"),
+          );
           return;
         }
 
-        await unlockWithBiometrics();
-        router.replace("/(app)/home");
-      } catch (error) {
-        if (!autoPrompt) {
-          const message =
-            error instanceof ApiError ? error.message : t("auth.errors.generic");
-          setFormError(message);
-        }
+        const message =
+          error instanceof ApiError ? error.message : t("auth.errors.generic");
+        setFormError(message);
       } finally {
         setBiometricUnlocking(false);
       }
@@ -90,6 +132,7 @@ export default function EnterAccessPasscodeScreen() {
     [
       biometricUnlocking,
       submitting,
+      isLockedOut,
       biometricsEnabled,
       unlockWithBiometrics,
       router,
@@ -107,20 +150,21 @@ export default function EnterAccessPasscodeScreen() {
       let cancelled = false;
 
       void (async () => {
-        const status = await loadBiometricStatus(user.id);
-        if (cancelled || !status) return;
+        const biometricStatus = await loadBiometricStatus(user.id);
+        if (cancelled || !biometricStatus) return;
 
-        setBiometricsEnabledState(status.enabled);
-        setBiometricCaps(status.caps);
+        setBiometricsEnabledState(biometricStatus.enabled);
+        setBiometricCaps(biometricStatus.caps);
 
-        if (!status.enabled || !status.caps.available || !status.caps.enrolled) {
+        if (
+          !biometricStatus.enabled ||
+          !biometricStatus.caps.available ||
+          !biometricStatus.caps.enrolled
+        ) {
           return;
         }
 
-        await handleBiometricUnlockRef.current({
-          autoPrompt: true,
-          isCancelled: () => cancelled,
-        });
+        await handleBiometricUnlockRef.current(true);
       })();
 
       return () => {
@@ -130,7 +174,7 @@ export default function EnterAccessPasscodeScreen() {
   );
 
   const handleSubmit = async (code?: string) => {
-    if (submitting) return;
+    if (submitting || isLockedOut) return;
 
     const value = code ?? passcode;
     setPasscodeError(undefined);
@@ -148,6 +192,15 @@ export default function EnterAccessPasscodeScreen() {
       await verifyAccessPasscode(value);
       router.replace("/(app)/home");
     } catch (error) {
+      const lockoutSeconds = getLockoutRemainingSeconds(error);
+      if (lockoutSeconds !== null) {
+        setFormError(
+          t("auth.errors.passcodeLockedOut", { seconds: lockoutSeconds }),
+        );
+        void refreshLockout();
+        return;
+      }
+
       const message =
         error instanceof ApiError &&
         error.message === INCORRECT_ACCESS_PASSCODE
@@ -156,6 +209,7 @@ export default function EnterAccessPasscodeScreen() {
             ? error.message
             : t("auth.errors.generic");
       setFormError(message);
+      void refreshLockout();
     } finally {
       setSubmitting(false);
     }
@@ -189,8 +243,8 @@ export default function EnterAccessPasscodeScreen() {
           onPress: () => {
             void (async () => {
               try {
-                await resetAccessPasscode();
-                router.replace("/setup-access-passcode");
+                await logout();
+                router.replace("/login");
               } catch (error) {
                 const message =
                   error instanceof ApiError
@@ -219,7 +273,7 @@ export default function EnterAccessPasscodeScreen() {
   };
 
   const handleFingerprint = () => {
-    void handleBiometricUnlock();
+    void handleBiometricUnlock(false);
   };
 
   const showBiometricLogin =
@@ -252,7 +306,7 @@ export default function EnterAccessPasscodeScreen() {
             value={passcode}
             onChangeText={setPasscode}
             error={passcodeError}
-            editable={!submitting && !biometricUnlocking}
+            editable={!submitting && !biometricUnlocking && !isLockedOut}
             onComplete={(code) => {
               void handleSubmit(code);
             }}
@@ -308,7 +362,7 @@ export default function EnterAccessPasscodeScreen() {
               <Text style={styles.footerDivider}>|</Text>
               <Pressable
                 onPress={handleFingerprint}
-                disabled={biometricUnlocking || submitting}
+                disabled={biometricUnlocking || submitting || isLockedOut}
                 accessibilityRole="button"
                 accessibilityLabel={t(biometricUnlockLabelKey)}
               >

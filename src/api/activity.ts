@@ -61,15 +61,31 @@ function normalizeRecentActivityItem(
   };
 }
 
+export type ActivityListParams = {
+  page?: number;
+  limit?: number;
+};
+
 /** Fetches recent home activity when the backend endpoint is available. */
 export async function getRecentActivity(
   token: string,
+  params?: ActivityListParams,
 ): Promise<RecentActivityItem[]> {
+  const search = new URLSearchParams();
+  if (params?.page != null) {
+    search.set("page", String(params.page));
+  }
+  if (params?.limit != null) {
+    search.set("limit", String(params.limit));
+  }
+
+  const query = search.toString();
+  const path = query ? `/activity/recent?${query}` : "/activity/recent";
+
   try {
-    const envelope = await apiRequest<RecentActivityApiItem[]>(
-      "/activity/recent",
-      { token },
-    );
+    const envelope = await apiRequest<RecentActivityApiItem[]>(path, {
+      token,
+    });
 
     return (envelope.data ?? [])
       .map(normalizeRecentActivityItem)

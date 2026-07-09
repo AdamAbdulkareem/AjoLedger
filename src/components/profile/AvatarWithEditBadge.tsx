@@ -1,7 +1,7 @@
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import { resolveAvatarSource } from "../../lib/avatarSource";
+import { CachedAvatar } from "../CachedAvatar";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
 type AvatarWithEditBadgeProps = {
@@ -22,8 +22,8 @@ export function AvatarWithEditBadge({
 
   return (
     <View style={styles.avatarWrap}>
-      <Image
-        source={resolveAvatarSource(avatarUri)}
+      <CachedAvatar
+        avatarUri={avatarUri}
         style={styles.avatar}
         accessibilityLabel={imageAccessibilityLabel}
       />

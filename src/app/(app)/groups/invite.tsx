@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,11 +19,10 @@ import { HomeTabBar } from "../../../components/home/HomeTabBar";
 import { SubScreenHeader } from "../../../components/profile/SubScreenHeader";
 import { Button } from "../../../components/Button";
 import { ApiError } from "../../../api/client";
-import { getGroupDetails } from "../../../api/groups";
 import { useAuth } from "../../../context/AuthProvider";
-import { GROUP_INVITE_POLL_MS } from "../../../lib/groupInvite";
+import { useGroupDetailsQuery } from "../../../hooks/queries/useGroupDetailsQuery";
+import { startInvitePolling } from "../../../lib/invitePolling";
 import { mapJoinedMembersForInvite } from "../../../lib/groupMembers";
-import type { GroupInviteMember } from "../../../lib/groupMembers";
 import { useTheme, useThemedStyles, type Theme } from "../../../theme";
 
 const LOGO_MARK = require("../../../../assets/groups/ajoledger-logo-mark.png");
@@ -51,49 +51,27 @@ export default function GroupInviteScreen() {
 
   const groupId = typeof params.groupId === "string" ? params.groupId : "";
   const expectedParticipants = parseExpectedParticipants(params.expectedParticipants);
+  const memberCountRef = useRef(0);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [inviteCode, setInviteCode] = useState("");
-  const [members, setMembers] = useState<GroupInviteMember[]>([]);
+  const {
+    data: details,
+    isLoading,
+    isFetching,
+    error: queryError,
+    refetch,
+  } = useGroupDetailsQuery(accessToken, groupId, {
+    expectedParticipants,
+    enabled: !!groupId && !!accessToken,
+  });
 
-  const loadGroup = useCallback(
-    async (options?: { silent?: boolean }) => {
-      if (!groupId || !accessToken) {
-        if (!options?.silent) {
-          setError(t("home.errors.generic"));
-          setLoading(false);
-        }
-        return;
-      }
-
-      if (!options?.silent) {
-        setLoading(true);
-      }
-      setError(null);
-
-      try {
-        const details = await getGroupDetails(accessToken, groupId, {
-          expectedParticipants,
-        });
-        setInviteCode(details.inviteCode);
-        setMembers(mapJoinedMembersForInvite(details.members));
-      } catch (err) {
-        if (!options?.silent) {
-          setError(
-            err instanceof ApiError
-              ? err.message
-              : t("home.errors.generic"),
-          );
-        }
-      } finally {
-        if (!options?.silent) {
-          setLoading(false);
-        }
-      }
-    },
-    [accessToken, expectedParticipants, groupId, t],
+  const members = useMemo(
+    () => (details ? mapJoinedMembersForInvite(details.members) : []),
+    [details],
   );
+
+  memberCountRef.current = members.length;
+
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (!groupId) {
@@ -103,23 +81,41 @@ export default function GroupInviteScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (!groupId) {
+      if (!groupId || !accessToken) {
         return;
       }
 
-      void loadGroup();
-      const timer = setInterval(
-        () => void loadGroup({ silent: true }),
-        GROUP_INVITE_POLL_MS,
-      );
+      void refetch();
 
-      return () => clearInterval(timer);
-    }, [groupId, loadGroup]),
+      return startInvitePolling({
+        enabled: true,
+        poll: () => {
+          void refetch();
+        },
+        getMemberCount: () => memberCountRef.current,
+      });
+    }, [accessToken, groupId, refetch]),
   );
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   const handleCheckPayoutOrder = useCallback(() => {
     Alert.alert(t("home.comingSoonTitle"), t("home.comingSoonBody"));
   }, [t]);
+
+  const error =
+    queryError instanceof ApiError
+      ? queryError.message
+      : queryError
+        ? t("home.errors.generic")
+        : null;
 
   if (!groupId) {
     return null;
@@ -129,16 +125,16 @@ export default function GroupInviteScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <SubScreenHeader title={t("groups.invite.title")} />
 
-      {loading ? (
+      {isLoading && !details ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={theme.colors.brand} />
         </View>
-      ) : error ? (
+      ) : error && !details ? (
         <View style={styles.centered}>
           <Text style={styles.errorText}>{error}</Text>
           <Button
             label={t("home.errors.retry")}
-            onPress={() => void loadGroup()}
+            onPress={() => void refetch()}
             variant="secondary"
           />
         </View>
@@ -147,6 +143,13 @@ export default function GroupInviteScreen() {
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing || (isFetching && !isLoading)}
+              onRefresh={() => void handleRefresh()}
+              tintColor={theme.colors.brand}
+            />
+          }
         >
           <Animated.View entering={FadeIn.duration(350)} style={styles.logoWrap}>
             <Image
@@ -158,7 +161,7 @@ export default function GroupInviteScreen() {
           </Animated.View>
 
           <GroupInviteContent
-            inviteCode={inviteCode}
+            inviteCode={details?.inviteCode ?? ""}
             members={members}
             onCheckPayoutOrder={handleCheckPayoutOrder}
           />

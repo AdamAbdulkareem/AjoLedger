@@ -8,6 +8,7 @@ import { HomeHeader } from "./HomeHeader";
 import { HomeTotalDueCard } from "./HomeTotalDueCard";
 import { RecentActivitySection } from "./RecentActivitySection";
 import { SavingsOverviewCard } from "./SavingsOverviewCard";
+import { getInitialCarouselIndex } from "../../lib/carouselMetrics";
 import type { RecentActivityItem, RegisteredHomeData } from "../../models/home";
 import { useThemedStyles, type Theme } from "../../theme";
 
@@ -31,13 +32,17 @@ export function RegisteredHomeContent({
   const { t } = useTranslation();
   const styles = useThemedStyles(createStyles);
   const isMultiGroup = data.groups.length > 1;
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(() =>
+    getInitialCarouselIndex(data.groups.length),
+  );
 
   useEffect(() => {
-    setSelectedIndex((current) =>
-      Math.min(current, Math.max(data.groups.length - 1, 0)),
-    );
-  }, [data.groups]);
+    setSelectedIndex((current) => {
+      const maxIndex = Math.max(data.groups.length - 1, 0);
+      if (current > maxIndex) return getInitialCarouselIndex(data.groups.length);
+      return current;
+    });
+  }, [data.groups.length]);
 
   const primaryDashboard = data.groups[selectedIndex] ?? data.groups[0];
 
@@ -69,6 +74,7 @@ export function RegisteredHomeContent({
             group={primaryDashboard.group}
             progress={primaryDashboard.progress}
             payout={primaryDashboard.payout}
+            isCreator={primaryDashboard.isCreator}
             onGroupPress={() => onGroupPress(primaryDashboard.groupId)}
             onDetailsPress={() => onDetailsPress(primaryDashboard.groupId)}
           />

@@ -1,14 +1,13 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 import { BankDetailsModal } from "../../../components/home/BankDetailsModal";
@@ -17,12 +16,10 @@ import { NewUserGroupsContent } from "../../../components/groups/NewUserGroupsCo
 import { ReturningUserGroupsContent } from "../../../components/groups/ReturningUserGroupsContent";
 import { SubScreenHeader } from "../../../components/profile/SubScreenHeader";
 import { Button } from "../../../components/Button";
-import { isUserGroupCreator } from "../../../api/groups";
 import { useAuth } from "../../../context/AuthProvider";
+import { useOpenGroup } from "../../../hooks/useOpenGroup";
 import { useRequirePayoutBank } from "../../../hooks/useRequirePayoutBank";
 import { useUserGroups } from "../../../hooks/useUserGroups";
-import { openGroupDetail } from "../../../lib/appNavigation";
-import { isGroupCreator } from "../../../lib/groupApiNormalize";
 import type { GroupSummary } from "../../../models/group";
 import { useTheme, useThemedStyles, type Theme } from "../../../theme";
 
@@ -35,13 +32,14 @@ export default function GroupsScreen() {
   const router = useRouter();
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
-  const { accessToken } = useAuth();
+  const { accessToken, status } = useAuth();
   const { requireBank, payoutLoading, bankModalProps } = useRequirePayoutBank();
   const params = useLocalSearchParams<GroupsParams>();
-
-  const { groups, loading, error, refresh } = useUserGroups(accessToken);
+  const isAuthenticated = status === "authenticated";
+  const { groups, loading, error, refresh, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useUserGroups(accessToken, isAuthenticated);
   const hasGroups = groups.length > 0;
-  const [openingGroupId, setOpeningGroupId] = useState<string | null>(null);
+  const { openGroup, openingGroupId } = useOpenGroup();
 
   const joinedGroupName =
     typeof params.joinedGroupName === "string" ? params.joinedGroupName : "";
@@ -52,12 +50,6 @@ export default function GroupsScreen() {
     }
     return t("groups.join.successMessage", { name: joinedGroupName });
   }, [joinedGroupName, t]);
-
-  useFocusEffect(
-    useCallback(() => {
-      void refresh();
-    }, [refresh]),
-  );
 
   const handleCreateGroupPress = useCallback(() => {
     requireBank(() => {
@@ -71,50 +63,11 @@ export default function GroupsScreen() {
     });
   }, [requireBank, router]);
 
-  const openInvitationScreen = useCallback(
-    (groupId: string) => {
-      router.push({
-        pathname: "/(app)/groups/invite",
-        params: { groupId },
-      });
-    },
-    [router],
-  );
-
   const handleGroupPress = useCallback(
-    async (group: GroupSummary) => {
-      if (openingGroupId) {
-        return;
-      }
-
-      if (isGroupCreator(group)) {
-        openInvitationScreen(group.id);
-        return;
-      }
-
-      if (!accessToken) {
-        Alert.alert(t("home.errors.generic"));
-        return;
-      }
-
-      setOpeningGroupId(group.id);
-
-      try {
-        const creator = await isUserGroupCreator(accessToken, group.id, group);
-        if (creator) {
-          openInvitationScreen(group.id);
-          return;
-        }
-
-        openGroupDetail(router, group.id);
-      } catch (error) {
-        console.error("Failed to check group creator status:", error);
-        Alert.alert(t("home.errors.generic"));
-      } finally {
-        setOpeningGroupId(null);
-      }
+    (group: GroupSummary) => {
+      void openGroup(group);
     },
-    [accessToken, openInvitationScreen, openingGroupId, router, t],
+    [openGroup],
   );
 
   const handleBack = useCallback(() => {
@@ -152,19 +105,16 @@ export default function GroupsScreen() {
           />
         </View>
       ) : hasGroups ? (
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <ReturningUserGroupsContent
-            groups={groups}
-            joinedSuccessMessage={joinedSuccessMessage}
-            openingGroupId={openingGroupId}
-            onCreateGroupPress={handleCreateGroupPress}
-            onGroupPress={(group) => void handleGroupPress(group)}
-          />
-        </ScrollView>
+        <ReturningUserGroupsContent
+          groups={groups}
+          joinedSuccessMessage={joinedSuccessMessage}
+          openingGroupId={openingGroupId}
+          onCreateGroupPress={handleCreateGroupPress}
+          onGroupPress={(group) => void handleGroupPress(group)}
+          onEndReached={() => void fetchNextPage()}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+        />
       ) : (
         <ScrollView
           style={styles.scroll}

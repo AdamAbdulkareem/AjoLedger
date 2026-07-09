@@ -12,6 +12,11 @@ const UNKNOWN_BANK_NAME = "Unknown bank";
 let cachedBanks: Bank[] | null = null;
 let cachedBanksToken: string | null = null;
 
+export function clearBanksCache(): void {
+  cachedBanks = null;
+  cachedBanksToken = null;
+}
+
 export async function getBanks(token: string): Promise<Bank[]> {
   if (cachedBanks && cachedBanksToken === token) {
     return cachedBanks;

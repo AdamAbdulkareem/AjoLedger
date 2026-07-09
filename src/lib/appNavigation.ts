@@ -12,6 +12,22 @@ export function openGroupDetail(router: Pick<AppRouter, "push">, groupId: string
   });
 }
 
+export function openGroupInvite(
+  router: Pick<AppRouter, "push">,
+  groupId: string,
+  expectedParticipants?: number,
+) {
+  router.push({
+    pathname: "/(app)/groups/invite",
+    params: {
+      groupId,
+      ...(expectedParticipants != null
+        ? { expectedParticipants: String(expectedParticipants) }
+        : {}),
+    },
+  });
+}
+
 export function openGroupsTab(router: Pick<AppRouter, "replace">) {
   router.replace("/(app)/groups");
 }

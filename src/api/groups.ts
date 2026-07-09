@@ -12,7 +12,19 @@ import {
 } from "../lib/groupApiNormalize";
 import { getAllGroupMetadata, getStoredGroupMetadata } from "../lib/groupMetadataStorage";
 import { getJoinedMembers } from "../lib/groupMembers";
+import {
+  createdGroupSchema,
+  joinGroupResultSchema,
+} from "../lib/schemas/apiSchemas";
+import { validateApiPayload, validateGroupSummaries } from "../lib/validateApiResponse";
 import { apiRequest } from "./client";
+
+export const GROUPS_PAGE_SIZE = 20;
+
+export type GroupsListParams = {
+  page?: number;
+  limit?: number;
+};
 
 function resolveParticipantCount(
   apiCount: number,
@@ -50,9 +62,23 @@ function finalizeGroupDetails(
   };
 }
 
-export async function getUserGroups(token: string): Promise<GroupSummary[]> {
-  const envelope = await apiRequest<unknown[]>("/groups", { token });
+export async function getUserGroups(
+  token: string,
+  params?: GroupsListParams,
+): Promise<GroupSummary[]> {
+  const search = new URLSearchParams();
+  if (params?.page != null) {
+    search.set("page", String(params.page));
+  }
+  if (params?.limit != null) {
+    search.set("limit", String(params.limit));
+  }
+
+  const query = search.toString();
+  const path = query ? `/groups?${query}` : "/groups";
+  const envelope = await apiRequest<unknown[]>(path, { token });
   const groups = (envelope.data ?? []).map(normalizeGroupSummaryFromApi);
+  validateGroupSummaries(groups);
   const metadataMap = await getAllGroupMetadata();
 
   return groups.map((group) => {
@@ -86,7 +112,11 @@ export async function createGroup(
     throw new Error("Group creation returned no data.");
   }
 
-  return envelope.data;
+  return validateApiPayload(
+    createdGroupSchema,
+    envelope.data,
+    "Group creation failed.",
+  );
 }
 
 export async function joinGroup(
@@ -103,7 +133,11 @@ export async function joinGroup(
     throw new Error("Join group returned no data.");
   }
 
-  return envelope.data;
+  return validateApiPayload(
+    joinGroupResultSchema,
+    envelope.data,
+    "Join group failed.",
+  );
 }
 
 export async function getGroupDetails(

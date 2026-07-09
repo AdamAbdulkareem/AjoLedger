@@ -73,6 +73,7 @@ export type HomeTabKey = "home" | "groups" | "profile";
 
 export type GroupHomeDashboard = {
   groupId: string;
+  isCreator: boolean;
   contributionStatusKey: GroupContributionStatusKey;
   group: SavingsGroupSummary;
   progress: ContributionProgress;

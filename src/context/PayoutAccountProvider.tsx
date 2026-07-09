@@ -2,20 +2,26 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
 
 import {
-  getPayoutAccountStatus,
-  saveSetupBank,
-} from "../api/payoutAccount";
+  findBankName,
+  isPayoutConfigured,
+  payoutAccountFromUser,
+} from "../api/banks";
+import { saveSetupBank } from "../api/payoutAccount";
 import { ApiError } from "../api/client";
 import { clearBankSetupSkipped } from "../lib/bankSetupSkipStorage";
+import {
+  invalidateBanksQueries,
+  invalidateUserQueries,
+} from "../lib/invalidateQueries";
 import { useAuth } from "./AuthProvider";
+import { useCurrentUser } from "./CurrentUserProvider";
+import { useBanksQuery } from "../hooks/queries/useBanksQuery";
 import type { PayoutAccount, SetupBankPayload } from "../models/payoutAccount";
 
 type PayoutAccountContextValue = {
@@ -38,85 +44,95 @@ const PayoutAccountContext = createContext<PayoutAccountContextValue | null>(
 );
 
 export function PayoutAccountProvider({ children }: { children: ReactNode }) {
-  const { accessToken, user } = useAuth();
+  const { accessToken, user, status } = useAuth();
   const userId = user?.id;
-  const requestIdRef = useRef(0);
+  const isAuthenticated = status === "authenticated";
+  const {
+    currentUser,
+    loading: userLoading,
+    error: userError,
+  } = useCurrentUser();
 
-  const [hasPayoutAccount, setHasPayoutAccount] = useState<boolean | null>(null);
-  const [account, setAccount] = useState<PayoutAccount | null>(null);
-  const [loading, setLoading] = useState(true);
+  const payoutConfigured = currentUser
+    ? isPayoutConfigured(currentUser)
+    : null;
+
+  const banksQuery = useBanksQuery(
+    accessToken,
+    isAuthenticated && payoutConfigured === true,
+  );
+
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [mutationError, setMutationError] = useState<string | null>(null);
+
+  const hasPayoutAccount = useMemo(() => {
+    if (!isAuthenticated || !accessToken || !userId) return null;
+    if (userLoading || !currentUser) return null;
+    return payoutConfigured === true;
+  }, [
+    isAuthenticated,
+    accessToken,
+    userId,
+    userLoading,
+    currentUser,
+    payoutConfigured,
+  ]);
+
+  const account = useMemo(() => {
+    if (!currentUser || payoutConfigured !== true) return null;
+
+    const bankName = banksQuery.data
+      ? findBankName(banksQuery.data, currentUser.payoutBankCode!)
+      : undefined;
+
+    return payoutAccountFromUser(currentUser, bankName);
+  }, [currentUser, payoutConfigured, banksQuery.data]);
+
+  const loading =
+    isAuthenticated &&
+    (userLoading || (payoutConfigured === true && banksQuery.isLoading));
+
+  const error = userError ?? resolveQueryError(banksQuery.error) ?? mutationError;
 
   const refresh = useCallback(async () => {
-    const requestId = ++requestIdRef.current;
-
-    if (!accessToken || !userId) {
-      if (requestId !== requestIdRef.current) return;
-      setHasPayoutAccount(null);
-      setAccount(null);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const status = await getPayoutAccountStatus(accessToken, userId);
-      if (requestId !== requestIdRef.current) return;
-      setHasPayoutAccount(status.configured);
-      setAccount(status.account);
-    } catch (err) {
-      if (requestId !== requestIdRef.current) return;
-      setHasPayoutAccount(null);
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "Something went wrong. Please try again.",
-      );
-    } finally {
-      if (requestId !== requestIdRef.current) return;
-      setLoading(false);
-    }
-  }, [accessToken, userId]);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    await Promise.all([
+      invalidateUserQueries(accessToken),
+      payoutConfigured ? invalidateBanksQueries(accessToken) : Promise.resolve(),
+    ]);
+  }, [accessToken, payoutConfigured]);
 
   const clearError = useCallback(() => {
-    setError(null);
+    setMutationError(null);
   }, []);
 
   const setupBank = useCallback(
     async (
       payload: SetupBankPayload,
-      bankName: string,
+      _bankName: string,
     ): Promise<"success" | "failed" | "already_configured"> => {
-      if (!accessToken || !userId) return "failed";
+      if (!accessToken || !userId || status !== "authenticated") return "failed";
 
       setSaving(true);
-      setError(null);
+      setMutationError(null);
 
       try {
-        const status = await saveSetupBank(accessToken, payload);
-        setHasPayoutAccount(status.configured);
-        setAccount(
-          status.account
-            ? { ...status.account, bankName }
-            : null,
-        );
-        if (status.configured) {
+        const result = await saveSetupBank(accessToken, payload);
+        await Promise.all([
+          invalidateUserQueries(accessToken),
+          invalidateBanksQueries(accessToken),
+        ]);
+
+        if (result.configured) {
           await clearBankSetupSkipped(userId);
         }
+
         return "success";
       } catch (err) {
         const message =
           err instanceof ApiError
             ? err.message
             : "Something went wrong. Please try again.";
-        setError(message);
+        setMutationError(message);
         if (isBankAlreadyConfiguredError(err)) {
           return "already_configured";
         }
@@ -125,7 +141,7 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
         setSaving(false);
       }
     },
-    [accessToken, userId],
+    [accessToken, userId, status],
   );
 
   const value = useMemo<PayoutAccountContextValue>(
@@ -139,7 +155,16 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
       refresh,
       clearError,
     }),
-    [hasPayoutAccount, account, loading, saving, error, setupBank, refresh, clearError],
+    [
+      hasPayoutAccount,
+      account,
+      loading,
+      saving,
+      error,
+      setupBank,
+      refresh,
+      clearError,
+    ],
   );
 
   return (
@@ -147,6 +172,12 @@ export function PayoutAccountProvider({ children }: { children: ReactNode }) {
       {children}
     </PayoutAccountContext.Provider>
   );
+}
+
+function resolveQueryError(error: unknown): string | null {
+  if (!error) return null;
+  if (error instanceof ApiError) return error.message;
+  return "Something went wrong. Please try again.";
 }
 
 export function usePayoutAccountGate(): PayoutAccountContextValue {

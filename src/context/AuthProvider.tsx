@@ -11,6 +11,7 @@ import {
 import { AppState, type AppStateStatus } from "react-native";
 
 import { loginUser, registerUser } from "../api/auth";
+import { clearBanksCache } from "../api/banks";
 import { ApiError } from "../api/client";
 import {
   clearAccessPasscode,
@@ -19,6 +20,7 @@ import {
   saveAccessPasscode,
   verifyAccessPasscode,
 } from "../lib/accessPasscodeStorage";
+import { promptBiometricAuth } from "../lib/biometricAuth";
 import {
   clearBiometricsEnabled,
   isBiometricsEnabled,
@@ -30,12 +32,29 @@ import {
   setAccessToken,
   setStoredUser,
 } from "../lib/authStorage";
+import { setUnauthorizedHandler } from "../lib/authSessionHandler";
+import {
+  clearPasscodeLockout,
+  getPasscodeLockoutStatus,
+  recordPasscodeFailure,
+} from "../lib/passcodeLockout";
+import { clearQueryCache } from "../lib/queryClient";
+import { setObservabilityUser } from "../lib/observability";
 import { isLegacyMockAccessToken } from "../config/api";
 import {
+  BIOMETRIC_CANCELLED,
+  BIOMETRIC_NOT_ENROLLED,
   INCORRECT_ACCESS_PASSCODE,
+  PASSCODE_LOCKED_OUT,
   type AuthStatus,
   type User,
 } from "../models/auth";
+
+export type BiometricUnlockOptions = {
+  promptMessage: string;
+  /** When true, user/system cancel does not throw (used for auto-prompt on screen focus). */
+  silentFailure?: boolean;
+};
 
 type AuthContextValue = {
   status: AuthStatus;
@@ -45,8 +64,7 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<AuthStatus>;
   setupAccessPasscode: (passcode: string) => Promise<void>;
   verifyAccessPasscode: (passcode: string) => Promise<void>;
-  unlockWithBiometrics: () => Promise<void>;
-  resetAccessPasscode: () => Promise<void>;
+  unlockWithBiometrics: (options: BiometricUnlockOptions) => Promise<void>;
   logout: () => Promise<void>;
   updateSessionUser: (nextUser: User) => Promise<void>;
 };
@@ -89,6 +107,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    setObservabilityUser(user);
+  }, [user]);
+
+  useEffect(() => {
     let cancelled = false;
 
     async function bootstrap() {
@@ -99,7 +121,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ]);
 
         if (isLegacyMockAccessToken(token)) {
-          if (storedUser) await clearAccessPasscode(storedUser.id);
+          if (storedUser) {
+            await Promise.all([
+              clearAccessPasscode(storedUser.id),
+              clearPasscodeLockout(storedUser.id),
+            ]);
+          }
           await clearSessionStorage();
           if (cancelled) return;
           setAccessTokenState(null);
@@ -217,6 +244,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       await saveAccessPasscode(user.id, passcode);
+      await clearPasscodeLockout(user.id);
       setAccessPasscodeConfigured(true);
       setAccessPasscodeUnlocked(true);
       setStatus("authenticated");
@@ -232,55 +260,87 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new ApiError("Access passcode must be 6 digits.");
       }
 
+      const lockout = await getPasscodeLockoutStatus(user.id);
+      if (lockout.locked) {
+        throw new ApiError(PASSCODE_LOCKED_OUT, undefined, {
+          remainingSeconds: lockout.remainingSeconds,
+        });
+      }
+
       const valid = await verifyAccessPasscode(user.id, passcode);
       if (!valid) {
+        const nextLockout = await recordPasscodeFailure(user.id);
+        if (nextLockout.locked) {
+          throw new ApiError(PASSCODE_LOCKED_OUT, undefined, {
+            remainingSeconds: nextLockout.remainingSeconds,
+          });
+        }
         throw new ApiError(INCORRECT_ACCESS_PASSCODE);
       }
 
+      await clearPasscodeLockout(user.id);
       setAccessPasscodeUnlocked(true);
       setStatus("authenticated");
     },
     [user],
   );
 
-  const unlockWithBiometrics = useCallback(async () => {
-    if (!user) throw new ApiError("You are not signed in.");
+  const unlockWithBiometrics = useCallback(
+    async ({ promptMessage, silentFailure = false }: BiometricUnlockOptions) => {
+      if (!user) throw new ApiError("You are not signed in.");
 
-    const enabled = await isBiometricsEnabled(user.id);
-    if (!enabled) {
-      throw new ApiError("Biometric unlock is not enabled.");
-    }
+      const enabled = await isBiometricsEnabled(user.id);
+      if (!enabled) {
+        throw new ApiError("Biometric unlock is not enabled.");
+      }
 
-    setAccessPasscodeUnlocked(true);
-    setStatus("authenticated");
-  }, [user]);
+      const result = await promptBiometricAuth(promptMessage);
+      if (!result.success) {
+        if (silentFailure && result.cancelled) return;
 
-  const resetAccessPasscode = useCallback(async () => {
-    if (!user) return;
+        if (result.error === "not_enrolled") {
+          throw new ApiError(BIOMETRIC_NOT_ENROLLED);
+        }
+        if (result.cancelled) {
+          throw new ApiError(BIOMETRIC_CANCELLED);
+        }
+        throw new ApiError("Biometric unlock failed.");
+      }
 
-    await Promise.all([
-      clearAccessPasscode(user.id),
-      clearBiometricsEnabled(user.id),
-    ]);
-    setAccessPasscodeConfigured(false);
-    setAccessPasscodeUnlocked(false);
-    setStatus("needsPasscodeSetup");
-  }, [user]);
+      await clearPasscodeLockout(user.id);
+      setAccessPasscodeUnlocked(true);
+      setStatus("authenticated");
+    },
+    [user],
+  );
 
   const logout = useCallback(async () => {
     if (user) {
       await Promise.all([
         clearAccessPasscode(user.id),
         clearBiometricsEnabled(user.id),
+        clearPasscodeLockout(user.id),
       ]);
     }
     await clearSessionStorage();
+    clearBanksCache();
+    clearQueryCache();
     setAccessTokenState(null);
     setUser(null);
     setAccessPasscodeConfigured(false);
     setAccessPasscodeUnlocked(false);
     setStatus("unauthenticated");
   }, [user]);
+
+  const logoutRef = useRef(logout);
+  logoutRef.current = logout;
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      void logoutRef.current();
+    });
+    return () => setUnauthorizedHandler(null);
+  }, []);
 
   const updateSessionUser = useCallback(async (nextUser: User) => {
     await setStoredUser(nextUser);
@@ -297,7 +357,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setupAccessPasscode,
       verifyAccessPasscode: verifyAccessPasscodeEntry,
       unlockWithBiometrics,
-      resetAccessPasscode,
       logout,
       updateSessionUser,
     }),
@@ -310,7 +369,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setupAccessPasscode,
       verifyAccessPasscodeEntry,
       unlockWithBiometrics,
-      resetAccessPasscode,
       logout,
       updateSessionUser,
     ],

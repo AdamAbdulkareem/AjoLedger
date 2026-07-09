@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 
-import { getUserGroups } from "../api/groups";
 import { ApiError } from "../api/client";
-import { getRememberedCreatorGroupIds } from "../lib/creatorGroupsStorage";
+import { useInfiniteUserGroupsQuery } from "./queries/useInfiniteUserGroupsQuery";
 import type { GroupSummary } from "../models/group";
 
 type UseUserGroupsResult = {
@@ -10,55 +9,59 @@ type UseUserGroupsResult = {
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
+  fetchNextPage: () => Promise<void>;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
 };
 
-function applyRememberedCreatorFlags(
-  groups: GroupSummary[],
-  creatorGroupIds: Set<string>,
-): GroupSummary[] {
-  return groups.map((group) => ({
-    ...group,
-    isCreator: group.isCreator || creatorGroupIds.has(group.id),
-  }));
+function resolveQueryError(error: unknown): string | null {
+  if (!error) return null;
+  if (error instanceof ApiError) return error.message;
+  return "Something went wrong. Please try again.";
 }
 
-export function useUserGroups(token: string | null): UseUserGroupsResult {
-  const [groups, setGroups] = useState<GroupSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function useUserGroups(
+  token: string | null,
+  enabled = true,
+): UseUserGroupsResult {
+  const query = useInfiniteUserGroupsQuery(token, enabled);
+
+  const groups = useMemo(
+    () => query.data?.pages.flat() ?? [],
+    [query.data],
+  );
 
   const refresh = useCallback(async () => {
-    if (!token) {
-      setGroups([]);
-      setLoading(false);
-      setError("You are not signed in.");
+    await query.refetch();
+  }, [query]);
+
+  const fetchNextPage = useCallback(async () => {
+    if (!query.hasNextPage || query.isFetchingNextPage) {
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    await query.fetchNextPage();
+  }, [query]);
 
-    try {
-      const [list, creatorGroupIds] = await Promise.all([
-        getUserGroups(token),
-        getRememberedCreatorGroupIds(),
-      ]);
-      setGroups(applyRememberedCreatorFlags(list, creatorGroupIds));
-    } catch (err) {
-      setGroups([]);
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "Something went wrong. Please try again.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+  if (!token) {
+    return {
+      groups: [],
+      loading: false,
+      error: "You are not signed in.",
+      refresh,
+      fetchNextPage,
+      hasNextPage: false,
+      isFetchingNextPage: false,
+    };
+  }
 
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
-
-  return { groups, loading, error, refresh };
+  return {
+    groups,
+    loading: query.isLoading,
+    error: resolveQueryError(query.error),
+    refresh,
+    fetchNextPage,
+    hasNextPage: query.hasNextPage ?? false,
+    isFetchingNextPage: query.isFetchingNextPage,
+  };
 }

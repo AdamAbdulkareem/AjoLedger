@@ -5,6 +5,7 @@ import { formatShortDate } from "../../lib/formatDate";
 import { formatPlainAmount, formatNaira } from "../../lib/formatMoney";
 import { getCarouselProgressTone } from "../../lib/carouselProgressTone";
 import { formatDaysToGo } from "../../lib/homeSpeech";
+import { GroupRoleBadge } from "../groups/GroupRoleBadge";
 import type { GroupHomeDashboard } from "../../models/home";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
 
@@ -73,20 +74,24 @@ export function HomeGroupCarouselCard({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected: isSelected }}
-      accessibilityLabel={dashboard.group.name}
+      accessibilityLabel={`${dashboard.group.name}. ${dashboard.isCreator ? t("groups.list.creatorBadge") : t("groups.list.memberBadge")}`}
       style={({ pressed }) => [
         styles.card,
         {
           width: cardWidth,
           minHeight: cardHeight,
         },
+        isSelected ? styles.cardSelected : null,
         pressed && styles.pressed,
       ]}
     >
       <View style={styles.header}>
-        <Text style={styles.name} numberOfLines={1}>
-          {dashboard.group.name}
-        </Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.name} numberOfLines={1}>
+            {dashboard.group.name}
+          </Text>
+          <GroupRoleBadge isCreator={dashboard.isCreator} compact />
+        </View>
         <Text style={styles.cycle} numberOfLines={2}>
           {t("home.cycleAmount", {
             frequency: frequencyLabel,
@@ -148,10 +153,20 @@ const createStyles = (theme: Theme) =>
       gap: 12,
       justifyContent: "space-between",
     },
+    cardSelected: {
+      paddingVertical: 12,
+      gap: 18,
+    },
     pressed: {
       opacity: 0.94,
     },
     header: {
+      gap: 4,
+    },
+    titleRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
       gap: 4,
     },
     name: {
@@ -159,6 +174,7 @@ const createStyles = (theme: Theme) =>
       fontSize: 14,
       lineHeight: 16,
       color: theme.colors.textPrimary,
+      flex: 1,
     },
     cycle: {
       ...theme.typography.micro,

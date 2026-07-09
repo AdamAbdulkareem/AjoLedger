@@ -51,10 +51,10 @@ export function WhySaveWithAjoLedger() {
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
     card: {
-      backgroundColor: theme.colors.cardFooterBg,
-      borderRadius: 14,
+      backgroundColor: theme.colors.carouselCardBg,
+      borderRadius: 5,
       borderWidth: 1,
-      borderColor: theme.colors.inputBorder,
+      borderColor: theme.colors.cardBorderMuted,
       padding: 10,
       gap: 11,
     },

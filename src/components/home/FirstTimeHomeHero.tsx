@@ -43,8 +43,8 @@ const createStyles = (theme: Theme) =>
   StyleSheet.create({
     card: {
       flexDirection: "row",
-      backgroundColor: theme.colors.savingsCardBg,
-      borderRadius: 14,
+      backgroundColor: theme.colors.payoutIconBg,
+      borderRadius: 20,
       minHeight: 148,
       overflow: "hidden",
     },
@@ -60,7 +60,7 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       fontFamily: theme.fontFamily.semibold,
-      fontSize: 18,
+      fontSize: 16,
       lineHeight: 24,
       color: theme.colors.textPrimary,
     },
@@ -70,8 +70,8 @@ const createStyles = (theme: Theme) =>
     },
     cta: {
       alignSelf: "flex-start",
-      backgroundColor: theme.colors.activityPayoutBg,
-      borderRadius: 8,
+      backgroundColor: theme.colors.brand,
+      borderRadius: 10,
       paddingHorizontal: 10,
       paddingVertical: 8,
       marginTop: 4,

@@ -124,6 +124,26 @@ export async function saveAccessPasscode(
   ]);
 }
 
+function isPbkdf2Hash(storedHash: string): boolean {
+  return storedHash.length === PBKDF2_DK_LEN * 2;
+}
+
+async function migrateLegacyPasscodeHash(
+  userId: string,
+  passcode: string,
+): Promise<void> {
+  const salt = await createSalt();
+  const hash = hashAccessPasscode(passcode, salt);
+
+  await Promise.all([
+    setSecureItem(hashKey(userId), hash),
+    setSecureItem(saltKey(userId), salt),
+    deleteSecureItem(legacyHashKey(userId)),
+    deleteSecureItem(legacySaltKey(userId)),
+    deleteSecureItem(legacyPinConfiguredKey(userId)),
+  ]);
+}
+
 export async function verifyAccessPasscode(
   userId: string,
   passcode: string,
@@ -134,11 +154,15 @@ export async function verifyAccessPasscode(
     const { hash: storedHash, salt } = await readStoredCredentials(userId);
     if (!storedHash || !salt) return false;
 
-    if (storedHash.length === PBKDF2_DK_LEN * 2) {
+    if (isPbkdf2Hash(storedHash)) {
       return hashAccessPasscode(passcode, salt) === storedHash;
     }
 
-    return hashAccessPasscodeLegacy(passcode, salt) === storedHash;
+    const valid = hashAccessPasscodeLegacy(passcode, salt) === storedHash;
+    if (valid) {
+      await migrateLegacyPasscodeHash(userId, passcode);
+    }
+    return valid;
   } catch {
     return false;
   }
