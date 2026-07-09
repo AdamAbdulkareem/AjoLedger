@@ -1,22 +1,30 @@
 import * as Sentry from "@sentry/react-native";
+import type { ComponentType } from "react";
 
 import type { User } from "../models/auth";
 
 type ErrorContext = Record<string, unknown>;
 
 let sentryInitialized = false;
+let sentryActive = false;
 
 function getSentryDsn(): string | undefined {
   return process.env.EXPO_PUBLIC_SENTRY_DSN?.trim() || undefined;
 }
 
 export function isSentryEnabled(): boolean {
-  return sentryInitialized;
+  return sentryActive;
 }
 
 export function initObservability(): void {
+  if (sentryInitialized) {
+    return;
+  }
+  sentryInitialized = true;
+
   const dsn = getSentryDsn();
-  if (!dsn || sentryInitialized) {
+  if (!dsn) {
+    // No DSN: do not call Sentry.init/wrap — avoids App Start Span warnings in Expo Go.
     return;
   }
 
@@ -26,18 +34,36 @@ export function initObservability(): void {
     dsn,
     debug: debugEnabled,
     enabled: !__DEV__ || debugEnabled,
-    tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+    tracesSampleRate: __DEV__ ? 0 : 0.2,
     integrations: [
-      Sentry.reactNativeTracingIntegration({ traceFetch: true }),
-      Sentry.breadcrumbsIntegration({ fetch: true }),
+      Sentry.reactNativeTracingIntegration({
+        traceFetch: !__DEV__,
+      }),
+      Sentry.breadcrumbsIntegration({
+        fetch: !__DEV__,
+      }),
     ],
   });
 
-  sentryInitialized = true;
+  sentryActive = true;
 
   setErrorReporter((error, context) => {
     Sentry.captureException(error, { extra: context });
   });
+}
+
+/**
+ * Wrap the root with Sentry only when a DSN is configured and init ran.
+ * Otherwise return the component unchanged (Expo Go / local without Sentry).
+ */
+export function wrapRoot<P extends Record<string, unknown>>(
+  Root: ComponentType<P>,
+): ComponentType<P> {
+  if (!sentryActive) {
+    return Root;
+  }
+
+  return Sentry.wrap(Root);
 }
 
 let errorReporter: ((error: unknown, context?: ErrorContext) => void) | null =
@@ -62,7 +88,7 @@ export function reportError(error: unknown, context?: ErrorContext): void {
 }
 
 export function setObservabilityUser(user: User | null): void {
-  if (!sentryInitialized) {
+  if (!sentryActive) {
     return;
   }
 

@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,53 +10,37 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
-import { PayoutOrderContent } from "../../../components/groups/PayoutOrderContent";
+import { GroupLedgerContent } from "../../../components/groups/GroupLedgerContent";
 import { HomeTabBar } from "../../../components/home/HomeTabBar";
 import { SubScreenHeader } from "../../../components/profile/SubScreenHeader";
 import { Button } from "../../../components/Button";
 import { ApiError } from "../../../api/client";
 import { useAuth } from "../../../context/AuthProvider";
 import { useCurrentUser } from "../../../context/CurrentUserProvider";
-import { useAssignPayoutOrderMutation } from "../../../hooks/mutations/useAssignPayoutOrderMutation";
 import { useGroupDetailsQuery } from "../../../hooks/queries/useGroupDetailsQuery";
-import { useRequireGroupCreator } from "../../../hooks/useRequireGroupCreator";
-import { useRedirectWhenCycleActive } from "../../../hooks/useRedirectWhenCycleActive";
-import { openGroupLedger } from "../../../lib/appNavigation";
-import { getJoinedMembers } from "../../../lib/groupMembers";
+import { openGroupDetail, openGroupInvite } from "../../../lib/appNavigation";
+import { hasActiveGroupCycle, isPreCycleGroup } from "../../../lib/groupCycle";
+import { isGroupAdminForCurrentUser } from "../../../lib/groupApiNormalize";
 import { useTheme, useThemedStyles, type Theme } from "../../../theme";
 
-type PayoutOrderParams = {
+type LedgerParams = {
   groupId?: string;
-  expectedParticipants?: string;
 };
 
-function parseExpectedParticipants(value: string | undefined): number | undefined {
-  if (typeof value !== "string" || !value.trim()) {
-    return undefined;
-  }
-
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-}
-
-export default function PayoutOrderScreen() {
+export default function GroupLedgerScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
   const { accessToken, user } = useAuth();
   const { currentUser } = useCurrentUser();
-  const params = useLocalSearchParams<PayoutOrderParams>();
+  const params = useLocalSearchParams<LedgerParams>();
 
   const groupId = typeof params.groupId === "string" ? params.groupId : "";
-  const expectedParticipants = parseExpectedParticipants(
-    params.expectedParticipants,
-  );
   const currentUserIdentity = {
     id: user?.id ?? currentUser?.id,
     email: user?.email ?? currentUser?.email,
   };
-
   const identityReady = Boolean(currentUserIdentity.email);
 
   const {
@@ -66,30 +49,12 @@ export default function PayoutOrderScreen() {
     error: queryError,
     refetch,
   } = useGroupDetailsQuery(accessToken, groupId, {
-    expectedParticipants,
     currentUser: currentUserIdentity,
     enabled: !!groupId && !!accessToken && identityReady,
   });
 
-  const { canAccess, isChecking } = useRequireGroupCreator({
-    groupId,
-    details,
-    isLoading: isLoading || !identityReady,
-    currentUser: currentUserIdentity,
-  });
-
-  useRedirectWhenCycleActive({
-    groupId,
-    details,
-    isLoading: isChecking || isLoading,
-  });
-
-  const assignMutation = useAssignPayoutOrderMutation(accessToken);
-
-  const members = useMemo(
-    () => (details && canAccess ? getJoinedMembers(details.members) : []),
-    [canAccess, details],
-  );
+  const isAdmin =
+    details != null && isGroupAdminForCurrentUser(details, currentUserIdentity);
 
   useEffect(() => {
     if (!groupId) {
@@ -97,44 +62,20 @@ export default function PayoutOrderScreen() {
     }
   }, [groupId, router]);
 
-  const handleStartContribution = useCallback(
-    (orderedMembershipIds: string[]) => {
-      if (!groupId || !canAccess) return;
+  useEffect(() => {
+    if (isLoading || !details || !groupId) {
+      return;
+    }
 
-      const assignments = orderedMembershipIds.map((membershipId, index) => ({
-        membershipId,
-        payoutTurn: index + 1,
-      }));
+    if (isPreCycleGroup(details)) {
+      if (isGroupAdminForCurrentUser(details, currentUserIdentity)) {
+        openGroupInvite(router, groupId, details.numberOfParticipants);
+        return;
+      }
 
-      assignMutation.mutate(
-        { groupId, payload: { assignments } },
-        {
-          onSuccess: () => {
-            Alert.alert(
-              t("groups.payoutOrder.successTitle"),
-              t("groups.payoutOrder.successBody"),
-              [
-                {
-                  text: t("common.ok"),
-                  onPress: () => {
-                    openGroupLedger(router, groupId, { replace: true });
-                  },
-                },
-              ],
-            );
-          },
-          onError: (error) => {
-            const message =
-              error instanceof ApiError
-                ? error.message
-                : t("groups.payoutOrder.errors.generic");
-            Alert.alert(t("groups.payoutOrder.errors.title"), message);
-          },
-        },
-      );
-    },
-    [assignMutation, canAccess, groupId, router, t],
-  );
+      openGroupDetail(router, groupId, { replace: true });
+    }
+  }, [currentUserIdentity, details, groupId, isLoading, router]);
 
   const error =
     queryError instanceof ApiError
@@ -147,13 +88,13 @@ export default function PayoutOrderScreen() {
     return null;
   }
 
-  const showCreatorUi = canAccess && !isChecking && details;
+  const showLedger = details && hasActiveGroupCycle(details);
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <SubScreenHeader title={t("groups.payoutOrder.title")} />
+      <SubScreenHeader title={t("groups.ledger.title")} />
 
-      {isChecking || !showCreatorUi ? (
+      {!showLedger ? (
         <View style={styles.centered}>
           {error && !details ? (
             <>
@@ -174,16 +115,7 @@ export default function PayoutOrderScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <PayoutOrderContent
-            members={members}
-            slotsTotal={
-              details.numberOfParticipants ??
-              expectedParticipants ??
-              members.length
-            }
-            submitting={assignMutation.isPending}
-            onStartContribution={handleStartContribution}
-          />
+          <GroupLedgerContent group={details} isAdmin={isAdmin} />
         </ScrollView>
       )}
 
@@ -202,7 +134,6 @@ const createStyles = (theme: Theme) =>
       flex: 1,
     },
     scrollContent: {
-      flexGrow: 1,
       paddingHorizontal: 18,
       paddingTop: theme.spacing.sm,
       paddingBottom: theme.spacing.lg,

@@ -512,3 +512,45 @@ describe("resolveGroupDetailsIsCreator", () => {
     ).toBe(false);
   });
 });
+
+describe("active cycle detection", () => {
+  it("marks pre-cycle groups when activeCycle is null", () => {
+    const details = normalizeGroupDetailsFromApi({
+      id: "g-pre",
+      name: "Pre Cycle",
+      inviteCode: "AJO-PRE001",
+      activeCycle: null,
+      members: [],
+    });
+
+    expect(details.hasActiveCycle).toBe(false);
+  });
+
+  it("marks active cycle from activeCycle payload", () => {
+    const details = normalizeGroupDetailsFromApi({
+      id: "g-live",
+      name: "Live Cycle",
+      inviteCode: "AJO-LIVE01",
+      activeCycle: {
+        id: "cycle-1",
+        currentCycle: 1,
+        currentWeek: 2,
+        status: "ACTIVE",
+      },
+      members: [],
+    });
+
+    expect(details.hasActiveCycle).toBe(true);
+    expect(details.cycleDetails?.currentWeek).toBe(2);
+  });
+
+  it("marks active cycle from cycleDetails.currentCycle fallback", () => {
+    const summary = normalizeGroupSummaryFromApi({
+      id: "g-sum",
+      name: "Summary",
+      cycleDetails: { currentCycle: 1, potCollected: 100000 },
+    });
+
+    expect(summary.hasActiveCycle).toBe(true);
+  });
+});

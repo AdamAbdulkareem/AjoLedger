@@ -332,6 +332,31 @@
       "payInBody": "Aika gudummawarka zuwa wannan asusun.",
       "copyAccount": "Kwafi lambar asusu",
       "accountPending": "Ana shirya asusun ƙungiyar ku. Duba daga baya."
+    },
+    "ledger": {
+      "title": "Ledger",
+      "active": "Active",
+      "cycleLine": "{{frequency}} · {{amount}} per member",
+      "weekProgress": "week {{current}} of {{total}}",
+      "dueDate": "Due Date",
+      "expectedAmount": "Expected Amount",
+      "adminPaymentTitle": "Admin Payment & Virtual Account",
+      "weekContributionTitle": "Week {{week}} Contribution",
+      "myContributionStatus": "My Contribution Status",
+      "weekPayment": "Week {{week}} Payment",
+      "virtualAccountTitle": "Your Virtual Account",
+      "bankLine": "{{bank}}: {{account}}",
+      "copy": "Copy",
+      "goToPayout": "Go To Payout",
+      "payoutComingSoon": "Payout disbursement will be available in a future update.",
+      "pending": "Pending",
+      "totalMembers": "Total Members",
+      "memberColumn": "Member",
+      "dueAmountColumn": "Due Amount",
+      "position": "Position: #{{position}}",
+      "cleared": "Cleared",
+      "updates": "Updates",
+      "myPayoutTime": "My Payout Time"
     }
   },
   "profile": {

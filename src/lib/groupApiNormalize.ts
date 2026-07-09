@@ -256,6 +256,27 @@ function readMyDetails(raw: UnknownRecord): GroupMyDetails | undefined {
   };
 }
 
+function readHasActiveCycle(raw: UnknownRecord): boolean {
+  const activeCycle = asRecord(raw.activeCycle);
+  if (activeCycle && Object.keys(activeCycle).length > 0) {
+    const status = readString(activeCycle.status)?.toUpperCase();
+    if (status === "DRAFT" || status === "PENDING_SETUP") {
+      return false;
+    }
+    return true;
+  }
+
+  const cycleDetails = asRecord(raw.cycleDetails);
+  if (cycleDetails) {
+    const currentCycle = readNumber(cycleDetails.currentCycle);
+    if (currentCycle != null && currentCycle >= 1) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function readCycleDetails(raw: UnknownRecord): GroupCycleDetails | undefined {
   const cycleDetails = asRecord(raw.cycleDetails);
   const activeCycle = asRecord(raw.activeCycle);
@@ -266,27 +287,54 @@ function readCycleDetails(raw: UnknownRecord): GroupCycleDetails | undefined {
   }
 
   const currentCycle = readNumber(source.currentCycle);
+  const currentWeek =
+    readNumber(source.currentWeek) ??
+    readNumber(source.week) ??
+    readNumber(source.weekNumber) ??
+    currentCycle;
+  const totalWeeks =
+    readNumber(source.totalWeeks) ??
+    readNumber(source.numberOfWeeks) ??
+    readNumber(source.numberOfParticipants) ??
+    readNumber(source.participantCount);
   const contributionAmount = readNumber(source.contributionAmount);
   const potCollected = readNumber(source.potCollected);
   const potTarget = readNumber(source.potTarget);
   const nextPayoutDate = readString(source.nextPayoutDate);
+  const dueDate =
+    readString(source.dueDate) ??
+    readString(source.contributionDueDate) ??
+    nextPayoutDate;
+  const expectedAmount =
+    readNumber(source.expectedAmount) ??
+    potTarget ??
+    (contributionAmount != null && totalWeeks != null
+      ? contributionAmount * totalWeeks
+      : undefined);
 
   if (
     currentCycle == null &&
+    currentWeek == null &&
     contributionAmount == null &&
     potCollected == null &&
     potTarget == null &&
-    !nextPayoutDate
+    !nextPayoutDate &&
+    !dueDate &&
+    expectedAmount == null
   ) {
     return undefined;
   }
 
   return {
     currentCycle,
+    currentWeek,
+    totalWeeks,
     contributionAmount,
     potCollected,
     potTarget,
     nextPayoutDate,
+    dueDate,
+    expectedAmount,
   };
 }
 
@@ -322,6 +370,16 @@ function readMembers(raw: UnknownRecord): GroupMember[] {
         readNumber(member.position) ??
         readNumber(member.turn);
 
+      const contributionStatus =
+        readString(member.contributionStatus) ??
+        readString(member.paymentStatus) ??
+        readString(member.weekStatus);
+
+      const dueAmount =
+        readNumber(member.dueAmount) ??
+        readNumber(member.amountDue) ??
+        readNumber(member.remainingAmount);
+
       // Membership role only — never nested user.role (app/account role ≠ group role).
       const role =
         readString(member.role) ??
@@ -352,6 +410,12 @@ function readMembers(raw: UnknownRecord): GroupMember[] {
 
       if (payoutTurn != null && payoutTurn > 0) {
         normalized.payoutTurn = payoutTurn;
+      }
+      if (contributionStatus) {
+        normalized.contributionStatus = contributionStatus.toUpperCase();
+      }
+      if (dueAmount != null) {
+        normalized.dueAmount = dueAmount;
       }
       if (role) {
         normalized.role = role;
@@ -488,6 +552,7 @@ export function resolveGroupDetailsIsCreator(
 export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
   const record = asRecord(raw) ?? {};
   const cycleDetails = readCycleDetails(record);
+  const hasActiveCycle = readHasActiveCycle(record);
   const contributionAmount =
     readNumber(record.contributionAmount) ?? cycleDetails?.contributionAmount;
 
@@ -505,6 +570,7 @@ export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
     joinedCount: readJoinedCount(record),
     myDetails: readMyDetails(record),
     cycleDetails,
+    hasActiveCycle,
   };
 }
 
@@ -521,6 +587,7 @@ export function normalizeGroupDetailsFromApi(
   const isCreator = resolveGroupDetailsIsCreator(record, members, currentUser);
 
   const cycleDetails = readCycleDetails(record);
+  const hasActiveCycle = readHasActiveCycle(record);
   const contributionAmount =
     readNumber(record.contributionAmount) ?? cycleDetails?.contributionAmount;
 
@@ -537,6 +604,7 @@ export function normalizeGroupDetailsFromApi(
     frequency: readFrequency(record),
     myDetails,
     cycleDetails,
+    hasActiveCycle,
   };
 }
 
