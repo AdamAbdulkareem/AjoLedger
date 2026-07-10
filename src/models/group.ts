@@ -1,5 +1,7 @@
 export type ContributionFrequency = "DAILY" | "WEEKLY" | "MONTHLY";
 
+/** All `*Amount` / `pot*` money fields on group types are naira after API normalization. */
+
 export type GroupMemberStatus = "JOINED" | "PENDING";
 
 export type GroupMember = {
@@ -17,7 +19,7 @@ export type GroupMember = {
   payoutTurn?: number | null;
   /** Per-member contribution status for the active cycle week (when API provides it). */
   contributionStatus?: MemberContributionStatus | string;
-  /** Amount still due for the current week (kobo-free Naira integer). */
+  /** Amount still due for the current week (naira integer). */
   dueAmount?: number | null;
 };
 
@@ -90,6 +92,7 @@ export type CreateGroupPayload = {
   name: string;
   description?: string;
   frequency: ContributionFrequency;
+  /** Naira; converted to kobo in `api/groups.ts` on POST. */
   contributionAmount: number;
   numberOfParticipants: number;
 };

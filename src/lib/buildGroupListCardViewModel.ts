@@ -35,19 +35,51 @@ export function mapContributionStatusKey(
 ): GroupContributionStatusKey {
   const value = rawStatus?.trim().toUpperCase() ?? "";
 
-  if (value === "PAID" || value === "COMPLETE" || value === "COMPLETED") {
+  if (
+    value === "PAID" ||
+    value === "COMPLETE" ||
+    value === "COMPLETED" ||
+    value === "SUCCESS" ||
+    value === "SUCCESSFUL" ||
+    value === "CONFIRMED" ||
+    value === "RECEIVED" ||
+    value === "SETTLED"
+  ) {
     return "paid";
   }
 
   if (
     value === "PARTIAL" ||
     value === "PARTIALLY_PAID" ||
-    value === "IN_PROGRESS"
+    value === "IN_PROGRESS" ||
+    value === "UNDERPAID"
   ) {
     return "partial";
   }
 
   return "notPaid";
+}
+
+export function readMyDetailsStatus(
+  myDetails: GroupSummary["myDetails"],
+): string | undefined {
+  if (!myDetails) {
+    return undefined;
+  }
+
+  const extended = myDetails as GroupSummary["myDetails"] & {
+    paymentStatus?: string;
+    contributionStatus?: string;
+    weekStatus?: string;
+  };
+
+  return (
+    extended.status?.trim() ||
+    extended.paymentStatus?.trim() ||
+    extended.contributionStatus?.trim() ||
+    extended.weekStatus?.trim() ||
+    undefined
+  );
 }
 
 export function buildGroupListCardViewModel(
@@ -60,8 +92,9 @@ export function buildGroupListCardViewModel(
   const contributionAmount = readPositiveNumber(
     cycle?.contributionAmount ?? group.contributionAmount,
   );
-  const statusKey = myDetails?.status?.trim()
-    ? mapContributionStatusKey(myDetails.status)
+  const statusRaw = readMyDetailsStatus(myDetails);
+  const statusKey = statusRaw
+    ? mapContributionStatusKey(statusRaw)
     : "notPaid";
   const position = readPositiveNumber(myDetails?.position);
   const potCollected = readPositiveNumber(cycle?.potCollected);

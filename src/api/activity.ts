@@ -1,4 +1,5 @@
 import type { ActivityType, RecentActivityItem } from "../models/home";
+import { readKoboAsNaira } from "../lib/money";
 import { ApiError, apiRequest } from "./client";
 
 type RecentActivityApiItem = {
@@ -54,7 +55,7 @@ function normalizeRecentActivityItem(
     id: raw.id,
     type,
     occurredAt: raw.occurredAt,
-    amount: raw.amount,
+    amount: readKoboAsNaira(raw.amount),
     recipientName: raw.recipientName,
     groupId: raw.groupId,
     groupName: raw.groupName,

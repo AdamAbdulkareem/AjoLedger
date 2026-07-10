@@ -4,7 +4,11 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { useTranslation } from "react-i18next";
 
-import { mapContributionStatusKey } from "../../lib/buildGroupListCardViewModel";
+import {
+  buildGroupListCardViewModel,
+  mapContributionStatusKey,
+  readMyDetailsStatus,
+} from "../../lib/buildGroupListCardViewModel";
 import { formatNaira } from "../../lib/formatMoney";
 import type { ContributionFrequency, GroupDetails } from "../../models/group";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
@@ -64,9 +68,8 @@ export function GroupDetailContent({ group }: GroupDetailContentProps) {
   }, [virtualAccount]);
 
   const position = group.myDetails?.position;
-  const statusKey = group.myDetails?.status?.trim()
-    ? mapContributionStatusKey(group.myDetails.status)
-    : null;
+  const statusRaw = readMyDetailsStatus(group.myDetails);
+  const statusKey = statusRaw ? mapContributionStatusKey(statusRaw) : null;
 
   return (
     <View style={styles.container}>
