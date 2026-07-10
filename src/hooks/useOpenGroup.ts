@@ -13,7 +13,10 @@ import {
 } from "../lib/appNavigation";
 import { hasActiveGroupCycle } from "../lib/groupCycle";
 import { isGroupAdminForCurrentUser } from "../lib/groupApiNormalize";
-import { invalidateGroupsQueries } from "../lib/invalidateQueries";
+import {
+  invalidateGroupDetailsQueries,
+  invalidateGroupsQueries,
+} from "../lib/invalidateQueries";
 import type { GroupSummary } from "../models/group";
 
 export function useOpenGroup() {
@@ -50,6 +53,7 @@ export function useOpenGroup() {
         if (hasActiveGroupCycle(group)) {
           openGroupLedger(router, group.id);
           void invalidateGroupsQueries(accessToken);
+          void invalidateGroupDetailsQueries(accessToken, group.id);
           return;
         }
 
@@ -61,6 +65,7 @@ export function useOpenGroup() {
 
         if (hasActiveGroupCycle(details)) {
           openGroupLedger(router, group.id);
+          void invalidateGroupDetailsQueries(accessToken, group.id);
           return;
         }
 

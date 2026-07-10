@@ -1,26 +1,27 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useTranslation } from "react-i18next";
 
+import { ApiError } from "../../../api/client";
+import { Button } from "../../../components/Button";
 import { GroupLedgerContent } from "../../../components/groups/GroupLedgerContent";
 import { HomeTabBar } from "../../../components/home/HomeTabBar";
 import { SubScreenHeader } from "../../../components/profile/SubScreenHeader";
-import { Button } from "../../../components/Button";
-import { ApiError } from "../../../api/client";
 import { useAuth } from "../../../context/AuthProvider";
 import { useCurrentUser } from "../../../context/CurrentUserProvider";
 import { useGroupDetailsQuery } from "../../../hooks/queries/useGroupDetailsQuery";
 import { openGroupDetail, openGroupInvite } from "../../../lib/appNavigation";
-import { hasActiveGroupCycle, isPreCycleGroup } from "../../../lib/groupCycle";
 import { isGroupAdminForCurrentUser } from "../../../lib/groupApiNormalize";
+import { hasActiveGroupCycle, isPreCycleGroup } from "../../../lib/groupCycle";
 import { useTheme, useThemedStyles, type Theme } from "../../../theme";
 
 type LedgerParams = {
@@ -47,6 +48,8 @@ export default function GroupLedgerScreen() {
   );
   const identityReady = Boolean(currentUserIdentity.email);
 
+  const [refreshing, setRefreshing] = useState(false);
+
   const {
     data: details,
     isLoading,
@@ -59,6 +62,25 @@ export default function GroupLedgerScreen() {
 
   const isAdmin =
     details != null && isGroupAdminForCurrentUser(details, currentUserIdentity);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!groupId || !accessToken || !identityReady) {
+        return;
+      }
+
+      void refetch();
+    }, [accessToken, groupId, identityReady, refetch]),
+  );
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   useEffect(() => {
     redirectedRef.current = false;
@@ -126,6 +148,13 @@ export default function GroupLedgerScreen() {
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => void handleRefresh()}
+              tintColor={theme.colors.brand}
+            />
+          }
         >
           <GroupLedgerContent group={details} isAdmin={isAdmin} />
         </ScrollView>

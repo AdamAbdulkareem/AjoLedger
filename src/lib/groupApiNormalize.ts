@@ -6,6 +6,7 @@ import type {
   GroupSummary,
 } from "../models/group";
 import { deriveDisplayName } from "./greeting";
+import { readKoboAsNaira } from "./money";
 
 const CREATOR_ROLES = new Set([
   "ADMIN",
@@ -37,6 +38,10 @@ function readNumber(value: unknown): number | undefined {
     return Number.isFinite(parsed) ? parsed : undefined;
   }
   return undefined;
+}
+
+function readMoneyFromApi(value: unknown): number | undefined {
+  return readKoboAsNaira(value);
 }
 
 function readBoolean(value: unknown): boolean | undefined {
@@ -143,7 +148,9 @@ function readParticipantCount(raw: UnknownRecord): number {
   return 0;
 }
 
-function readVirtualAccountDisplayName(value: string | undefined): string | undefined {
+function readVirtualAccountDisplayName(
+  value: string | undefined,
+): string | undefined {
   if (!value) {
     return undefined;
   }
@@ -229,7 +236,11 @@ function readMyDetails(raw: UnknownRecord): GroupMyDetails | undefined {
   const virtualAccountNumber = readString(myDetails.virtualAccountNumber);
   const virtualBankName = readString(myDetails.virtualBankName);
   const virtualAccountName = readString(myDetails.virtualAccountName);
-  const status = readString(myDetails.status);
+  const status =
+    readString(myDetails.status) ??
+    readString(myDetails.paymentStatus) ??
+    readString(myDetails.contributionStatus) ??
+    readString(myDetails.weekStatus);
   const role =
     readString(myDetails.role) ??
     readString(myDetails.membershipRole) ??
@@ -253,6 +264,31 @@ function readMyDetails(raw: UnknownRecord): GroupMyDetails | undefined {
     virtualAccountNumber,
     virtualBankName,
     virtualAccountName,
+  };
+}
+
+/** When myDetails lacks status, use the matched membership row from GET /groups/:id. */
+function mergeMyDetailsWithMemberStatus(
+  myDetails: GroupMyDetails | undefined,
+  members: GroupMember[],
+  currentUser?: CurrentUserIdentity | null,
+): GroupMyDetails | undefined {
+  if (myDetails?.status?.trim()) {
+    return myDetails;
+  }
+
+  const myRows = findMyMembershipRows(members, currentUser);
+  const memberStatus = myRows
+    .map((row) => row.contributionStatus)
+    .find((value) => typeof value === "string" && value.trim());
+
+  if (!memberStatus) {
+    return myDetails;
+  }
+
+  return {
+    ...(myDetails ?? {}),
+    status: String(memberStatus),
   };
 }
 
@@ -297,16 +333,16 @@ function readCycleDetails(raw: UnknownRecord): GroupCycleDetails | undefined {
     readNumber(source.numberOfWeeks) ??
     readNumber(source.numberOfParticipants) ??
     readNumber(source.participantCount);
-  const contributionAmount = readNumber(source.contributionAmount);
-  const potCollected = readNumber(source.potCollected);
-  const potTarget = readNumber(source.potTarget);
+  const contributionAmount = readMoneyFromApi(source.contributionAmount);
+  const potCollected = readMoneyFromApi(source.potCollected);
+  const potTarget = readMoneyFromApi(source.potTarget);
   const nextPayoutDate = readString(source.nextPayoutDate);
   const dueDate =
     readString(source.dueDate) ??
     readString(source.contributionDueDate) ??
     nextPayoutDate;
   const expectedAmount =
-    readNumber(source.expectedAmount) ??
+    readMoneyFromApi(source.expectedAmount) ??
     potTarget ??
     (contributionAmount != null && totalWeeks != null
       ? contributionAmount * totalWeeks
@@ -376,9 +412,9 @@ function readMembers(raw: UnknownRecord): GroupMember[] {
         readString(member.weekStatus);
 
       const dueAmount =
-        readNumber(member.dueAmount) ??
-        readNumber(member.amountDue) ??
-        readNumber(member.remainingAmount);
+        readMoneyFromApi(member.dueAmount) ??
+        readMoneyFromApi(member.amountDue) ??
+        readMoneyFromApi(member.remainingAmount);
 
       // Membership role only — never nested user.role (app/account role ≠ group role).
       const role =
@@ -524,7 +560,9 @@ export function isGroupAdminForCurrentUser(
   }
 
   // Live API identifies members by email — require email when roster has emails.
-  const rosterHasEmail = details.members.some((member) => Boolean(member.email));
+  const rosterHasEmail = details.members.some((member) =>
+    Boolean(member.email),
+  );
   if (rosterHasEmail && !currentUser.email) {
     return false;
   }
@@ -554,7 +592,7 @@ export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
   const cycleDetails = readCycleDetails(record);
   const hasActiveCycle = readHasActiveCycle(record);
   const contributionAmount =
-    readNumber(record.contributionAmount) ?? cycleDetails?.contributionAmount;
+    readMoneyFromApi(record.contributionAmount) ?? cycleDetails?.contributionAmount;
 
   return {
     id: readString(record.id) ?? "",
@@ -582,14 +620,18 @@ export function normalizeGroupDetailsFromApi(
   const members = readMembers(record);
   const numberOfParticipants = readParticipantCount(record);
   const joinedCount = readJoinedCount(record, members);
-  const myDetails = readMyDetails(record);
+  const myDetails = mergeMyDetailsWithMemberStatus(
+    readMyDetails(record),
+    members,
+    currentUser,
+  );
 
   const isCreator = resolveGroupDetailsIsCreator(record, members, currentUser);
 
   const cycleDetails = readCycleDetails(record);
   const hasActiveCycle = readHasActiveCycle(record);
   const contributionAmount =
-    readNumber(record.contributionAmount) ?? cycleDetails?.contributionAmount;
+    readMoneyFromApi(record.contributionAmount) ?? cycleDetails?.contributionAmount;
 
   return {
     id: readString(record.id) ?? "",

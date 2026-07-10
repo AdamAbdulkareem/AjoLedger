@@ -13,6 +13,7 @@ import {
   isGroupAdminForCurrentUser,
   type CurrentUserIdentity,
 } from "../lib/groupApiNormalize";
+import { nairaToKobo } from "../lib/money";
 import { syncCreatorBadge } from "../lib/creatorGroupsStorage";
 import { getAllGroupMetadata, getStoredGroupMetadata } from "../lib/groupMetadataStorage";
 import { getJoinedMembers } from "../lib/groupMembers";
@@ -108,7 +109,10 @@ export async function createGroup(
 ): Promise<CreatedGroup> {
   const envelope = await apiRequest<CreatedGroup>("/groups", {
     method: "POST",
-    body: payload,
+    body: {
+      ...payload,
+      contributionAmount: nairaToKobo(payload.contributionAmount),
+    },
     token,
   });
 

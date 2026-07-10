@@ -26,7 +26,7 @@ describe("normalizeGroupSummaryFromApi", () => {
       name: "Office Ajo",
       inviteCode: "AJO-ABC123",
       isCreator: true,
-      contributionAmount: 50000,
+      contributionAmount: 5_000_000,
       frequency: "MONTHLY",
       memberLimit: 10,
       joinedCount: 3,
@@ -501,14 +501,118 @@ describe("normalizeGroupDetailsFromApi", () => {
   });
 });
 
+describe("contribution payment status", () => {
+  it("maps myDetails.paymentStatus into status on list payloads", () => {
+    const summary = normalizeGroupSummaryFromApi({
+      id: "g-pay",
+      name: "Paid Group",
+      myDetails: { paymentStatus: "SUCCESS" },
+    });
+
+    expect(summary.myDetails?.status).toBe("SUCCESS");
+  });
+
+  it("merges member paymentStatus into myDetails when status is missing", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g-pay2",
+        name: "Paid Detail",
+        inviteCode: "AJO-PAY002",
+        myDetails: { virtualAccountNumber: "1234567890" },
+        members: [
+          {
+            membershipId: "m1",
+            email: "user@example.com",
+            role: "COORDINATOR",
+            paymentStatus: "PAID",
+          },
+        ],
+      },
+      { email: "user@example.com" },
+    );
+
+    expect(details.myDetails?.status).toBe("PAID");
+  });
+
+  it("prefers myDetails.status over member paymentStatus", () => {
+    const details = normalizeGroupDetailsFromApi(
+      {
+        id: "g-pay3",
+        name: "Mixed Detail",
+        inviteCode: "AJO-PAY003",
+        myDetails: { status: "PARTIAL" },
+        members: [
+          {
+            membershipId: "m1",
+            email: "user@example.com",
+            role: "COORDINATOR",
+            paymentStatus: "PAID",
+          },
+        ],
+      },
+      { email: "user@example.com" },
+    );
+
+    expect(details.myDetails?.status).toBe("PARTIAL");
+  });
+});
+
+describe("API money (kobo → naira)", () => {
+  it("converts group contributionAmount from kobo", () => {
+    const summary = normalizeGroupSummaryFromApi({
+      id: "g-money",
+      name: "Money Group",
+      contributionAmount: 5_000_000,
+    });
+
+    expect(summary.contributionAmount).toBe(50_000);
+  });
+
+  it("converts cycleDetails money fields from kobo", () => {
+    const details = normalizeGroupDetailsFromApi({
+      id: "g-cycle-money",
+      name: "Cycle Money",
+      inviteCode: "AJO-MONEY1",
+      cycleDetails: {
+        currentCycle: 1,
+        contributionAmount: 500_000,
+        potCollected: 1_000_000,
+        potTarget: 5_000_000,
+      },
+      members: [],
+    });
+
+    expect(details.cycleDetails).toMatchObject({
+      contributionAmount: 5_000,
+      potCollected: 10_000,
+      potTarget: 50_000,
+    });
+  });
+
+  it("converts member dueAmount from kobo", () => {
+    const details = normalizeGroupDetailsFromApi({
+      id: "g-due",
+      name: "Due Group",
+      inviteCode: "AJO-DUE001",
+      members: [
+        {
+          id: "m1",
+          name: "Ada",
+          dueAmount: 250_000,
+        },
+      ],
+    });
+
+    expect(details.members[0]?.dueAmount).toBe(2_500);
+  });
+});
+
 describe("resolveGroupDetailsIsCreator", () => {
   it("never grants access from top-level isCreator alone", () => {
     expect(
-      resolveGroupDetailsIsCreator(
-        { isCreator: true, isAdmin: true },
-        [],
-        { id: "user-1" },
-      ),
+      resolveGroupDetailsIsCreator({ isCreator: true, isAdmin: true }, [], {
+        id: "user-1",
+      }),
     ).toBe(false);
   });
 });
