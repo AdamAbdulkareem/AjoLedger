@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 
 import { Button } from "../../components/Button";
@@ -28,9 +28,13 @@ export default function SupportConfirmationScreen() {
 
         <Text style={styles.title}>{t("support.confirmation.title")}</Text>
         <Text style={styles.body}>
-          {t("support.confirmation.bodyPrefix")}
-          <Text style={styles.emailHighlight}>{replyEmail}</Text>
-          {t("support.confirmation.bodySuffix")}
+          <Trans
+            i18nKey="support.confirmation.body"
+            values={{ email: replyEmail }}
+            components={{
+              highlight: <Text style={styles.emailHighlight} />,
+            }}
+          />
         </Text>
 
         <Button

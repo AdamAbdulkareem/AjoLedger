@@ -163,7 +163,8 @@
         "resolveRequired": "Kwenye akaụnt gị tupu ịga n'ihu.",
         "resolveFailed": "Enweghị ike ịkwado nkọwa akaụnt. Gbalịa ọzọ.",
         "banksLoadFailed": "Enweghị ike ibubata ụlọ akụ. Gbalịa ọzọ.",
-        "banksUnavailable": "Ndepụta ụlọ akụ adịghị adị ugbu a. Gbalịa ọzọ."
+        "banksUnavailable": "Ndepụta ụlọ akụ adịghị adị ugbu a. Gbalịa ọzọ.",
+        "pinInvalid": "Tinye PIN azụmahịa gị nke ọnụọgụgụ 4."
       }
     },
     "bankDetailsSuccess": {
@@ -393,7 +394,9 @@
       "pinConfirm": "Zipu ịkwụ ụgwọ",
       "initiatedTitle": "Amalitela ịkwụ ụgwọ",
       "initiatedBody": "A na-ahazi nyefe ego. Ihuenyo a ga-emelite mgbe ngwugwu gafere.",
-      "disburseFailed": "Enweghị ike ịmalite ịkwụ ụgwọ. Lelee PIN gị ma nwaa ọzọ."
+      "disburseFailed": "Enweghị ike ịmalite ịkwụ ụgwọ. Lelee PIN gị ma nwaa ọzọ.",
+      "pollTimedOut": "Ka a na-ahazi ya. Dọrọ ala ka ọ dị ọhụrụ ma ọ bụ lelee ọzọ.",
+      "retryPoll": "Lelee ọzọ"
     }
   },
   "profile": {
@@ -541,6 +544,8 @@
       "supportLine": "Layini Nkwado",
       "salesLine": "Ajụjụ Ire",
       "callNow": "Kpọọ Ugbu A",
+      "callFailedTitle": "Enweghị ike ịmalite oku",
+      "callFailedBody": "Ngwaọrụ gị enweghị ike imepe ngwa ekwentị. Gbalịa ọzọ ma ọ bụ jiri nkwado email.",
       "hoursTitle": "Oge Nkwado",
       "weekdayHours": "Mọnde - Fraịde: 9:00 AM - 6:00 PM EST",
       "weekendHours": "Satọde - Ụka: 10:00 AM - 4:00 PM EST"
@@ -564,8 +569,7 @@
     },
     "confirmation": {
       "title": "Ezigala Ozi!",
-      "bodyPrefix": "Daalụ maka ịkpọtụrụ anyị. Anyị ga-azaghachi gị na ",
-      "bodySuffix": " n'ime awa 24.",
+      "body": "Daalụ maka ịkpọtụrụ anyị. Anyị ga-azaghachi gị na <highlight>{{email}}</highlight> n'ime awa 24.",
       "done": "Mechaa"
     }
   },

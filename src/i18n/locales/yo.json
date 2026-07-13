@@ -162,7 +162,8 @@
         "resolveRequired": "Jẹrisi akọọlẹ rẹ ṣaaju títẹ̀ síwaju.",
         "resolveFailed": "Ko le ṣe idanwo alaye akọọlẹ. Gbiyanju lẹẹkansi.",
         "banksLoadFailed": "Ko le gba awọn banki. Gbiyanju lẹẹkansi.",
-        "banksUnavailable": "Atokọ banki ko si sibẹsibẹ. Gbiyanju lẹẹkansi."
+        "banksUnavailable": "Atokọ banki ko si sibẹsibẹ. Gbiyanju lẹẹkansi.",
+        "pinInvalid": "Tẹ PIN iṣowo rẹ ti o ni digiti 4."
       }
     },
     "bankDetailsSuccess": {
@@ -392,7 +393,9 @@
       "pinConfirm": "Fi ránṣẹ́",
       "initiatedTitle": "Isanwo ti bẹ̀rẹ̀",
       "initiatedBody": "Gbigbe owó ń lọ. Ojú-ìwé yìí yóò ṣe àtúnṣe nígbà tí yíyípadà bá parí.",
-      "disburseFailed": "Kò le bẹ̀rẹ̀ isanwo. Ṣàyẹ̀wo PIN rẹ kí o gbìyànjú sí i."
+      "disburseFailed": "Kò le bẹ̀rẹ̀ isanwo. Ṣàyẹ̀wo PIN rẹ kí o gbìyànjú sí i.",
+      "pollTimedOut": "Àkọṣe sílẹ̀ lọ. Fa isalẹ láti ṣe àtúnṣe tàbí ṣàyẹ̀wò lẹ́ẹ̀kan sí i.",
+      "retryPoll": "Ṣàyẹ̀wò lẹ́ẹ̀kan sí i"
     }
   },
   "profile": {
@@ -525,7 +528,7 @@
       },
       "phone": {
         "title": "Atileyin Foonu",
-        "subtitle": "Mọnde si Friday 9:00 AM - 5:00 PM"
+        "subtitle": "Mọnde si Friday 9:00 AM - 6:00 PM"
       },
       "message": {
         "title": "Fi Ifiranṣẹ Ranṣẹ",
@@ -540,9 +543,11 @@
       "supportLine": "Layini Atileyin",
       "salesLine": "Awọn Ibeere Tita",
       "callNow": "Pe Bayi",
+      "callFailedTitle": "Kò le bẹ̀rẹ̀ ipe",
+      "callFailedBody": "Ẹrọ rẹ kò le ṣí app foonu. Gbìyànjú lẹ́ẹ̀kan sí i tàbí lo atileyin imeeli.",
       "hoursTitle": "Awọn Wakati Atileyin",
-      "weekdayHours": "Mọnde - Friday: 9:00 AM - 6:00 PM EST",
-      "weekendHours": "Satide - Sunday: 10:00 AM - 4:00 PM EST"
+      "weekdayHours": "Mọnde - Friday: 9:00 AM - 6:00 PM WAT",
+      "weekendHours": "Satide - Sunday: 10:00 AM - 4:00 PM WAT"
     },
     "message": {
       "title": "Fi Ifiranṣẹ Ranṣẹ"
@@ -563,8 +568,7 @@
     },
     "confirmation": {
       "title": "Ifiranṣẹ Ti Ran!",
-      "bodyPrefix": "O ṣeun fun tite si wa. A o padà sí ọ ni ",
-      "bodySuffix": " laarin wakati 24.",
+      "body": "O ṣeun fun tite si wa. A o padà sí ọ ni <highlight>{{email}}</highlight> laarin wakati 24.",
       "done": "Parí"
     }
   },

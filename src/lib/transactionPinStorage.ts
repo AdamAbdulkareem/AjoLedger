@@ -24,7 +24,11 @@ export async function hasStoredTransactionPinConfigured(
 export async function setTransactionPinConfigured(
   userId: string,
 ): Promise<void> {
-  await setSecureItem(configuredKey(userId), "1");
+  try {
+    await setSecureItem(configuredKey(userId), "1");
+  } catch {
+    // Storage unavailable — skip silently.
+  }
 }
 
 export async function clearTransactionPinConfigured(

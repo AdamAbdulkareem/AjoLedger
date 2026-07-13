@@ -221,6 +221,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessPasscodeUnlocked(false);
   }, []);
 
+  const finishAuthenticatedLogin = useCallback(
+    async (token: string, nextUser: User): Promise<AuthStatus> => {
+      await persistSession(token, nextUser);
+      const passcodeConfigured = await hasAccessPasscode(nextUser.id);
+      setAccessPasscodeConfigured(passcodeConfigured);
+      const nextStatus = resolveStatus(token, passcodeConfigured, false);
+      setStatus(nextStatus);
+      return nextStatus;
+    },
+    [persistSession],
+  );
+
   const register = useCallback(
     async (email: string, password: string) => {
       const { data } = await registerUser({ email, password });
@@ -238,18 +250,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data } = await loginUser({ email, password });
       if (!data) throw new ApiError("Login failed. Please try again.");
 
-      await persistSession(data.accessToken, data.user);
-      const passcodeConfigured = await hasAccessPasscode(data.user.id);
-      setAccessPasscodeConfigured(passcodeConfigured);
-      const nextStatus = resolveStatus(
-        data.accessToken,
-        passcodeConfigured,
-        false,
-      );
-      setStatus(nextStatus);
-      return nextStatus;
+      return finishAuthenticatedLogin(data.accessToken, data.user);
     },
-    [persistSession],
+    [finishAuthenticatedLogin],
   );
 
   const loginWithGoogle = useCallback(async (): Promise<AuthStatus> => {
@@ -275,17 +278,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new ApiError("Google sign-in failed. Please try again.");
     }
 
-    await persistSession(data.accessToken, data.user);
-    const passcodeConfigured = await hasAccessPasscode(data.user.id);
-    setAccessPasscodeConfigured(passcodeConfigured);
-    const nextStatus = resolveStatus(
-      data.accessToken,
-      passcodeConfigured,
-      false,
-    );
-    setStatus(nextStatus);
-    return nextStatus;
-  }, [persistSession]);
+    return finishAuthenticatedLogin(data.accessToken, data.user);
+  }, [finishAuthenticatedLogin]);
 
   const setupAccessPasscode = useCallback(
     async (passcode: string) => {

@@ -14,11 +14,16 @@ import {
 } from "../lib/accessPasscodeStorage";
 import { useTheme, useThemedStyles, type Theme } from "../theme";
 
-const OTP_CELL_SIZE = 40;
-const OTP_CELL_GAP = 16;
+const PASSCODE_CELL_SIZE = 40;
+const PASSCODE_CELL_GAP = 16;
+const OTP_CELL_SIZE = 42;
+const OTP_CELL_GAP = 18;
+
+type PasscodeOtpVariant = "passcode" | "otp";
 
 type PasscodeOtpInputProps = {
-  label: string;
+  label?: string;
+  accessibilityLabel?: string;
   value: string;
   onChangeText: (text: string) => void;
   error?: string;
@@ -26,27 +31,64 @@ type PasscodeOtpInputProps = {
   editable?: boolean;
   length?: number;
   normalize?: (text: string) => string;
+  variant?: PasscodeOtpVariant;
+  /** Placeholder shown in empty cells when variant is "otp". */
+  mask?: string;
 };
+
+function getVariantDefaults(variant: PasscodeOtpVariant) {
+  if (variant === "otp") {
+    return {
+      length: 6,
+      maskFilled: false,
+      emptyPlaceholder: "*",
+      cellSize: OTP_CELL_SIZE,
+      cellGap: OTP_CELL_GAP,
+      cellRadius: 12,
+      secureTextEntry: false,
+      cellTextStyle: "otp" as const,
+    };
+  }
+
+  return {
+    length: ACCESS_PASSCODE_LENGTH,
+    maskFilled: true,
+    emptyPlaceholder: "",
+    cellSize: PASSCODE_CELL_SIZE,
+    cellGap: PASSCODE_CELL_GAP,
+    cellRadius: 8,
+    secureTextEntry: true,
+    cellTextStyle: "passcode" as const,
+  };
+}
 
 export function PasscodeOtpInput({
   label,
+  accessibilityLabel,
   value,
   onChangeText,
   error,
   autoFocus = false,
   editable = true,
-  length = ACCESS_PASSCODE_LENGTH,
+  length,
   normalize = normalizeAccessPasscode,
+  variant = "passcode",
+  mask,
 }: PasscodeOtpInputProps) {
   const inputRef = useRef<TextInput>(null);
-  const styles = useThemedStyles(createStyles);
+  const variantDefaults = getVariantDefaults(variant);
+  const resolvedLength = length ?? variantDefaults.length;
+  const emptyPlaceholder = mask ?? variantDefaults.emptyPlaceholder;
+  const styles = useThemedStyles((theme) =>
+    createStyles(theme, variantDefaults.cellSize, variantDefaults.cellGap, variantDefaults.cellRadius, variantDefaults.cellTextStyle),
+  );
 
-  const digits = value.padEnd(length, " ").split("").slice(0, length);
-  const activeIndex = Math.min(value.length, length - 1);
+  const digits = value.padEnd(resolvedLength, " ").split("").slice(0, resolvedLength);
+  const activeIndex = Math.min(value.length, resolvedLength - 1);
 
   return (
     <View style={styles.otpSection}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+      {label ? <Text style={styles.fieldLabel}>{label}</Text> : null}
       <Pressable
         onPress={() => {
           if (editable) inputRef.current?.focus();
@@ -56,7 +98,12 @@ export function PasscodeOtpInput({
       >
         {digits.map((digit, index) => {
           const filled = digit.trim().length > 0;
-          const isActive = index === activeIndex && value.length < length;
+          const isActive = index === activeIndex && value.length < resolvedLength;
+          const cellText = filled
+            ? variantDefaults.maskFilled
+              ? "•"
+              : digit.trim()
+            : emptyPlaceholder;
 
           return (
             <View
@@ -67,7 +114,14 @@ export function PasscodeOtpInput({
                 isActive ? styles.cellActive : null,
               ]}
             >
-              <Text style={styles.cellText}>{filled ? "•" : ""}</Text>
+              <Text
+                style={[
+                  styles.cellText,
+                  !filled && emptyPlaceholder ? styles.cellPlaceholder : null,
+                ]}
+              >
+                {cellText}
+              </Text>
             </View>
           );
         })}
@@ -77,15 +131,15 @@ export function PasscodeOtpInput({
         value={value}
         onChangeText={(text) => onChangeText(normalize(text))}
         keyboardType="number-pad"
-        secureTextEntry
-        maxLength={length}
+        secureTextEntry={variantDefaults.secureTextEntry}
+        maxLength={resolvedLength}
         textContentType="oneTimeCode"
         autoComplete="one-time-code"
         autoFocus={autoFocus}
         editable={editable}
         caretHidden
         style={styles.hiddenInput}
-        accessibilityLabel={label}
+        accessibilityLabel={accessibilityLabel ?? label ?? "Verification code"}
       />
       {error ? (
         <Text style={styles.error} accessibilityLiveRegion="polite">
@@ -115,7 +169,7 @@ export function PasscodeRowInput({
 }: PasscodeRowInputProps) {
   const theme = useTheme();
   const inputRef = useRef<TextInput>(null);
-  const styles = useThemedStyles(createStyles);
+  const styles = useThemedStyles(createPasscodeRowStyles);
 
   const handleChange = (text: string) => {
     if (!editable) return;
@@ -176,7 +230,13 @@ export function PasscodeRowInput({
   );
 }
 
-const createStyles = (theme: Theme) =>
+const createStyles = (
+  theme: Theme,
+  cellSize: number,
+  cellGap: number,
+  cellRadius: number,
+  cellTextStyle: "passcode" | "otp",
+) =>
   StyleSheet.create({
     otpSection: {
       gap: theme.spacing.md,
@@ -189,13 +249,14 @@ const createStyles = (theme: Theme) =>
     },
     otpRow: {
       flexDirection: "row",
-      gap: OTP_CELL_GAP,
+      gap: cellGap,
       alignSelf: "stretch",
+      justifyContent: cellTextStyle === "otp" ? "space-between" : undefined,
     },
     cell: {
-      width: OTP_CELL_SIZE,
-      height: OTP_CELL_SIZE,
-      borderRadius: 8,
+      width: cellSize,
+      height: cellSize,
+      borderRadius: cellRadius,
       borderWidth: 1,
       borderColor: theme.colors.cardBorderMuted,
       backgroundColor: theme.colors.surface,
@@ -208,12 +269,38 @@ const createStyles = (theme: Theme) =>
     cellError: {
       borderColor: theme.colors.errorBorder,
     },
-    cellText: {
-      fontFamily: theme.fontFamily.semibold,
-      fontSize: 20,
-      lineHeight: 24,
-      color: theme.colors.textPrimary,
+    cellText:
+      cellTextStyle === "otp"
+        ? {
+            fontFamily: theme.fontFamily.regular,
+            fontSize: 14,
+            lineHeight: 20,
+            color: theme.colors.textPrimary,
+          }
+        : {
+            fontFamily: theme.fontFamily.semibold,
+            fontSize: 20,
+            lineHeight: 24,
+            color: theme.colors.textPrimary,
+          },
+    cellPlaceholder: {
+      color: theme.colors.dotInactive,
     },
+    hiddenInput: {
+      position: "absolute",
+      width: 1,
+      height: 1,
+      opacity: 0,
+    },
+    error: {
+      ...theme.typography.caption,
+      color: theme.colors.error,
+      textAlign: "center",
+    },
+  });
+
+const createPasscodeRowStyles = (theme: Theme) =>
+  StyleSheet.create({
     rowSection: {
       gap: theme.spacing.sm + 3,
       alignSelf: "stretch",

@@ -2,6 +2,18 @@ import { Redirect, Stack } from "expo-router";
 
 import { useAuth } from "../../context/AuthProvider";
 
+const SLIDE_FROM_RIGHT_SCREENS = [
+  "edit-profile",
+  "change-password",
+  "delete-account",
+  "contact-support",
+  "support-email",
+  "support-phone",
+  "support-message",
+  "support-confirmation",
+  "setup-transaction-pin",
+] as const;
+
 export default function AppLayout() {
   const { status, accountDeactivated } = useAuth();
 
@@ -33,42 +45,13 @@ export default function AppLayout() {
         animationDuration: 200,
       }}
     >
-      <Stack.Screen
-        name="edit-profile"
-        options={{ animation: "slide_from_right" }}
-      />
-      <Stack.Screen
-        name="change-password"
-        options={{ animation: "slide_from_right" }}
-      />
-      <Stack.Screen
-        name="delete-account"
-        options={{ animation: "slide_from_right" }}
-      />
-      <Stack.Screen
-        name="contact-support"
-        options={{ animation: "slide_from_right" }}
-      />
-      <Stack.Screen
-        name="support-email"
-        options={{ animation: "slide_from_right" }}
-      />
-      <Stack.Screen
-        name="support-phone"
-        options={{ animation: "slide_from_right" }}
-      />
-      <Stack.Screen
-        name="support-message"
-        options={{ animation: "slide_from_right" }}
-      />
-      <Stack.Screen
-        name="support-confirmation"
-        options={{ animation: "slide_from_right" }}
-      />
-      <Stack.Screen
-        name="setup-transaction-pin"
-        options={{ animation: "slide_from_right" }}
-      />
+      {SLIDE_FROM_RIGHT_SCREENS.map((name) => (
+        <Stack.Screen
+          key={name}
+          name={name}
+          options={{ animation: "slide_from_right" }}
+        />
+      ))}
     </Stack>
   );
 }

@@ -164,7 +164,8 @@
         "resolveRequired": "Verify your account before continuing.",
         "resolveFailed": "Account details could not be resolved. Please try again.",
         "banksLoadFailed": "Could not load banks. Please try again.",
-        "banksUnavailable": "Bank list is not available yet. Please try again."
+        "banksUnavailable": "Bank list is not available yet. Please try again.",
+        "pinInvalid": "Enter your 4-digit transaction PIN."
       }
     },
     "bankDetailsSuccess": {
@@ -394,7 +395,9 @@
       "pinConfirm": "Send payout",
       "initiatedTitle": "Payout initiated",
       "initiatedBody": "The transfer is processing. This screen will update when the round advances.",
-      "disburseFailed": "Could not initiate payout. Check your PIN and try again."
+      "disburseFailed": "Could not initiate payout. Check your PIN and try again.",
+      "pollTimedOut": "Still processing. Pull down to refresh or check again.",
+      "retryPoll": "Check again"
     }
   },
   "profile": {
@@ -543,6 +546,8 @@
       "supportLine": "Support Line",
       "salesLine": "Sales Inquiries",
       "callNow": "Call Now",
+      "callFailedTitle": "Unable to start call",
+      "callFailedBody": "Your device could not open the phone app. Try again or use email support.",
       "hoursTitle": "Support Hours",
       "weekdayHours": "Monday - Friday: 9:00 AM - 6:00 PM EST",
       "weekendHours": "Saturday - Sunday: 10:00 AM - 4:00 PM EST"
@@ -566,8 +571,7 @@
     },
     "confirmation": {
       "title": "Message Sent!",
-      "bodyPrefix": "Thank you for reaching out. We'll get back to you at ",
-      "bodySuffix": " within 24 hours.",
+      "body": "Thank you for reaching out. We'll get back to you at <highlight>{{email}}</highlight> within 24 hours.",
       "done": "Done"
     }
   },

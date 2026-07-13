@@ -1,4 +1,4 @@
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 
@@ -15,7 +15,12 @@ export default function SupportPhoneScreen() {
   const styles = useThemedStyles(createStyles);
 
   const handleCall = () => {
-    void Linking.openURL(`tel:${SUPPORT_PHONE_DIAL}`);
+    void Linking.openURL(`tel:${SUPPORT_PHONE_DIAL}`).catch(() => {
+      Alert.alert(
+        t("support.phone.callFailedTitle"),
+        t("support.phone.callFailedBody"),
+      );
+    });
   };
 
   return (

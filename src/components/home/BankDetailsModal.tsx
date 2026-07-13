@@ -285,7 +285,7 @@ export function BankDetailsModal({
     }
 
     if (isProfileVariant && transactionPin.length !== 4) {
-      setPinError(t("profile.changePassword.errors.pinInvalid"));
+      setPinError(t("home.bankDetails.errors.pinInvalid"));
       return;
     }
 

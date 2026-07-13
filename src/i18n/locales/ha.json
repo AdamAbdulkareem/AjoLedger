@@ -163,7 +163,8 @@
         "resolveRequired": "Tabbatar da asusun ku kafin ci gaba.",
         "resolveFailed": "Ba a iya tabbatar da bayanan asusu ba. Sake gwadawa.",
         "banksLoadFailed": "Ba a iya lodawa bankuna ba. Sake gwadawa.",
-        "banksUnavailable": "Jerin bankuna bai samu ba tukuna. Sake gwadawa."
+        "banksUnavailable": "Jerin bankuna bai samu ba tukuna. Sake gwadawa.",
+        "pinInvalid": "Shigar da PIN ciniki na lambobi 4."
       }
     },
     "bankDetailsSuccess": {
@@ -393,7 +394,9 @@
       "pinConfirm": "Aika biyan ku",
       "initiatedTitle": "An fara biyan ku",
       "initiatedBody": "Ana aiwatar da canja wuri. Wannan allo zai sabunta lokacin da zagayen ya ci gaba.",
-      "disburseFailed": "Ba za a iya fara biyan ku ba. Duba PIN ɗinka ka sake gwadawa."
+      "disburseFailed": "Ba za a iya fara biyan ku ba. Duba PIN ɗinka ka sake gwadawa.",
+      "pollTimedOut": "Har yanzu ana aiwatarwa. Ja ƙasa don sabuntawa ko sake duba.",
+      "retryPoll": "Sake duba"
     }
   },
   "profile": {
@@ -496,7 +499,7 @@
         "body": "Don tsaro, shigar da lambar 6 da aka aika zuwa {{email}}",
         "resendPrompt": "Ba ka karɓi lamba ba?",
         "resend": "Sake aikawa",
-        "resendCountdown": "Sake aika lamba a cikin [{{time}}]",
+        "resendCountdown": "Sake aika lamba a cikin {{time}}",
         "verifyCta": "Tabbatar da Sharewa"
       },
       "deactivated": {
@@ -541,6 +544,8 @@
       "supportLine": "Layin Tallafi",
       "salesLine": "Tambayoyin Sayarwa",
       "callNow": "Kira Yanzu",
+      "callFailedTitle": "Ba a iya fara kira ba",
+      "callFailedBody": "Na'urar ku ba ta iya buɗe app ɗin waya ba. Sake gwadawa ko yi amfani da tallafi ta imel.",
       "hoursTitle": "Lokutan Tallafi",
       "weekdayHours": "Litinin - Juma'a: 9:00 AM - 6:00 PM EST",
       "weekendHours": "Asabar - Lahadi: 10:00 AM - 4:00 PM EST"
@@ -564,8 +569,7 @@
     },
     "confirmation": {
       "title": "An Aika Saƙo!",
-      "bodyPrefix": "Na gode da tuntubar mu. Za mu dawo maka a ",
-      "bodySuffix": " cikin awanni 24.",
+      "body": "Na gode da tuntubar mu. Za mu dawo maka a <highlight>{{email}}</highlight> cikin awanni 24.",
       "done": "An gama"
     }
   },

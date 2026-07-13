@@ -27,7 +27,9 @@ type PayoutContentProps = {
   group: GroupDetails;
   pendingRound?: number | null;
   disbursing?: boolean;
+  pollTimedOut?: boolean;
   onConfirmPress: () => void;
+  onRetryPoll?: () => void;
 };
 
 function ScheduleStatusBadge({
@@ -130,7 +132,9 @@ export function PayoutContent({
   group,
   pendingRound = null,
   disbursing = false,
+  pollTimedOut = false,
   onConfirmPress,
+  onRetryPoll,
 }: PayoutContentProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -224,6 +228,23 @@ export function PayoutContent({
 
         {!viewModel.allMembersPaid && !viewModel.isProcessing ? (
           <Text style={styles.hint}>{t("groups.payout.waitingForContributions")}</Text>
+        ) : null}
+
+        {pollTimedOut ? (
+          <View style={styles.timedOutBlock}>
+            <Text style={styles.timedOutText}>{t("groups.payout.pollTimedOut")}</Text>
+            {onRetryPoll ? (
+              <Pressable
+                onPress={onRetryPoll}
+                accessibilityRole="button"
+                style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}
+              >
+                <Text style={styles.retryButtonText}>
+                  {t("groups.payout.retryPoll")}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
         ) : null}
       </View>
 
@@ -365,6 +386,23 @@ const createStyles = (theme: Theme) =>
       ...theme.typography.caption,
       color: theme.colors.textMuted,
       textAlign: "center",
+    },
+    timedOutBlock: {
+      gap: theme.spacing.sm,
+      alignItems: "center",
+    },
+    timedOutText: {
+      ...theme.typography.caption,
+      color: theme.colors.textMuted,
+      textAlign: "center",
+    },
+    retryButton: {
+      paddingVertical: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.sm,
+    },
+    retryButtonText: {
+      ...theme.typography.captionMedium,
+      color: theme.colors.brand,
     },
     sectionTitle: {
       ...theme.typography.captionMedium,

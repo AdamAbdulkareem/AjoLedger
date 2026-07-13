@@ -51,7 +51,7 @@ const createStyles = (theme: Theme) =>
       justifyContent: "space-between",
       backgroundColor: theme.colors.carouselCardBg,
       borderWidth: 1,
-      borderColor: "#EFEFF1",
+      borderColor: theme.colors.inputBorder,
       borderRadius: 12,
       padding: theme.spacing.md,
       minHeight: 76,
@@ -79,7 +79,7 @@ const createStyles = (theme: Theme) =>
       fontFamily: theme.fontFamily.semibold,
       fontSize: 14,
       lineHeight: 20,
-      color: "#1C1C1C",
+      color: theme.colors.textPrimary,
     },
     subtitle: {
       fontFamily: theme.fontFamily.regular,

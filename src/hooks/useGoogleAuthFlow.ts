@@ -9,6 +9,7 @@ import {
   GoogleSignInNotAvailableError,
   GoogleSignInNotConfiguredError,
 } from "../lib/googleSignIn";
+import { localizeAuthApiError } from "../lib/localizeAuthApiError";
 import type { AuthStatus } from "../models/auth";
 
 export function useGoogleAuthFlow() {
@@ -49,11 +50,11 @@ export function useGoogleAuthFlow() {
       }
 
       if (error instanceof ApiError) {
-        return error.message;
+        return localizeAuthApiError(error, t);
       }
 
       if (error instanceof Error && error.message.trim()) {
-        return error.message;
+        return t("auth.errors.generic");
       }
 
       return t("auth.errors.generic");

@@ -205,7 +205,11 @@ export default function DeleteAccountScreen() {
                 );
               })}
             </View>
-            {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+            {formError ? (
+              <Text style={styles.formError} accessibilityLiveRegion="polite">
+                {formError}
+              </Text>
+            ) : null}
             <View style={styles.footerActions}>
               <DeleteFooterButton
                 label={t("profile.edit.cancel")}
@@ -235,7 +239,11 @@ export default function DeleteAccountScreen() {
                 {t("profile.deleteAccount.lastChance.question")}
               </Text>
             </View>
-            {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+            {formError ? (
+              <Text style={styles.formError} accessibilityLiveRegion="polite">
+                {formError}
+              </Text>
+            ) : null}
             <View style={styles.footerActions}>
               <DeleteFooterButton
                 label={t("profile.deleteAccount.lastChance.yes")}
@@ -300,7 +308,11 @@ export default function DeleteAccountScreen() {
                 })}
               </Text>
             ) : null}
-            {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+            {formError ? (
+              <Text style={styles.formError} accessibilityLiveRegion="polite">
+                {formError}
+              </Text>
+            ) : null}
             <View style={styles.footerActions}>
               <DeleteFooterButton
                 label={t("profile.deleteAccount.otp.verifyCta")}
@@ -332,7 +344,11 @@ export default function DeleteAccountScreen() {
                 {t("profile.deleteAccount.deactivated.footer")}
               </Text>
             </View>
-            {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+            {formError ? (
+              <Text style={styles.formError} accessibilityLiveRegion="polite">
+                {formError}
+              </Text>
+            ) : null}
             <View style={styles.footerActions}>
               <DeleteFooterButton
                 label={t("profile.deleteAccount.deactivated.done")}

@@ -107,7 +107,11 @@ export default function ChangePasswordScreen() {
           textContentType="newPassword"
         />
 
-        {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+        {formError ? (
+          <Text style={styles.formError} accessibilityLiveRegion="polite">
+            {formError}
+          </Text>
+        ) : null}
 
         <Button
           label={t("profile.changePassword.save")}

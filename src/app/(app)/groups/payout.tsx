@@ -68,6 +68,7 @@ export default function GroupPayoutScreen() {
   const [pinError, setPinError] = useState<string | null>(null);
   const [disbursing, setDisbursing] = useState(false);
   const [pollStartedAt, setPollStartedAt] = useState<number | null>(null);
+  const [pollTimedOut, setPollTimedOut] = useState(false);
 
   const {
     data: details,
@@ -144,6 +145,11 @@ export default function GroupPayoutScreen() {
   useEffect(() => {
     if (!viewModel?.isProcessing) {
       setPollStartedAt(null);
+      setPollTimedOut(false);
+      return;
+    }
+
+    if (pollTimedOut) {
       return;
     }
 
@@ -155,6 +161,7 @@ export default function GroupPayoutScreen() {
     const interval = setInterval(() => {
       if (Date.now() - startedAt > PAYOUT_POLL_MAX_MS) {
         clearInterval(interval);
+        setPollTimedOut(true);
         return;
       }
 
@@ -162,17 +169,28 @@ export default function GroupPayoutScreen() {
     }, PAYOUT_POLL_INTERVAL_MS);
 
     return () => clearInterval(interval);
-  }, [pollStartedAt, refetch, syncPendingState, viewModel?.isProcessing]);
+  }, [pollStartedAt, pollTimedOut, refetch, syncPendingState, viewModel?.isProcessing]);
+
+  const resetPoll = useCallback(() => {
+    setPollTimedOut(false);
+    setPollStartedAt(null);
+  }, []);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
+      resetPoll();
       await refetch();
       await syncPendingState();
     } finally {
       setRefreshing(false);
     }
-  }, [refetch, syncPendingState]);
+  }, [refetch, resetPoll, syncPendingState]);
+
+  const handleRetryPoll = useCallback(() => {
+    resetPoll();
+    void refetch().then(() => syncPendingState());
+  }, [refetch, resetPoll, syncPendingState]);
 
   const handleConfirmPress = useCallback(() => {
     if (!viewModel?.canDisburse) {
@@ -281,7 +299,9 @@ export default function GroupPayoutScreen() {
             group={details}
             pendingRound={pendingRound}
             disbursing={disbursing}
+            pollTimedOut={pollTimedOut}
             onConfirmPress={handleConfirmPress}
+            onRetryPoll={handleRetryPoll}
           />
         </ScrollView>
       )}

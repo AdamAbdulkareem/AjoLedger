@@ -56,9 +56,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     void (async () => {
-      const stored = await getStoredProfile(user.id);
-      if (cancelled) return;
-      setProfile(userProfileFromMe(currentUser, stored ?? undefined));
+      try {
+        const stored = await getStoredProfile(user.id);
+        if (cancelled) return;
+        setProfile(userProfileFromMe(currentUser, stored ?? undefined));
+      } catch {
+        // Storage read failed — keep profile unset until a successful refresh.
+      }
     })();
 
     return () => {

@@ -30,6 +30,14 @@ const googleIosUrlSchemeValue = googleIosClientId
   ? googleIosUrlScheme(googleIosClientId)
   : undefined;
 
+if (googleIosClientId && !googleIosUrlSchemeValue) {
+  console.warn(
+    "[app.config.js] EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID is set but malformed. " +
+      "Expected a value ending in .apps.googleusercontent.com. " +
+      "The @react-native-google-signin/google-signin plugin will not be added.",
+  );
+}
+
 if (googleIosUrlSchemeValue) {
   plugins.push([
     "@react-native-google-signin/google-signin",

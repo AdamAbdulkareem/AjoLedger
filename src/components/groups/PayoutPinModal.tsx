@@ -48,14 +48,22 @@ export function PayoutPinModal({
     onSubmit(pin);
   };
 
+  const handleClose = () => {
+    if (loading) {
+      return;
+    }
+
+    onClose();
+  };
+
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
-      <Pressable style={styles.backdrop} onPress={onClose}>
+      <Pressable style={styles.backdrop} onPress={handleClose}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={styles.keyboardWrap}
@@ -79,7 +87,7 @@ export function PayoutPinModal({
             <View style={styles.actions}>
               <Button
                 label={t("groups.payout.pinCancel")}
-                onPress={onClose}
+                onPress={handleClose}
                 variant="secondary"
                 disabled={loading}
                 style={styles.actionButton}

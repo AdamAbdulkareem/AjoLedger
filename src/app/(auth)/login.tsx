@@ -127,7 +127,7 @@ export default function LoginScreen() {
           label={t("auth.logIn")}
           onPress={handleSubmit}
           loading={submitting}
-          disabled={googleSubmitting}
+          disabled={submitting || googleSubmitting}
         />
         <OrDivider label={t("auth.or")} />
         <View style={styles.social}>
@@ -135,7 +135,7 @@ export default function LoginScreen() {
             provider="google"
             onGooglePress={() => void handleGoogleSignIn()}
             googleLoading={googleSubmitting}
-            disabled={submitting}
+            disabled={submitting || googleSubmitting}
           />
           <SocialAuthButton provider="apple" />
         </View>

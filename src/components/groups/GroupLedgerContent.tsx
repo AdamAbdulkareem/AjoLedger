@@ -370,7 +370,11 @@ export function GroupLedgerContent({
                 })}
               </Text>
             ) : (
-              <Text style={styles.paymentAmount}>{formatNaira(0)}</Text>
+              <Text style={styles.paymentAmount}>
+                {t("groups.ledger.transferAmount", {
+                  amount: formatNaira(0),
+                })}
+              </Text>
             )}
             {!isPaid && displayTransferAmount > 0 ? (
               <Pressable

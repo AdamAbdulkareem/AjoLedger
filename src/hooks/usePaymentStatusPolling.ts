@@ -43,7 +43,14 @@ export function usePaymentStatusPolling({
   }, []);
 
   useEffect(() => {
-    if (!enabled || !waiting || !accessToken || !groupId) {
+    if (!enabled) {
+      if (waiting) {
+        stopWaiting();
+      }
+      return;
+    }
+
+    if (!waiting || !accessToken || !groupId) {
       return;
     }
 
@@ -60,6 +67,8 @@ export function usePaymentStatusPolling({
 
       try {
         const result = await getCurrentCyclePaymentStatus(accessToken, groupId);
+        if (cancelled) return;
+
         if (result.status === "PAID") {
           setWaiting(false);
           setTimedOut(false);
@@ -67,6 +76,8 @@ export function usePaymentStatusPolling({
           return;
         }
       } catch (error) {
+        if (cancelled) return;
+
         pollErrors += 1;
         lastPollError = error;
 
@@ -78,6 +89,8 @@ export function usePaymentStatusPolling({
           });
         }
       }
+
+      if (cancelled) return;
 
       if (attempts >= PAYMENT_STATUS_POLL_MAX_ATTEMPTS) {
         setWaiting(false);
@@ -114,7 +127,7 @@ export function usePaymentStatusPolling({
         clearTimeout(timeoutId);
       }
     };
-  }, [accessToken, enabled, groupId, waiting]);
+  }, [accessToken, enabled, groupId, stopWaiting, waiting]);
 
   return {
     waiting,

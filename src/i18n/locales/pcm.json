@@ -162,7 +162,8 @@
         "resolveRequired": "Verify your account before you continue.",
         "resolveFailed": "Account details no fit resolve. Try again.",
         "banksLoadFailed": "No fit load banks. Try again.",
-        "banksUnavailable": "Bank list no dey available yet. Try again."
+        "banksUnavailable": "Bank list no dey available yet. Try again.",
+        "pinInvalid": "Enter your 4-digit transaction PIN."
       }
     },
     "bankDetailsSuccess": {
@@ -392,7 +393,9 @@
       "pinConfirm": "Send payout",
       "initiatedTitle": "Payout don start",
       "initiatedBody": "Transfer dey process. Dis screen go update when di round move.",
-      "disburseFailed": "We no fit start payout. Check your PIN and try again."
+      "disburseFailed": "We no fit start payout. Check your PIN and try again.",
+      "pollTimedOut": "E still dey process. Pull down to refresh or check again.",
+      "retryPoll": "Check again"
     }
   },
   "profile": {
@@ -525,7 +528,7 @@
       },
       "phone": {
         "title": "Phone Support",
-        "subtitle": "Monday to Friday 9:00 AM - 5:00 PM"
+        "subtitle": "Monday to Friday 9:00 AM - 6:00 PM"
       },
       "message": {
         "title": "Send a Message",
@@ -540,9 +543,11 @@
       "supportLine": "Support Line",
       "salesLine": "Sales Inquiries",
       "callNow": "Call Now",
+      "callFailedTitle": "No fit start call",
+      "callFailedBody": "Your device no fit open phone app. Try again or use email support.",
       "hoursTitle": "Support Hours",
-      "weekdayHours": "Monday - Friday: 9:00 AM - 6:00 PM EST",
-      "weekendHours": "Saturday - Sunday: 10:00 AM - 4:00 PM EST"
+      "weekdayHours": "Monday - Friday: 9:00 AM - 6:00 PM WAT",
+      "weekendHours": "Saturday - Sunday: 10:00 AM - 4:00 PM WAT"
     },
     "message": {
       "title": "Send a Message"
@@ -563,8 +568,7 @@
     },
     "confirmation": {
       "title": "Message Sent!",
-      "bodyPrefix": "Thank you for reaching out. We go get back to you at ",
-      "bodySuffix": " within 24 hours.",
+      "body": "Thank you for reaching out. We go get back to you at <highlight>{{email}}</highlight> within 24 hours.",
       "done": "Done"
     }
   },
