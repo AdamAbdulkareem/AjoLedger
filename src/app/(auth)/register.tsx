@@ -10,6 +10,7 @@ import { SocialAuthButton } from "../../components/SocialAuthButton";
 import { TextField } from "../../components/TextField";
 import { useAuth } from "../../context/AuthProvider";
 import { ApiError } from "../../api/client";
+import { useGoogleAuthFlow } from "../../hooks/useGoogleAuthFlow";
 import { isValidEmail, isValidPassword, normalizeEmail } from "../../lib/authValidation";
 import { useThemedStyles, type Theme } from "../../theme";
 
@@ -17,6 +18,7 @@ export default function RegisterScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { register } = useAuth();
+  const { signInWithGoogle, submitting: googleSubmitting } = useGoogleAuthFlow();
   const styles = useThemedStyles(createStyles);
 
   const [email, setEmail] = useState("");
@@ -62,6 +64,14 @@ export default function RegisterScreen() {
       setFormError(message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setFormError(undefined);
+    const message = await signInWithGoogle();
+    if (message) {
+      setFormError(message);
     }
   };
 
@@ -113,10 +123,16 @@ export default function RegisterScreen() {
           label={t("auth.signUp")}
           onPress={handleSubmit}
           loading={submitting}
+          disabled={googleSubmitting}
         />
         <OrDivider label={t("auth.or")} />
         <View style={styles.social}>
-          <SocialAuthButton provider="google" />
+          <SocialAuthButton
+            provider="google"
+            onGooglePress={() => void handleGoogleSignIn()}
+            googleLoading={googleSubmitting}
+            disabled={submitting}
+          />
           <SocialAuthButton provider="apple" />
         </View>
       </View>

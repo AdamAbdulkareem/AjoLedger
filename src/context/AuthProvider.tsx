@@ -10,7 +10,7 @@ import {
 } from "react";
 import { AppState, type AppStateStatus } from "react-native";
 
-import { loginUser, registerUser } from "../api/auth";
+import { googleLoginUser, loginUser, registerUser } from "../api/auth";
 import { clearBanksCache } from "../api/banks";
 import { ApiError } from "../api/client";
 import {
@@ -32,14 +32,19 @@ import {
   setAccessToken,
   setStoredUser,
 } from "../lib/authStorage";
-import { setUnauthorizedHandler } from "../lib/authSessionHandler";
+import { setUnauthorizedHandler, setAccountDeactivatedHandler } from "../lib/authSessionHandler";
 import {
   clearPasscodeLockout,
   getPasscodeLockoutStatus,
   recordPasscodeFailure,
 } from "../lib/passcodeLockout";
 import { clearRememberedCreatorGroups } from "../lib/creatorGroupsStorage";
+import { clearTransactionPinConfigured } from "../lib/transactionPinStorage";
 import { clearQueryCache } from "../lib/queryClient";
+import {
+  GoogleSignInCancelledError,
+  signInWithGoogleIdToken,
+} from "../lib/googleSignIn";
 import { setObservabilityUser } from "../lib/observability";
 import { isLegacyMockAccessToken } from "../config/api";
 import {
@@ -63,11 +68,14 @@ type AuthContextValue = {
   accessToken: string | null;
   register: (email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<AuthStatus>;
+  loginWithGoogle: () => Promise<AuthStatus>;
   setupAccessPasscode: (passcode: string) => Promise<void>;
   verifyAccessPasscode: (passcode: string) => Promise<void>;
   unlockWithBiometrics: (options: BiometricUnlockOptions) => Promise<void>;
   logout: () => Promise<void>;
   updateSessionUser: (nextUser: User) => Promise<void>;
+  accountDeactivated: boolean;
+  clearAccountDeactivated: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -90,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessPasscodeConfigured, setAccessPasscodeConfigured] =
     useState(false);
   const [accessPasscodeUnlocked, setAccessPasscodeUnlocked] = useState(false);
+  const [accountDeactivated, setAccountDeactivated] = useState(false);
 
   const sessionRef = useRef({ accessToken, user, accessPasscodeConfigured });
   sessionRef.current = { accessToken, user, accessPasscodeConfigured };
@@ -243,6 +252,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [persistSession],
   );
 
+  const loginWithGoogle = useCallback(async (): Promise<AuthStatus> => {
+    let idToken: string;
+
+    try {
+      idToken = await signInWithGoogleIdToken();
+    } catch (error) {
+      if (error instanceof GoogleSignInCancelledError) {
+        throw error;
+      }
+      throw error instanceof ApiError
+        ? error
+        : new ApiError(
+            error instanceof Error
+              ? error.message
+              : "Google sign-in failed. Please try again.",
+          );
+    }
+
+    const { data } = await googleLoginUser({ idToken });
+    if (!data) {
+      throw new ApiError("Google sign-in failed. Please try again.");
+    }
+
+    await persistSession(data.accessToken, data.user);
+    const passcodeConfigured = await hasAccessPasscode(data.user.id);
+    setAccessPasscodeConfigured(passcodeConfigured);
+    const nextStatus = resolveStatus(
+      data.accessToken,
+      passcodeConfigured,
+      false,
+    );
+    setStatus(nextStatus);
+    return nextStatus;
+  }, [persistSession]);
+
   const setupAccessPasscode = useCallback(
     async (passcode: string) => {
       if (!user) throw new ApiError("You are not signed in.");
@@ -329,6 +373,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearBiometricsEnabled(user.id),
         clearPasscodeLockout(user.id),
         clearRememberedCreatorGroups(user.id),
+        clearTransactionPinConfigured(user.id),
       ]);
     } else {
       await clearRememberedCreatorGroups();
@@ -340,6 +385,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setAccessPasscodeConfigured(false);
     setAccessPasscodeUnlocked(false);
+    setAccountDeactivated(false);
     setStatus("unauthenticated");
   }, [user]);
 
@@ -350,7 +396,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUnauthorizedHandler(() => {
       void logoutRef.current();
     });
-    return () => setUnauthorizedHandler(null);
+    setAccountDeactivatedHandler(() => {
+      setAccountDeactivated(true);
+    });
+    return () => {
+      setUnauthorizedHandler(null);
+      setAccountDeactivatedHandler(null);
+    };
+  }, []);
+
+  const clearAccountDeactivated = useCallback(() => {
+    setAccountDeactivated(false);
   }, []);
 
   const updateSessionUser = useCallback(async (nextUser: User) => {
@@ -365,11 +421,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       accessToken,
       register,
       login,
+      loginWithGoogle,
       setupAccessPasscode,
       verifyAccessPasscode: verifyAccessPasscodeEntry,
       unlockWithBiometrics,
       logout,
       updateSessionUser,
+      accountDeactivated,
+      clearAccountDeactivated,
     }),
     [
       status,
@@ -377,11 +436,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       accessToken,
       register,
       login,
+      loginWithGoogle,
       setupAccessPasscode,
       verifyAccessPasscodeEntry,
       unlockWithBiometrics,
       logout,
       updateSessionUser,
+      accountDeactivated,
+      clearAccountDeactivated,
     ],
   );
 

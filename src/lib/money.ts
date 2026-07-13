@@ -1,13 +1,12 @@
 /**
  * Nigerian currency boundary for the AjoLedger API.
  *
- * - Wire (JSON): kobo integers only (₦5,000 → 500_000).
  * - App (forms, models, UI): naira via `formatNaira`.
- *
- * Reads: `readKoboAsNaira` in `groupApiNormalize.ts` / `activity.ts`.
- * Writes: `nairaToKobo` in `api/groups.ts` (extend for new money endpoints).
+ * - GET responses: kobo in JSON → `readKoboAsNaira` (÷ 100).
+ * - POST /groups: send `contributionAmount` in **naira** (backend converts to kobo).
+ * - Other write endpoints: confirm per endpoint; use `nairaToKobo` when API expects kobo.
  */
-/** Nigerian currency: API / Nomba use kobo; UI and forms use naira. */
+/** Nigerian currency: DB/API reads use kobo; UI and forms use naira. */
 export const KOBO_PER_NAIRA = 100;
 
 export function nairaToKobo(naira: number): number {

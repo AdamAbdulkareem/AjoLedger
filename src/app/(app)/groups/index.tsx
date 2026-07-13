@@ -125,7 +125,6 @@ export default function GroupsScreen() {
           showsVerticalScrollIndicator={false}
         >
           <NewUserGroupsContent
-            onEnterCodePress={handleJoinGroupPress}
             onJoinGroupPress={handleJoinGroupPress}
             onCreateGroupPress={handleCreateGroupPress}
           />

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
-  Alert,
+  ActivityIndicator,
   Image,
   Pressable,
   StyleSheet,
@@ -9,14 +9,19 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "../Button";
 import { AjoLedgerLogoMark } from "../AjoLedgerLogoMark";
 import { buildGroupListCardViewModel, mapContributionStatusKey } from "../../lib/buildGroupListCardViewModel";
+import { resolveGrossTransferBreakdown } from "../../lib/contributionPayment";
+import { openGroupPayout } from "../../lib/appNavigation";
+import { resolveContributionDueDate } from "../../lib/resolveOutstandingContribution";
 import { formatShortDate } from "../../lib/formatDate";
 import { formatNaira } from "../../lib/formatMoney";
 import { getMemberAvatarColor, getMemberInitials } from "../../lib/memberAvatar";
+import { usePaymentStatusPolling } from "../../hooks/usePaymentStatusPolling";
 import type { ContributionFrequency, GroupDetails, GroupMember } from "../../models/group";
 import type { GroupContributionStatusKey } from "../../models/home";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
@@ -26,6 +31,8 @@ const LOGO_MARK = require("../../../assets/groups/ajoledger-logo-mark.png");
 type GroupLedgerContentProps = {
   group: GroupDetails;
   isAdmin: boolean;
+  accessToken?: string | null;
+  onPaymentConfirmed?: () => void;
 };
 
 function frequencyLabelKey(frequency?: ContributionFrequency): string {
@@ -73,8 +80,6 @@ function statusColor(
   switch (key) {
     case "paid":
       return { text: theme.colors.successDark, bg: theme.colors.successMuted };
-    case "partial":
-      return { text: theme.colors.payoutIcon, bg: theme.colors.payoutIconBg };
     default:
       return { text: theme.colors.amountDue, bg: theme.colors.progressUrgentBg };
   }
@@ -83,19 +88,16 @@ function statusColor(
 type LedgerStats = {
   paid: number;
   pending: number;
-  partial: number;
   total: number;
 };
 
 function computeLedgerStats(members: GroupMember[]): LedgerStats {
-  const stats: LedgerStats = { paid: 0, pending: 0, partial: 0, total: members.length };
+  const stats: LedgerStats = { paid: 0, pending: 0, total: members.length };
 
   for (const member of members) {
     const key = memberStatusKey(member);
     if (key === "paid") {
       stats.paid += 1;
-    } else if (key === "partial") {
-      stats.partial += 1;
     } else {
       stats.pending += 1;
     }
@@ -118,7 +120,6 @@ function LedgerMemberRow({
   const styles = useThemedStyles(createMemberRowStyles);
   const statusKey = memberStatusKey(member);
   const colors = statusColor(theme, statusKey);
-  const dueAmount = member.dueAmount ?? contributionAmount;
   const isCleared = statusKey === "paid";
 
   return (
@@ -141,23 +142,33 @@ function LedgerMemberRow({
         </View>
       </View>
       <Text style={styles.dueCol}>
-        {isCleared ? t("groups.ledger.cleared") : formatNaira(dueAmount)}
+        {isCleared ? t("groups.ledger.cleared") : formatNaira(contributionAmount)}
       </Text>
       <View style={[styles.statusBadge, { backgroundColor: colors.bg }]}>
         <Text style={[styles.statusText, { color: colors.text }]}>
-          {t(`groups.list.status.${statusKey}`)}
+          {isCleared
+            ? t("groups.list.status.paid")
+            : t("groups.ledger.pending")}
         </Text>
       </View>
     </View>
   );
 }
 
-export function GroupLedgerContent({ group, isAdmin }: GroupLedgerContentProps) {
+export function GroupLedgerContent({
+  group,
+  isAdmin,
+  accessToken,
+  onPaymentConfirmed,
+}: GroupLedgerContentProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const theme = useTheme();
   const styles = useThemedStyles(createStyles);
   const [copiedAccount, setCopiedAccount] = useState(false);
+  const [copiedTransferAmount, setCopiedTransferAmount] = useState(false);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const transferCopyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const viewModel = useMemo(
     () => buildGroupListCardViewModel(group),
@@ -168,7 +179,10 @@ export function GroupLedgerContent({ group, isAdmin }: GroupLedgerContentProps) 
   const currentWeek = cycle?.currentWeek ?? cycle?.currentCycle ?? 1;
   const totalWeeks =
     cycle?.totalWeeks ?? group.numberOfParticipants ?? group.joinedCount;
-  const dueDate = cycle?.dueDate ?? cycle?.nextPayoutDate ?? "";
+  const dueDate = resolveContributionDueDate(
+    cycle?.dueDate,
+    cycle?.nextPayoutDate,
+  );
   const expectedAmount =
     cycle?.expectedAmount ??
     cycle?.potTarget ??
@@ -178,8 +192,22 @@ export function GroupLedgerContent({ group, isAdmin }: GroupLedgerContentProps) 
 
   const contributionAmount =
     group.contributionAmount ?? cycle?.contributionAmount ?? viewModel.contributionAmount;
+  const { netContribution, grossTransfer, processingFee } = resolveGrossTransferBreakdown(
+    cycle,
+    contributionAmount,
+  );
   const frequencyLabel = t(frequencyLabelKey(group.frequency));
   const myStatusKey = viewModel.statusKey;
+  const isPaid = myStatusKey === "paid";
+  const displayTransferAmount = isPaid ? 0 : grossTransfer;
+  const showFeeBreakdown = !isPaid && processingFee > 0;
+
+  const { waiting, timedOut, startWaiting } = usePaymentStatusPolling({
+    accessToken: accessToken ?? null,
+    groupId: group.id,
+    enabled: !isPaid && !!accessToken,
+    onPaid: () => onPaymentConfirmed?.(),
+  });
 
   const virtualAccount = group.myDetails?.virtualAccountNumber;
   const virtualBank = group.myDetails?.virtualBankName;
@@ -213,12 +241,29 @@ export function GroupLedgerContent({ group, isAdmin }: GroupLedgerContentProps) 
     }, 2000);
   }, [virtualAccount]);
 
+  const handleCopyTransferAmount = useCallback(async () => {
+    if (displayTransferAmount <= 0) return;
+
+    await Clipboard.setStringAsync(String(displayTransferAmount));
+    setCopiedTransferAmount(true);
+
+    if (transferCopyTimeoutRef.current) {
+      clearTimeout(transferCopyTimeoutRef.current);
+    }
+
+    transferCopyTimeoutRef.current = setTimeout(() => {
+      setCopiedTransferAmount(false);
+      transferCopyTimeoutRef.current = null;
+    }, 2000);
+  }, [displayTransferAmount]);
+
+  const handleTransferred = useCallback(() => {
+    startWaiting();
+  }, [startWaiting]);
+
   const handleGoToPayout = useCallback(() => {
-    Alert.alert(
-      t("home.firstTime.actions.help.title"),
-      t("groups.ledger.payoutComingSoon"),
-    );
-  }, [t]);
+    openGroupPayout(router, group.id);
+  }, [group.id, router]);
 
   const weekPaymentLabel = t("groups.ledger.weekPayment", { week: currentWeek });
   const paymentSectionTitle = isAdmin
@@ -300,11 +345,51 @@ export function GroupLedgerContent({ group, isAdmin }: GroupLedgerContentProps) 
                 { color: statusColor(theme, myStatusKey).text },
               ]}
             >
-              {t(`groups.list.status.${myStatusKey}`)}
+              {isPaid
+                ? t("groups.list.status.paid")
+                : t("groups.ledger.pending")}
             </Text>
-            <Text style={styles.paymentAmount}>
-              {formatNaira(contributionAmount)}
-            </Text>
+            {showFeeBreakdown ? (
+              <View style={styles.feeBreakdown}>
+                <Text style={styles.feeLine}>
+                  {t("groups.ledger.contributionAmount", {
+                    amount: formatNaira(netContribution),
+                  })}
+                </Text>
+                <Text style={styles.feeLine}>
+                  {t("groups.ledger.processingFee", {
+                    amount: formatNaira(processingFee),
+                  })}
+                </Text>
+              </View>
+            ) : null}
+            {!isPaid ? (
+              <Text style={styles.paymentAmount}>
+                {t("groups.ledger.transferAmount", {
+                  amount: formatNaira(displayTransferAmount),
+                })}
+              </Text>
+            ) : (
+              <Text style={styles.paymentAmount}>{formatNaira(0)}</Text>
+            )}
+            {!isPaid && displayTransferAmount > 0 ? (
+              <Pressable
+                onPress={() => void handleCopyTransferAmount()}
+                accessibilityRole="button"
+                accessibilityLabel={t("groups.ledger.copyTransferAmount")}
+                style={({ pressed }) => [
+                  styles.copyTransferButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={styles.copyTransferButtonText}>
+                  {t("groups.ledger.copyTransferAmount")}
+                </Text>
+              </Pressable>
+            ) : null}
+            {copiedTransferAmount ? (
+              <Text style={styles.copiedHint}>{t("groups.invite.copied")}</Text>
+            ) : null}
             {dueDate ? (
               <Text style={styles.paymentDue}>
                 {formatShortDate(dueDate)}
@@ -353,6 +438,37 @@ export function GroupLedgerContent({ group, isAdmin }: GroupLedgerContentProps) 
           </View>
         </View>
 
+        {!isPaid && hasVirtualAccount ? (
+          waiting ? (
+            <View style={styles.waitingRow}>
+              <ActivityIndicator size="small" color={theme.colors.brand} />
+              <Text style={styles.waitingText}>
+                {t("groups.ledger.waitingForPayment")}
+              </Text>
+            </View>
+          ) : (
+            <Button
+              label={t("groups.ledger.transferredButton")}
+              onPress={handleTransferred}
+              variant="secondary"
+              style={styles.transferredButton}
+            />
+          )
+        ) : null}
+
+        {timedOut ? (
+          <View style={styles.timedOutBlock}>
+            <Text style={styles.timedOutText}>{t("groups.ledger.paymentTimedOut")}</Text>
+            <Button
+              label={t("groups.ledger.retryPaymentCheck")}
+              onPress={handleTransferred}
+              variant="secondary"
+              size="compact"
+              style={styles.retryButton}
+            />
+          </View>
+        ) : null}
+
         {isAdmin ? (
           <Button
             label={t("groups.ledger.goToPayout")}
@@ -362,52 +478,45 @@ export function GroupLedgerContent({ group, isAdmin }: GroupLedgerContentProps) 
         ) : null}
       </View>
 
-      {isAdmin ? (
-        <>
-          <View style={styles.statsCard}>
-            <View style={styles.statItem}>
-              <Text style={styles.statCount}>{stats.paid}</Text>
-              <Text style={styles.statLabel}>{t("groups.list.status.paid")}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statCount}>{stats.pending}</Text>
-              <Text style={styles.statLabel}>{t("groups.ledger.pending")}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statCount}>{stats.partial}</Text>
-              <Text style={styles.statLabel}>{t("groups.list.status.partial")}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItemWide}>
-              <Text style={styles.statCount}>{stats.total}</Text>
-              <Text style={styles.statLabel}>{t("groups.ledger.totalMembers")}</Text>
-            </View>
-          </View>
+      <View style={styles.statsCard}>
+        <View style={styles.statItem}>
+          <Text style={styles.statCount}>{stats.paid}</Text>
+          <Text style={styles.statLabel}>{t("groups.list.status.paid")}</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statCount}>{stats.pending}</Text>
+          <Text style={styles.statLabel}>{t("groups.ledger.pending")}</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItemWide}>
+          <Text style={styles.statCount}>{stats.total}</Text>
+          <Text style={styles.statLabel}>{t("groups.ledger.totalMembers")}</Text>
+        </View>
+      </View>
 
-          <View style={styles.tableCard}>
-            <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderText, styles.memberHeader]}>
-                {t("groups.ledger.memberColumn")}
-              </Text>
-              <Text style={[styles.tableHeaderText, styles.dueHeader]}>
-                {t("groups.ledger.dueAmountColumn")}
-              </Text>
-              <Text style={[styles.tableHeaderText, styles.statusHeader]}>
-                {t("groups.list.statusLabel")}
-              </Text>
-            </View>
-            {sortedMembers.map((member, index) => (
-              <LedgerMemberRow
-                key={member.id}
-                member={member}
-                index={index}
-                contributionAmount={contributionAmount}
-              />
-            ))}
+      {isAdmin ? (
+        <View style={styles.tableCard}>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.tableHeaderText, styles.memberHeader]}>
+              {t("groups.ledger.memberColumn")}
+            </Text>
+            <Text style={[styles.tableHeaderText, styles.dueHeader]}>
+              {t("groups.ledger.dueAmountColumn")}
+            </Text>
+            <Text style={[styles.tableHeaderText, styles.statusHeader]}>
+              {t("groups.list.statusLabel")}
+            </Text>
           </View>
-        </>
+          {sortedMembers.map((member, index) => (
+            <LedgerMemberRow
+              key={member.id}
+              member={member}
+              index={index}
+              contributionAmount={contributionAmount}
+            />
+          ))}
+        </View>
       ) : (
         <View style={styles.activitySection}>
           <Text style={styles.activityHeading}>{t("groups.ledger.updates")}</Text>
@@ -609,6 +718,50 @@ const createStyles = (theme: Theme) =>
       fontSize: 16,
       lineHeight: 24,
       color: theme.colors.textPrimary,
+    },
+    feeBreakdown: {
+      gap: 2,
+      marginTop: 4,
+    },
+    feeLine: {
+      fontSize: 12,
+      lineHeight: 16,
+      color: theme.colors.textSecondary,
+    },
+    copyTransferButton: {
+      alignSelf: "flex-start",
+      marginTop: 4,
+    },
+    copyTransferButtonText: {
+      fontSize: 12,
+      lineHeight: 16,
+      fontFamily: theme.fontFamily.semibold,
+      color: theme.colors.brand,
+    },
+    transferredButton: {
+      marginTop: theme.spacing.sm,
+    },
+    waitingRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+      marginTop: theme.spacing.sm,
+    },
+    waitingText: {
+      ...theme.typography.caption,
+      color: theme.colors.textSecondary,
+      flex: 1,
+    },
+    timedOutBlock: {
+      gap: theme.spacing.sm,
+      marginTop: theme.spacing.sm,
+    },
+    timedOutText: {
+      ...theme.typography.caption,
+      color: theme.colors.textMuted,
+    },
+    retryButton: {
+      alignSelf: "flex-start",
     },
     paymentDue: {
       fontSize: 12,

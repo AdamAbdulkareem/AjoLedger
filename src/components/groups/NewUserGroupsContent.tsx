@@ -8,13 +8,11 @@ import { useThemedStyles, type Theme } from "../../theme";
 const HERO_ILLUSTRATION = require("../../../assets/groups/group-hero.png");
 
 type NewUserGroupsContentProps = {
-  onEnterCodePress: () => void;
   onJoinGroupPress: () => void;
   onCreateGroupPress: () => void;
 };
 
 export function NewUserGroupsContent({
-  onEnterCodePress,
   onJoinGroupPress,
   onCreateGroupPress,
 }: NewUserGroupsContentProps) {
@@ -24,7 +22,7 @@ export function NewUserGroupsContent({
   return (
     <View style={styles.container}>
       <View style={styles.paddedSection}>
-        <GroupsHeader onEnterCodePress={onEnterCodePress} />
+        <GroupsHeader />
       </View>
 
       <Image

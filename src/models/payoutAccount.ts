@@ -11,6 +11,10 @@ export type SetupBankPayload = {
   accountName: string;
 };
 
+export type UpdatePayoutSettingsPayload = SetupBankPayload & {
+  transactionPin: string;
+};
+
 export type PayoutAccountStatus = {
   configured: boolean;
   account: PayoutAccount | null;

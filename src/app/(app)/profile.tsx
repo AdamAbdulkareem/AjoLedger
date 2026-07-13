@@ -28,6 +28,8 @@ import { useEditProfilePictureModal } from "../../hooks/useEditProfilePictureMod
 import { setStoredLanguage } from "../../i18n/languageStorage";
 import { getLanguageLabel } from "../../i18n/languages";
 import { showLanguagePicker } from "../../lib/showLanguagePicker";
+import { consumePendingOpenBankModal } from "../../lib/pendingBankModal";
+import { resolveHasTransactionPin } from "../../lib/transactionPinStorage";
 import {
   getBiometricProfileLabelKey,
   loadBiometricStatus,
@@ -41,7 +43,7 @@ export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { user, accessToken, logout } = useAuth();
-  const { displayName, email } = useCurrentUser();
+  const { displayName, email, currentUser } = useCurrentUser();
   const { profile, pendingUpdateSuccess, consumePendingUpdateSuccess } =
     useProfile();
   const theme = useTheme();
@@ -64,6 +66,7 @@ export default function ProfileScreen() {
     account,
     saving: savingPayoutAccount,
     error: payoutAccountError,
+    updatePayoutBank,
     clearError,
   } = usePayoutAccountGate();
 
@@ -77,6 +80,14 @@ export default function ProfileScreen() {
       setShowUpdateSuccess(true);
       consumePendingUpdateSuccess();
     }, [pendingUpdateSuccess, consumePendingUpdateSuccess]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (consumePendingOpenBankModal()) {
+        setBankModalVisible(true);
+      }
+    }, []),
   );
 
   useFocusEffect(
@@ -188,7 +199,24 @@ export default function ProfileScreen() {
     ]);
   };
 
-  const languageLabel = getLanguageLabel(i18n.language);
+  const handleBankDetailsPress = useCallback(async () => {
+    if (!user) return;
+
+    const hasPin = await resolveHasTransactionPin(
+      user.id,
+      currentUser?.hasTransactionPin,
+    );
+
+    if (!hasPin) {
+      router.push({
+        pathname: "/(app)/setup-transaction-pin",
+        params: { next: "bank" },
+      });
+      return;
+    }
+
+    setBankModalVisible(true);
+  }, [user, currentUser?.hasTransactionPin, router]);
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -226,7 +254,7 @@ export default function ProfileScreen() {
               icon={<Ionicons name="lock-closed-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.changePassword")}
               showChevron
-              onPress={showComingSoon}
+              onPress={() => router.push("/(app)/change-password")}
             />
             {showBiometricsRow ? (
               <ProfileMenuRow
@@ -249,7 +277,9 @@ export default function ProfileScreen() {
               icon={<Ionicons name="card-outline" size={20} color={theme.colors.bankMenuIcon} />}
               label={t("profile.rows.bankDetails")}
               showChevron
-              onPress={() => setBankModalVisible(true)}
+              onPress={() => {
+                void handleBankDetailsPress();
+              }}
             />
           </ProfileSection>
 
@@ -266,7 +296,9 @@ export default function ProfileScreen() {
               showChevron
               onPress={handleLanguagePress}
               trailing={
-                <Text style={styles.languageValue}>{languageLabel}</Text>
+                <Text style={styles.languageValue}>
+                  {getLanguageLabel(i18n.language)}
+                </Text>
               }
             />
           </ProfileSection>
@@ -285,7 +317,7 @@ export default function ProfileScreen() {
               icon={<Ionicons name="call-outline" size={20} color={theme.colors.textPrimary} />}
               label={t("profile.rows.contactSupport")}
               showChevron
-              onPress={showComingSoon}
+              onPress={() => router.push("/(app)/contact-support")}
             />
           </ProfileSection>
         </View>
@@ -294,7 +326,7 @@ export default function ProfileScreen() {
           icon={<Ionicons name="trash-outline" size={20} color={theme.colors.textPrimary} />}
           label={t("profile.rows.deleteAccount")}
           showChevron
-          onPress={showComingSoon}
+          onPress={() => router.push("/(app)/delete-account")}
         />
 
         <Pressable
@@ -314,7 +346,20 @@ export default function ProfileScreen() {
         accessToken={accessToken}
         saving={savingPayoutAccount}
         error={payoutAccountError}
-        onSubmit={async () => "failed" as const}
+        onSubmit={async (payload) => {
+          if (!payload.transactionPin) {
+            return "failed" as const;
+          }
+
+          const result = await updatePayoutBank({
+            bankCode: payload.bankCode,
+            accountNumber: payload.accountNumber,
+            accountName: payload.accountName,
+            transactionPin: payload.transactionPin,
+          });
+
+          return result === "success" ? ("success" as const) : ("failed" as const);
+        }}
         onClearError={clearError}
         dismissible
         onClose={() => setBankModalVisible(false)}

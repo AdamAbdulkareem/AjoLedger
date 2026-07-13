@@ -113,7 +113,11 @@ export default function GroupDetailScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <GroupDetailContent group={group} />
+          <GroupDetailContent
+            group={group}
+            accessToken={accessToken}
+            onPaymentConfirmed={() => void loadGroup()}
+          />
         </ScrollView>
       ) : null}
     </SafeAreaView>

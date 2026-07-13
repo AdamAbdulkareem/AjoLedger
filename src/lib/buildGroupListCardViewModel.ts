@@ -1,5 +1,13 @@
 import type { GroupSummary } from "../models/group";
 import type { GroupContributionStatusKey } from "../models/home";
+import {
+  readCycleContributionStatus,
+  resolveGrossTransferBreakdown,
+} from "./contributionPayment";
+import {
+  resolveContributionDueDate,
+  resolveOutstandingContribution,
+} from "./resolveOutstandingContribution";
 
 export type { GroupContributionStatusKey };
 
@@ -10,7 +18,12 @@ export type GroupListCardViewModel = {
   potCollected: number;
   potTarget: number;
   currentCycle: number;
+  /** Pay-by date for the current round (API due date or day before payout). */
+  contributionDueDate: string;
+  /** Beneficiary payout date from the API. */
   nextPayoutDate: string;
+  /** Exact gross transfer still owed (0 when paid). */
+  amountRemaining: number;
   progressPercent: number;
 };
 
@@ -48,15 +61,6 @@ export function mapContributionStatusKey(
     return "paid";
   }
 
-  if (
-    value === "PARTIAL" ||
-    value === "PARTIALLY_PAID" ||
-    value === "IN_PROGRESS" ||
-    value === "UNDERPAID"
-  ) {
-    return "partial";
-  }
-
   return "notPaid";
 }
 
@@ -92,7 +96,7 @@ export function buildGroupListCardViewModel(
   const contributionAmount = readPositiveNumber(
     cycle?.contributionAmount ?? group.contributionAmount,
   );
-  const statusRaw = readMyDetailsStatus(myDetails);
+  const statusRaw = readCycleContributionStatus(cycle, myDetails);
   const statusKey = statusRaw
     ? mapContributionStatusKey(statusRaw)
     : "notPaid";
@@ -101,6 +105,19 @@ export function buildGroupListCardViewModel(
   const potTarget = readPositiveNumber(cycle?.potTarget);
   const currentCycle = readPositiveNumber(cycle?.currentCycle);
   const nextPayoutDate = cycle?.nextPayoutDate?.trim() ?? "";
+  const contributionDueDate = resolveContributionDueDate(
+    cycle?.dueDate,
+    nextPayoutDate || undefined,
+  );
+  const { grossTransfer } = resolveGrossTransferBreakdown(
+    cycle,
+    contributionAmount,
+  );
+  const amountRemaining = resolveOutstandingContribution({
+    contributionAmount,
+    statusKey,
+    grossTransferAmount: grossTransfer,
+  });
 
   return {
     contributionAmount,
@@ -109,7 +126,9 @@ export function buildGroupListCardViewModel(
     potCollected,
     potTarget,
     currentCycle,
+    contributionDueDate,
     nextPayoutDate,
+    amountRemaining,
     progressPercent: computeProgress(potCollected, potTarget),
   };
 }

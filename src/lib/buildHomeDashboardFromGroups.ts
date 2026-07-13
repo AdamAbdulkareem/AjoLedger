@@ -78,13 +78,11 @@ function buildGroupHomeDashboard(
       date: viewModel.nextPayoutDate,
       daysRemaining: daysUntil(viewModel.nextPayoutDate),
     },
-    // Outstanding contribution for the current cycle from GET /groups
-    // (`cycleDetails` + `myDetails.status`). No dedicated balance endpoint yet.
+    // Outstanding gross transfer from GET /groups (`cycleDetails.grossContributionAmount` + status).
     amountRemains: {
-      amount:
-        viewModel.statusKey === "paid" ? 0 : viewModel.contributionAmount,
-      dueDate: viewModel.nextPayoutDate,
-      daysUntilDue: daysUntil(viewModel.nextPayoutDate),
+      amount: viewModel.amountRemaining,
+      dueDate: viewModel.contributionDueDate,
+      daysUntilDue: daysUntil(viewModel.contributionDueDate),
     },
   };
 }

@@ -39,14 +39,24 @@ export type GroupMyDetails = {
   virtualAccountNumber?: string;
   virtualBankName?: string;
   virtualAccountName?: string;
+  /** Amount still owed for the current cycle (naira). */
+  dueAmount?: number | null;
+  /** Amount already paid toward the current cycle (naira). */
+  amountPaid?: number | null;
 };
 
 export type GroupCycleDetails = {
+  /** Active cycle UUID from `activeCycle.id` — required for disburse. */
+  cycleId?: string;
   currentCycle?: number;
   /** Current contribution week/round within the active cycle. */
   currentWeek?: number;
   totalWeeks?: number;
   contributionAmount?: number;
+  /** Total inbound transfer including Nomba processing fee (naira). */
+  grossContributionAmount?: number;
+  /** Current user's payment status for the active cycle. */
+  myContributionStatus?: string;
   potCollected?: number;
   potTarget?: number;
   nextPayoutDate?: string;
@@ -54,7 +64,7 @@ export type GroupCycleDetails = {
   expectedAmount?: number;
 };
 
-export type MemberContributionStatus = "PAID" | "PARTIAL" | "PENDING" | "NOT_PAID";
+export type MemberContributionStatus = "PAID" | "PENDING" | "NOT_PAID";
 
 export type GroupSummary = {
   id: string;
@@ -92,7 +102,7 @@ export type CreateGroupPayload = {
   name: string;
   description?: string;
   frequency: ContributionFrequency;
-  /** Naira; converted to kobo in `api/groups.ts` on POST. */
+  /** Naira; POST /groups sends as-is (backend converts to kobo). */
   contributionAmount: number;
   numberOfParticipants: number;
 };

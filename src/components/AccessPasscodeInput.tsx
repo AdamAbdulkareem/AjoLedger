@@ -24,6 +24,8 @@ type PasscodeOtpInputProps = {
   error?: string;
   autoFocus?: boolean;
   editable?: boolean;
+  length?: number;
+  normalize?: (text: string) => string;
 };
 
 export function PasscodeOtpInput({
@@ -33,12 +35,14 @@ export function PasscodeOtpInput({
   error,
   autoFocus = false,
   editable = true,
+  length = ACCESS_PASSCODE_LENGTH,
+  normalize = normalizeAccessPasscode,
 }: PasscodeOtpInputProps) {
   const inputRef = useRef<TextInput>(null);
   const styles = useThemedStyles(createStyles);
 
-  const digits = value.padEnd(ACCESS_PASSCODE_LENGTH, " ").split("").slice(0, ACCESS_PASSCODE_LENGTH);
-  const activeIndex = Math.min(value.length, ACCESS_PASSCODE_LENGTH - 1);
+  const digits = value.padEnd(length, " ").split("").slice(0, length);
+  const activeIndex = Math.min(value.length, length - 1);
 
   return (
     <View style={styles.otpSection}>
@@ -52,7 +56,7 @@ export function PasscodeOtpInput({
       >
         {digits.map((digit, index) => {
           const filled = digit.trim().length > 0;
-          const isActive = index === activeIndex && value.length < ACCESS_PASSCODE_LENGTH;
+          const isActive = index === activeIndex && value.length < length;
 
           return (
             <View
@@ -71,10 +75,10 @@ export function PasscodeOtpInput({
       <TextInput
         ref={inputRef}
         value={value}
-        onChangeText={(text) => onChangeText(normalizeAccessPasscode(text))}
+        onChangeText={(text) => onChangeText(normalize(text))}
         keyboardType="number-pad"
         secureTextEntry
-        maxLength={ACCESS_PASSCODE_LENGTH}
+        maxLength={length}
         textContentType="oneTimeCode"
         autoComplete="one-time-code"
         autoFocus={autoFocus}

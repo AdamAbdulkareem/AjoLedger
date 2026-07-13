@@ -589,6 +589,29 @@ describe("API money (kobo → naira)", () => {
     });
   });
 
+  it("reads grossContributionAmount and myContributionStatus from activeCycle", () => {
+    const details = normalizeGroupDetailsFromApi({
+      id: "g-gross",
+      name: "Gross Group",
+      inviteCode: "AJO-GROSS1",
+      activeCycle: {
+        id: "cycle-1",
+        currentCycle: 1,
+        status: "ACTIVE",
+        contributionAmount: 1_000_000,
+        grossContributionAmount: 1_310_000,
+        myContributionStatus: "PENDING",
+      },
+      members: [],
+    });
+
+    expect(details.cycleDetails).toMatchObject({
+      contributionAmount: 10_000,
+      grossContributionAmount: 13_100,
+      myContributionStatus: "PENDING",
+    });
+  });
+
   it("converts member dueAmount from kobo", () => {
     const details = normalizeGroupDetailsFromApi({
       id: "g-due",
@@ -604,6 +627,19 @@ describe("API money (kobo → naira)", () => {
     });
 
     expect(details.members[0]?.dueAmount).toBe(2_500);
+  });
+
+  it("converts myDetails amountDue from kobo on list payloads", () => {
+    const summary = normalizeGroupSummaryFromApi({
+      id: "g-list-due",
+      name: "List Due",
+      myDetails: {
+        status: "PARTIAL",
+        amountDue: 125_000,
+      },
+    });
+
+    expect(summary.myDetails?.dueAmount).toBe(1_250);
   });
 });
 
@@ -676,4 +712,136 @@ describe("active cycle detection", () => {
       expect(details.hasActiveCycle).toBe(false);
     },
   );
+});
+
+describe("live API: Frontend Peeps active cycle shape", () => {
+  const listPayload = {
+    id: "20d07618-75b0-46f9-8204-f280fa7e02f3",
+    name: "Frontend Peeps",
+    inviteCode: "AJO-F6E889",
+    cycleDetails: {
+      currentCycle: 1,
+      contributionAmount: 50_000,
+      potCollected: 0,
+      potTarget: 150_000,
+      startedAt: "2026-07-11T17:37:05.952Z",
+      nextPayoutDate: "2026-07-18T17:37:05.532Z",
+    },
+    myDetails: {
+      position: 3,
+      status: "PENDING",
+      virtualAccountNumber: "7725173606",
+      virtualBankName: "Nombank MFB",
+      virtualAccountName: "Nomba/Ajo FrontendPeeps",
+    },
+  };
+
+  const detailPayload = {
+    id: "20d07618-75b0-46f9-8204-f280fa7e02f3",
+    name: "Frontend Peeps",
+    description: "Savings",
+    inviteCode: "AJO-F6E889",
+    activeCycle: {
+      id: "66eba215-08c9-4ebd-868e-92cd3c7e9ac9",
+      contributionAmountKobo: 50_000,
+      totalRounds: 3,
+      currentRound: 1,
+      isActive: true,
+      startedAt: "2026-07-11T17:37:05.952Z",
+      nextPayoutDate: "2026-07-18T17:37:05.532Z",
+      groupId: "20d07618-75b0-46f9-8204-f280fa7e02f3",
+      grossContributionAmount: 52_200,
+      myContributionStatus: "PENDING",
+    },
+    myDetails: {
+      virtualAccountNumber: "7725173606",
+      virtualBankName: "Nombank MFB",
+      virtualAccountName: "Nomba/Ajo FrontendPeeps",
+    },
+    members: [
+      {
+        membershipId: "f44eda2d-7680-4045-8d06-9de0d771251f",
+        firstName: "Adam",
+        lastName: "Abdulkareem",
+        email: "abdulkareem@gmail.com",
+        role: "CONTRIBUTOR",
+        payoutTurn: 1,
+        virtualAccountName: "Nomba/Ajo FrontendPeeps",
+      },
+      {
+        membershipId: "3b3437fe-1963-49ee-adbf-ea48d4ce5aea",
+        firstName: "Damilare",
+        lastName: "Oluwaseun",
+        email: "oluwadamilare@gmail.com",
+        role: "CONTRIBUTOR",
+        payoutTurn: 2,
+      },
+      {
+        membershipId: "55155ea6-4b72-4d5d-aa47-93e446202757",
+        firstName: "Adam",
+        lastName: "Coordinator",
+        email: "dmabdulkareem@gmail.com",
+        role: "COORDINATOR",
+        payoutTurn: 3,
+      },
+    ],
+  };
+
+  it("maps list cycleDetails into summary card fields", () => {
+    const summary = normalizeGroupSummaryFromApi(listPayload);
+
+    expect(summary.hasActiveCycle).toBe(true);
+    expect(summary.joinedCount).toBe(3);
+    expect(summary.numberOfParticipants).toBe(3);
+    expect(summary.cycleDetails).toMatchObject({
+      currentCycle: 1,
+      contributionAmount: 500,
+      potCollected: 0,
+      potTarget: 1500,
+      nextPayoutDate: "2026-07-18T17:37:05.532Z",
+    });
+    expect(summary.myDetails?.position).toBe(3);
+  });
+
+  it("maps activeCycle aliases on group detail", () => {
+    const details = normalizeGroupDetailsFromApi(detailPayload, {
+      email: "abdulkareem@gmail.com",
+    });
+
+    expect(details.hasActiveCycle).toBe(true);
+    expect(details.joinedCount).toBe(3);
+    expect(details.numberOfParticipants).toBe(3);
+    expect(details.cycleDetails).toMatchObject({
+      cycleId: "66eba215-08c9-4ebd-868e-92cd3c7e9ac9",
+      currentCycle: 1,
+      currentWeek: 1,
+      totalWeeks: 3,
+      contributionAmount: 500,
+      grossContributionAmount: 522,
+      myContributionStatus: "PENDING",
+      nextPayoutDate: "2026-07-18T17:37:05.532Z",
+    });
+    expect(details.contributionAmount).toBe(500);
+    expect(details.members[0]?.name).toBe("Adam Abdulkareem");
+    expect(details.members[1]?.name).toBe("Damilare Oluwaseun");
+  });
+
+  it("prefers member firstName/lastName over virtualAccountName", () => {
+    const details = normalizeGroupDetailsFromApi({
+      id: "g1",
+      name: "Test",
+      inviteCode: "AJO-TEST01",
+      members: [
+        {
+          membershipId: "m1",
+          firstName: "Sherif",
+          lastName: "Ibrahim",
+          email: "sherif.ibrahim@nomba.com",
+          virtualAccountName: "Nomba/Ajo FrontendPeeps",
+        },
+      ],
+    });
+
+    expect(details.members[0]?.name).toBe("Sherif Ibrahim");
+  });
 });

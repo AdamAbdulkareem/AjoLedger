@@ -6,6 +6,7 @@ import type {
   GroupSummary,
 } from "../models/group";
 import { deriveDisplayName } from "./greeting";
+import { joinFullName } from "./nameUtils";
 import { readKoboAsNaira } from "./money";
 
 const CREATOR_ROLES = new Set([
@@ -148,28 +149,17 @@ function readParticipantCount(raw: UnknownRecord): number {
   return 0;
 }
 
-function readVirtualAccountDisplayName(
-  value: string | undefined,
-): string | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  const trimmed = value.trim();
-  const separatorIndex = trimmed.indexOf(" - ");
-  if (separatorIndex >= 0) {
-    const extracted = trimmed.slice(separatorIndex + 3).trim();
-    if (extracted) {
-      return extracted;
-    }
-  }
-
-  return trimmed;
-}
-
 function readMemberName(member: UnknownRecord): string {
   const user = asRecord(member.user);
   const profile = asRecord(member.profile);
+
+  const fromMembershipProfile = joinFullName(
+    readString(member.firstName),
+    readString(member.lastName),
+  );
+  if (fromMembershipProfile) {
+    return fromMembershipProfile;
+  }
 
   const directName =
     readString(member.name) ??
@@ -183,6 +173,14 @@ function readMemberName(member: UnknownRecord): string {
   }
 
   if (user) {
+    const fromUserProfile = joinFullName(
+      readString(user.firstName),
+      readString(user.lastName),
+    );
+    if (fromUserProfile) {
+      return fromUserProfile;
+    }
+
     const userName =
       readString(user.name) ??
       readString(user.fullName) ??
@@ -199,6 +197,14 @@ function readMemberName(member: UnknownRecord): string {
   }
 
   if (profile) {
+    const fromNestedProfile = joinFullName(
+      readString(profile.firstName),
+      readString(profile.lastName),
+    );
+    if (fromNestedProfile) {
+      return fromNestedProfile;
+    }
+
     const profileName =
       readString(profile.fullName) ??
       readString(profile.name) ??
@@ -207,13 +213,6 @@ function readMemberName(member: UnknownRecord): string {
     if (profileName) {
       return profileName;
     }
-  }
-
-  const fromVirtualAccount = readVirtualAccountDisplayName(
-    readString(member.virtualAccountName),
-  );
-  if (fromVirtualAccount) {
-    return fromVirtualAccount;
   }
 
   const fromEmail =
@@ -245,6 +244,13 @@ function readMyDetails(raw: UnknownRecord): GroupMyDetails | undefined {
     readString(myDetails.role) ??
     readString(myDetails.membershipRole) ??
     readString(myDetails.userRole);
+  const dueAmount =
+    readMoneyFromApi(myDetails.amountDue) ??
+    readMoneyFromApi(myDetails.dueAmount) ??
+    readMoneyFromApi(myDetails.remainingAmount);
+  const amountPaid =
+    readMoneyFromApi(myDetails.amountPaid) ??
+    readMoneyFromApi(myDetails.paidAmount);
 
   if (
     position == null &&
@@ -252,7 +258,9 @@ function readMyDetails(raw: UnknownRecord): GroupMyDetails | undefined {
     !virtualBankName &&
     !virtualAccountName &&
     !status &&
-    !role
+    !role &&
+    dueAmount == null &&
+    amountPaid == null
   ) {
     return undefined;
   }
@@ -264,32 +272,45 @@ function readMyDetails(raw: UnknownRecord): GroupMyDetails | undefined {
     virtualAccountNumber,
     virtualBankName,
     virtualAccountName,
+    dueAmount,
+    amountPaid,
   };
 }
 
-/** When myDetails lacks status, use the matched membership row from GET /groups/:id. */
+/** When myDetails lacks status or balance, use the matched membership row. */
 function mergeMyDetailsWithMemberStatus(
   myDetails: GroupMyDetails | undefined,
   members: GroupMember[],
   currentUser?: CurrentUserIdentity | null,
 ): GroupMyDetails | undefined {
-  if (myDetails?.status?.trim()) {
-    return myDetails;
-  }
-
   const myRows = findMyMembershipRows(members, currentUser);
-  const memberStatus = myRows
-    .map((row) => row.contributionStatus)
-    .find((value) => typeof value === "string" && value.trim());
-
-  if (!memberStatus) {
+  if (myRows.length === 0 && !myDetails) {
     return myDetails;
   }
 
-  return {
-    ...(myDetails ?? {}),
-    status: String(memberStatus),
-  };
+  const merged: GroupMyDetails = { ...(myDetails ?? {}) };
+
+  if (!merged.status?.trim()) {
+    const memberStatus = myRows
+      .map((row) => row.contributionStatus)
+      .find((value) => typeof value === "string" && value.trim());
+
+    if (memberStatus) {
+      merged.status = String(memberStatus);
+    }
+  }
+
+  if (merged.dueAmount == null) {
+    const memberDue = myRows
+      .map((row) => row.dueAmount)
+      .find((value) => value != null && Number.isFinite(value));
+
+    if (memberDue != null) {
+      merged.dueAmount = memberDue;
+    }
+  }
+
+  return Object.keys(merged).length > 0 ? merged : myDetails;
 }
 
 function readHasActiveCycle(raw: UnknownRecord): boolean {
@@ -313,6 +334,59 @@ function readHasActiveCycle(raw: UnknownRecord): boolean {
   return false;
 }
 
+/** When list payloads omit joinedCount, infer from pot target ÷ contribution. */
+function inferJoinedCountFromCycle(
+  joinedCount: number,
+  cycleDetails?: GroupCycleDetails,
+): number {
+  if (joinedCount > 0) {
+    return joinedCount;
+  }
+
+  const perMember = cycleDetails?.contributionAmount;
+  const potTarget = cycleDetails?.potTarget;
+  if (
+    perMember != null &&
+    perMember > 0 &&
+    potTarget != null &&
+    potTarget > 0
+  ) {
+    const inferred = Math.round(potTarget / perMember);
+    if (inferred >= 1) {
+      return inferred;
+    }
+  }
+
+  const totalWeeks = cycleDetails?.totalWeeks;
+  if (totalWeeks != null && totalWeeks > 0) {
+    return totalWeeks;
+  }
+
+  return joinedCount;
+}
+
+function resolveParticipantCountForSummary(
+  raw: UnknownRecord,
+  cycleDetails?: GroupCycleDetails,
+  joinedCount = 0,
+): number {
+  const direct = readParticipantCount(raw);
+  if (direct > 0) {
+    return direct;
+  }
+
+  const fromCycle = cycleDetails?.totalWeeks;
+  if (fromCycle != null && fromCycle > 0) {
+    return fromCycle;
+  }
+
+  if (joinedCount > 0) {
+    return joinedCount;
+  }
+
+  return 0;
+}
+
 function readCycleDetails(raw: UnknownRecord): GroupCycleDetails | undefined {
   const cycleDetails = asRecord(raw.cycleDetails);
   const activeCycle = asRecord(raw.activeCycle);
@@ -322,25 +396,39 @@ function readCycleDetails(raw: UnknownRecord): GroupCycleDetails | undefined {
     return undefined;
   }
 
-  const currentCycle = readNumber(source.currentCycle);
+  const currentCycle =
+    readNumber(source.currentCycle) ?? readNumber(activeCycle?.currentRound);
   const currentWeek =
     readNumber(source.currentWeek) ??
     readNumber(source.week) ??
     readNumber(source.weekNumber) ??
+    readNumber(activeCycle?.currentRound) ??
     currentCycle;
   const totalWeeks =
     readNumber(source.totalWeeks) ??
     readNumber(source.numberOfWeeks) ??
+    readNumber(activeCycle?.totalRounds) ??
     readNumber(source.numberOfParticipants) ??
     readNumber(source.participantCount);
-  const contributionAmount = readMoneyFromApi(source.contributionAmount);
+  const contributionAmount =
+    readMoneyFromApi(source.contributionAmount) ??
+    readMoneyFromApi(source.contributionAmountKobo) ??
+    readMoneyFromApi(activeCycle?.contributionAmountKobo);
+  const grossContributionAmount =
+    readMoneyFromApi(activeCycle?.grossContributionAmount) ??
+    readMoneyFromApi(cycleDetails?.grossContributionAmount) ??
+    readMoneyFromApi(source.grossContributionAmount);
+  const myContributionStatus =
+    readString(activeCycle?.myContributionStatus) ??
+    readString(cycleDetails?.myContributionStatus) ??
+    readString(source.myContributionStatus);
   const potCollected = readMoneyFromApi(source.potCollected);
   const potTarget = readMoneyFromApi(source.potTarget);
-  const nextPayoutDate = readString(source.nextPayoutDate);
+  const nextPayoutDate =
+    readString(source.nextPayoutDate) ??
+    readString(activeCycle?.nextPayoutDate);
   const dueDate =
-    readString(source.dueDate) ??
-    readString(source.contributionDueDate) ??
-    nextPayoutDate;
+    readString(source.dueDate) ?? readString(source.contributionDueDate);
   const expectedAmount =
     readMoneyFromApi(source.expectedAmount) ??
     potTarget ??
@@ -352,6 +440,8 @@ function readCycleDetails(raw: UnknownRecord): GroupCycleDetails | undefined {
     currentCycle == null &&
     currentWeek == null &&
     contributionAmount == null &&
+    grossContributionAmount == null &&
+    !myContributionStatus &&
     potCollected == null &&
     potTarget == null &&
     !nextPayoutDate &&
@@ -361,11 +451,16 @@ function readCycleDetails(raw: UnknownRecord): GroupCycleDetails | undefined {
     return undefined;
   }
 
+  const cycleId = readString(activeCycle?.id);
+
   return {
+    cycleId,
     currentCycle,
     currentWeek,
     totalWeeks,
     contributionAmount,
+    grossContributionAmount,
+    myContributionStatus,
     potCollected,
     potTarget,
     nextPayoutDate,
@@ -593,6 +688,10 @@ export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
   const hasActiveCycle = readHasActiveCycle(record);
   const contributionAmount =
     readMoneyFromApi(record.contributionAmount) ?? cycleDetails?.contributionAmount;
+  const joinedCount = inferJoinedCountFromCycle(
+    readJoinedCount(record),
+    cycleDetails,
+  );
 
   return {
     id: readString(record.id) ?? "",
@@ -604,8 +703,12 @@ export function normalizeGroupSummaryFromApi(raw: unknown): GroupSummary {
     isCreator: readListCreatorHint(record),
     contributionAmount,
     frequency: readFrequency(record),
-    numberOfParticipants: readParticipantCount(record),
-    joinedCount: readJoinedCount(record),
+    numberOfParticipants: resolveParticipantCountForSummary(
+      record,
+      cycleDetails,
+      joinedCount,
+    ),
+    joinedCount,
     myDetails: readMyDetails(record),
     cycleDetails,
     hasActiveCycle,
@@ -632,14 +735,23 @@ export function normalizeGroupDetailsFromApi(
   const hasActiveCycle = readHasActiveCycle(record);
   const contributionAmount =
     readMoneyFromApi(record.contributionAmount) ?? cycleDetails?.contributionAmount;
+  const resolvedJoinedCount = inferJoinedCountFromCycle(joinedCount, cycleDetails);
+  const resolvedParticipants =
+    numberOfParticipants > 0
+      ? numberOfParticipants
+      : resolveParticipantCountForSummary(
+          record,
+          cycleDetails,
+          resolvedJoinedCount,
+        );
 
   return {
     id: readString(record.id) ?? "",
     name: readString(record.name) ?? "",
     description: readString(record.description),
     inviteCode: readString(record.inviteCode) ?? "",
-    numberOfParticipants,
-    joinedCount,
+    numberOfParticipants: resolvedParticipants,
+    joinedCount: resolvedJoinedCount,
     members,
     isCreator,
     contributionAmount,

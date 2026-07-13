@@ -1,5 +1,9 @@
-import type { PayoutAccountStatus } from "../models/payoutAccount";
-import type { SetupBankPayload } from "../models/payoutAccount";
+import type {
+  PayoutAccount,
+  PayoutAccountStatus,
+  SetupBankPayload,
+  UpdatePayoutSettingsPayload,
+} from "../models/payoutAccount";
 import {
   findBankName,
   getBanks,
@@ -7,6 +11,7 @@ import {
   isPayoutConfigured,
   payoutAccountFromUser,
   setupBank,
+  updatePayoutSettings,
 } from "./banks";
 
 export async function getPayoutAccountStatus(
@@ -44,6 +49,25 @@ export async function saveSetupBank(
   return {
     configured: isPayoutConfigured(user),
     account: payoutAccountFromUser(user),
+  };
+}
+
+export async function savePayoutSettings(
+  token: string,
+  payload: UpdatePayoutSettingsPayload,
+): Promise<PayoutAccountStatus> {
+  const user = await updatePayoutSettings(token, payload);
+  let bankName: string | undefined;
+  try {
+    const banks = await getBanks(token);
+    bankName = findBankName(banks, user.payoutBankCode!);
+  } catch {
+    bankName = undefined;
+  }
+
+  return {
+    configured: isPayoutConfigured(user),
+    account: payoutAccountFromUser(user, bankName),
   };
 }
 

@@ -156,7 +156,12 @@ export default function GroupLedgerScreen() {
             />
           }
         >
-          <GroupLedgerContent group={details} isAdmin={isAdmin} />
+          <GroupLedgerContent
+            group={details}
+            isAdmin={isAdmin}
+            accessToken={accessToken}
+            onPaymentConfirmed={() => void refetch()}
+          />
         </ScrollView>
       )}
 
