@@ -29,6 +29,31 @@ export async function getBiometricCapabilities(): Promise<BiometricCapabilities>
   };
 }
 
+/** Exported for unit tests; defaults to the current platform. */
+export function resolveBiometricKind(
+  types: LocalAuthentication.AuthenticationType[],
+  os: typeof Platform.OS = Platform.OS,
+): BiometricKind {
+  const hasFingerprint = types.includes(
+    LocalAuthentication.AuthenticationType.FINGERPRINT,
+  );
+  const hasFace = types.includes(
+    LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION,
+  );
+
+  // Android often reports both fingerprint and face unlock; prefer fingerprint
+  // for UI labels since that is what most users actually use.
+  if (os === "android") {
+    if (hasFingerprint) return "fingerprint";
+    if (hasFace) return "faceId";
+    return "biometrics";
+  }
+
+  if (hasFace) return "faceId";
+  if (hasFingerprint) return "fingerprint";
+  return "biometrics";
+}
+
 export async function loadBiometricStatus(userId: string): Promise<{
   enabled: boolean;
   caps: BiometricCapabilities;
@@ -46,18 +71,6 @@ export async function loadBiometricStatus(userId: string): Promise<{
   } catch {
     return null;
   }
-}
-
-function resolveBiometricKind(
-  types: LocalAuthentication.AuthenticationType[],
-): BiometricKind {
-  if (types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
-    return "faceId";
-  }
-  if (types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)) {
-    return "fingerprint";
-  }
-  return "biometrics";
 }
 
 export function getBiometricProfileLabelKey(kind: BiometricKind): string {

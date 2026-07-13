@@ -37,6 +37,7 @@
     "signIn": "Shiga",
     "continue": "Ci gaba",
     "submittingPasscode": "Ana tabbatar da lambar shiga…",
+    "submittingPin": "Ana saita PIN…",
     "createAccessPasscodeTitle": "Ƙirƙiri lambar shiga ta app mai lamba 6",
     "createAccessPasscodeSubtitle": "Za ka yi amfani da wannan lambar shiga don buɗe app.",
     "inputPasscodeLabel": "Shigar da lambar shiga",
@@ -74,6 +75,8 @@
       "passcodeLockedOut": "Yunƙurin da yawa. Sake gwadawa cikin {{seconds}} daƙiƙa.",
       "pinLength": "PIN dole ta kasance lambobi 4.",
       "pinMismatch": "PINs ba su dace ba. Sake gwadawa.",
+      "googleNotConfigured": "Ba a saita Google sign-in ba tukuna. Ƙara Google OAuth client IDs a .env kuma sake gina app, ko ka yi amfani da imel da kalmar sirri.",
+      "googleRequiresDevBuild": "Google sign-in yana buƙatar development build. Yi amfani da imel da kalmar sirri a Expo Go, ko danna s don dev client.",
       "generic": "Wani abu ya faru. Sake gwadawa."
     }
   },
@@ -152,14 +155,16 @@
       "cancel": "Soke",
       "loadingBanks": "Ana lodawa bankuna…",
       "resolving": "Ana tabbatar da asusu…",
-      "profileHint": "Sabunta bayanan banki daga saituna zai buƙaci PIN na ciniki (yana zuwa nan ba da jimawa ba).",
+      "profileHint": "Shigar da PIN ciniki mai lamba 4 don ajiye canje-canjen bankin biyan kuɗi.",
+      "transactionPinLabel": "PIN na ciniki",
       "errors": {
         "bankRequired": "Da fatan za a zaɓi banki.",
         "accountInvalid": "Shigar da lambar asusu mai inganci mai lamba 10.",
         "resolveRequired": "Tabbatar da asusun ku kafin ci gaba.",
         "resolveFailed": "Ba a iya tabbatar da bayanan asusu ba. Sake gwadawa.",
         "banksLoadFailed": "Ba a iya lodawa bankuna ba. Sake gwadawa.",
-        "banksUnavailable": "Jerin bankuna bai samu ba tukuna. Sake gwadawa."
+        "banksUnavailable": "Jerin bankuna bai samu ba tukuna. Sake gwadawa.",
+        "pinInvalid": "Shigar da PIN ciniki na lambobi 4."
       }
     },
     "bankDetailsSuccess": {
@@ -343,6 +348,14 @@
       "adminPaymentTitle": "Biyan Admin & Asusun Virtual",
       "weekContributionTitle": "Gudummawar Makon {{week}}",
       "myContributionStatus": "Matsayin Gudummawata",
+      "contributionAmount": "Gudummawa: {{amount}}",
+      "processingFee": "Kudin sarrafawa: {{amount}}",
+      "transferAmount": "Adadin canja wuri: {{amount}}",
+      "copyTransferAmount": "Kwafi adadin canja wuri",
+      "transferredButton": "Na canja wuri",
+      "waitingForPayment": "Ana jiran tabbatar da biya…",
+      "paymentTimedOut": "Har yanzu ana aiki. Ja ƙasa don sabunta ko sake gwadawa.",
+      "retryPaymentCheck": "Duba sake",
       "weekPayment": "Biyan Makon {{week}}",
       "virtualAccountTitle": "Asusun Virtual ɗinka",
       "bankLine": "{{bank}}: {{account}}",
@@ -357,6 +370,33 @@
       "cleared": "An share",
       "updates": "Sabuntawa",
       "myPayoutTime": "Lokacin Biyan Ku"
+    },
+    "payout": {
+      "title": "Biya",
+      "readyTitle": "SHIRYE DON BAYA",
+      "positionDue": "Matsayi {{position}} · ranar {{date}}",
+      "noRecipient": "Ba a sami wanda zai karɓi biyan ku ba tukuna.",
+      "amountLabel": "Adadin biyan ku",
+      "confirmButton": "Tabbatar & Aika Biyan Ku",
+      "processingButton": "Ana aiwatar da biyan ku…",
+      "waitingForContributions": "Ana jiran duk membobi su biya don wannan zagaye.",
+      "scheduleTitle": "Tsarin Biyan Ku",
+      "completedTitle": "An gama",
+      "scheduleNext": "Na gaba",
+      "scheduleUpcoming": "Mai zuwa",
+      "scheduleProcessing": "Ana aiki…",
+      "scheduleCompleted": "An gama",
+      "emptySchedule": "Sanya tsarin biyan ku don ganin jerin.",
+      "pinTitle": "Tabbatar da biyan ku",
+      "pinBody": "Shigar da PIN ɗin ciniki na lambobi 4 don aika wannan biyan ku.",
+      "pinLabel": "PIN ciniki",
+      "pinCancel": "Soke",
+      "pinConfirm": "Aika biyan ku",
+      "initiatedTitle": "An fara biyan ku",
+      "initiatedBody": "Ana aiwatar da canja wuri. Wannan allo zai sabunta lokacin da zagayen ya ci gaba.",
+      "disburseFailed": "Ba za a iya fara biyan ku ba. Duba PIN ɗinka ka sake gwadawa.",
+      "pollTimedOut": "Har yanzu ana aiwatarwa. Ja ƙasa don sabuntawa ko sake duba.",
+      "retryPoll": "Sake duba"
     }
   },
   "profile": {
@@ -420,6 +460,117 @@
       "permissionBody": "Ka ba da izinin kamara ko ɗakin hotuna don sabunta hoton bayaninka.",
       "webUnavailable": "Daukar hoto ba ya samuwa a yanar gizo a wannan demo.",
       "updateFailed": "Ba a iya sabunta hoton bayaninka ba. Sake gwadawa."
+    },
+    "changePassword": {
+      "title": "Canza Kalmar Sirri",
+      "currentLabel": "Kalmar sirri ta yanzu",
+      "newLabel": "Sabon kalmar sirri",
+      "confirmLabel": "Tabbatar da sabon kalmar sirri",
+      "save": "Sabunta kalmar sirri",
+      "errors": {
+        "currentRequired": "Shigar da kalmar sirrinka ta yanzu.",
+        "newInvalid": "Sabon kalmar sirri dole ta kasance aƙalla haruffa 8.",
+        "mismatch": "Kalmomin sirri ba su dace ba.",
+        "pinInvalid": "Shigar da PIN na ciniki mai lamba 4."
+      }
+    },
+    "deleteAccount": {
+      "title": "Share Asusu",
+      "intro": "Share asusunka na dindindin kuma ba za a iya mayar da shi ba. Duk bayanai da damar amfani da fasali za su bace. Taimaka mana mu inganta ta hanyar raba dalilin barin.",
+      "deleteCta": "Share Asusu",
+      "reasons": {
+        "notUsingApp": "Ba na amfani da app ɗin kuma",
+        "privacyConcerns": "Ina da damuwa game da sirri",
+        "doesntMeetNeeds": "App ɗin bai cika buƙatata ba",
+        "technicalIssues": "Ina fuskantar matsalolin fasaha",
+        "tooManyAccounts": "Ina da asusu da yawa",
+        "switchingService": "Ina canza zuwa wani sabis",
+        "other": "Sauran"
+      },
+      "lastChance": {
+        "lead": "Mun tabbatar da asusunka kuma za mu ci gaba da sharewa.",
+        "body": "Wannan shine last chance ɗinka don soke. Ba za ka iya dawo da asusunka ba bayan sharewa kuma za ka buƙaci sabon asusu idan kana son dawowa.",
+        "question": "Ka tabbata kana son share asusunka?",
+        "yes": "Ee",
+        "no": "A'a"
+      },
+      "otp": {
+        "title": "Tabbatar da shaidarka",
+        "body": "Don tsaro, shigar da lambar 6 da aka aika zuwa {{email}}",
+        "resendPrompt": "Ba ka karɓi lamba ba?",
+        "resend": "Sake aikawa",
+        "resendCountdown": "Sake aika lamba a cikin {{time}}",
+        "verifyCta": "Tabbatar da Sharewa"
+      },
+      "deactivated": {
+        "title": "An Kashe Asusu",
+        "body": "An shirya share asusun AjoLedger ɗinka. Za a cire shi dindindin cikin kwanaki 14.",
+        "footer": "Idan ka canza tunani, ka shiga kuma kafin lokacin don dawo da asusunka.\n\nMuna fatan mu sake ganinka.",
+        "done": "An gama",
+        "reactivate": "Dawo da Asusuna"
+      },
+      "errors": {
+        "invalidOtp": "Shigar da lambar tabbatarwa mai lamba 6."
+      }
+    },
+    "reactivate": {
+      "title": "An kashe asusu",
+      "body": "An kashe asusunka. Dawo da shi don ci gaba da AjoLedger.",
+      "confirm": "Dawo da asusu"
+    }
+  },
+  "support": {
+    "hub": {
+      "title": "Tuntubi Tallafi",
+      "heading": "Ta yaya za mu taimaka?",
+      "email": {
+        "title": "Tallafi ta Imel",
+        "subtitle": "Aiko mana imel don taimako."
+      },
+      "phone": {
+        "title": "Tallafi ta Waya",
+        "subtitle": "Litinin zuwa Juma'a 9:00 AM - 5:00 PM"
+      },
+      "message": {
+        "title": "Aika Saƙo",
+        "subtitle": "Za mu amsa cikin awanni 24"
+      }
+    },
+    "email": {
+      "title": "Tallafi ta Imel"
+    },
+    "phone": {
+      "title": "Tallafi ta Waya",
+      "supportLine": "Layin Tallafi",
+      "salesLine": "Tambayoyin Sayarwa",
+      "callNow": "Kira Yanzu",
+      "callFailedTitle": "Ba a iya fara kira ba",
+      "callFailedBody": "Na'urar ku ba ta iya buɗe app ɗin waya ba. Sake gwadawa ko yi amfani da tallafi ta imel.",
+      "hoursTitle": "Lokutan Tallafi",
+      "weekdayHours": "Litinin - Juma'a: 9:00 AM - 6:00 PM EST",
+      "weekendHours": "Asabar - Lahadi: 10:00 AM - 4:00 PM EST"
+    },
+    "message": {
+      "title": "Aika Saƙo"
+    },
+    "form": {
+      "emailLabel": "Imel ɗinka",
+      "emailPlaceholder": "you@example.com",
+      "subjectLabel": "Taken",
+      "subjectPlaceholder": "Tambaya",
+      "messageLabel": "Saƙo",
+      "messagePlaceholder": "Ta yaya za mu taimaka?",
+      "send": "Aika Saƙo",
+      "errors": {
+        "invalidEmail": "Shigar da adireshin imel da ya dace.",
+        "subjectRequired": "Shigar da taken.",
+        "messageRequired": "Shigar da saƙonka."
+      }
+    },
+    "confirmation": {
+      "title": "An Aika Saƙo!",
+      "body": "Na gode da tuntubar mu. Za mu dawo maka a <highlight>{{email}}</highlight> cikin awanni 24.",
+      "done": "An gama"
     }
   },
   "language": {

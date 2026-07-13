@@ -1,4 +1,4 @@
-export type GroupContributionStatusKey = "partial" | "paid" | "notPaid";
+export type GroupContributionStatusKey = "paid" | "notPaid";
 
 export type GroupStatus = "active" | "pending" | "completed";
 

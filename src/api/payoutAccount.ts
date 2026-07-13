@@ -1,5 +1,9 @@
-import type { PayoutAccountStatus } from "../models/payoutAccount";
-import type { SetupBankPayload } from "../models/payoutAccount";
+import type {
+  PayoutAccount,
+  PayoutAccountStatus,
+  SetupBankPayload,
+  UpdatePayoutSettingsPayload,
+} from "../models/payoutAccount";
 import {
   findBankName,
   getBanks,
@@ -7,7 +11,24 @@ import {
   isPayoutConfigured,
   payoutAccountFromUser,
   setupBank,
+  updatePayoutSettings,
 } from "./banks";
+
+async function resolveBankName(
+  token: string,
+  bankCode: string | null | undefined,
+): Promise<string | undefined> {
+  if (!bankCode) {
+    return undefined;
+  }
+
+  try {
+    const banks = await getBanks(token);
+    return findBankName(banks, bankCode);
+  } catch {
+    return undefined;
+  }
+}
 
 export async function getPayoutAccountStatus(
   token: string,
@@ -22,13 +43,7 @@ export async function getPayoutAccountStatus(
     return { configured: false, account: null };
   }
 
-  let bankName: string | undefined;
-  try {
-    const banks = await getBanks(token);
-    bankName = findBankName(banks, user.payoutBankCode!);
-  } catch {
-    bankName = undefined;
-  }
+  const bankName = await resolveBankName(token, user.payoutBankCode);
 
   return {
     configured: true,
@@ -44,6 +59,22 @@ export async function saveSetupBank(
   return {
     configured: isPayoutConfigured(user),
     account: payoutAccountFromUser(user),
+  };
+}
+
+export async function savePayoutSettings(
+  token: string,
+  payload: UpdatePayoutSettingsPayload,
+): Promise<PayoutAccountStatus> {
+  const user = await updatePayoutSettings(token, payload);
+  const configured = isPayoutConfigured(user);
+  const bankName = configured
+    ? await resolveBankName(token, user.payoutBankCode)
+    : undefined;
+
+  return {
+    configured,
+    account: payoutAccountFromUser(user, bankName),
   };
 }
 

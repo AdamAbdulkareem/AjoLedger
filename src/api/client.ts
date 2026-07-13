@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "../config/api";
-import { notifyUnauthorized } from "../lib/authSessionHandler";
+import { notifyUnauthorized, notifyAccountDeactivated } from "../lib/authSessionHandler";
 import type { ApiEnvelope } from "../models/auth";
 
 export class ApiError extends Error {
@@ -75,10 +75,16 @@ export async function apiRequest<T>(
       notifyUnauthorized();
     }
 
-    throw new ApiError(
-      payload.message || "Something went wrong. Please try again.",
-      response.status,
-    );
+    const message = payload.message || "Something went wrong. Please try again.";
+
+    if (
+      response.status === 403 &&
+      message.toLowerCase().includes("deactivat")
+    ) {
+      notifyAccountDeactivated();
+    }
+
+    throw new ApiError(message, response.status);
   }
 
   return payload;

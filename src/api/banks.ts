@@ -4,7 +4,12 @@ import type {
   ResolveAccountResult,
   UserWithPayout,
 } from "../models/bank";
-import type { PayoutAccount, SetupBankPayload } from "../models/payoutAccount";
+import type {
+  PayoutAccount,
+  SetupBankPayload,
+  UpdatePayoutSettingsPayload,
+} from "../models/payoutAccount";
+import { normalizeUserWithPayoutFromApi } from "../lib/userApiNormalize";
 import { apiRequest } from "./client";
 
 const UNKNOWN_BANK_NAME = "Unknown bank";
@@ -49,7 +54,7 @@ export async function setupBank(
   token: string,
   payload: SetupBankPayload,
 ): Promise<UserWithPayout> {
-  const envelope = await apiRequest<UserWithPayout>("/users/setup-bank", {
+  const envelope = await apiRequest<unknown>("/users/setup-bank", {
     method: "POST",
     body: payload,
     token,
@@ -57,15 +62,30 @@ export async function setupBank(
   if (!envelope.data) {
     throw new Error("Bank setup returned no data.");
   }
-  return envelope.data;
+  return normalizeUserWithPayoutFromApi(envelope.data);
+}
+
+export async function updatePayoutSettings(
+  token: string,
+  payload: UpdatePayoutSettingsPayload,
+): Promise<UserWithPayout> {
+  const envelope = await apiRequest<unknown>("/users/payout-settings", {
+    method: "PATCH",
+    body: payload,
+    token,
+  });
+  if (!envelope.data) {
+    throw new Error("Payout settings update returned no data.");
+  }
+  return normalizeUserWithPayoutFromApi(envelope.data);
 }
 
 export async function getCurrentUser(token: string): Promise<UserWithPayout> {
-  const envelope = await apiRequest<UserWithPayout>("/users/me", { token });
+  const envelope = await apiRequest<unknown>("/users/me", { token });
   if (!envelope.data) {
     throw new Error("User profile returned no data.");
   }
-  return envelope.data;
+  return normalizeUserWithPayoutFromApi(envelope.data);
 }
 
 export function isPayoutConfigured(user: UserWithPayout): boolean {

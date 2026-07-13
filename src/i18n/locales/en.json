@@ -37,6 +37,7 @@
     "signIn": "Sign In",
     "continue": "Continue",
     "submittingPasscode": "Verifying passcode…",
+    "submittingPin": "Setting up PIN…",
     "createAccessPasscodeTitle": "Create your 6-digit passcode",
     "createAccessPasscodeSubtitle": "You will use this passcode to unlock the app.",
     "inputPasscodeLabel": "Input Passcode",
@@ -74,6 +75,8 @@
       "passcodeLockedOut": "Too many attempts. Try again in {{seconds}} seconds.",
       "pinLength": "PIN must be 4 digits.",
       "pinMismatch": "PINs do not match. Please try again.",
+      "googleNotConfigured": "Google sign-in is not configured yet. Add Google OAuth client IDs to your .env and rebuild the app, or use email and password.",
+      "googleRequiresDevBuild": "Google sign-in needs a development build. Use email and password in Expo Go, or press s in the terminal to switch to your dev client.",
       "generic": "Something went wrong. Please try again."
     }
   },
@@ -153,14 +156,16 @@
       "cancel": "Cancel",
       "loadingBanks": "Loading banks…",
       "resolving": "Verifying account…",
-      "profileHint": "Updating bank details from settings will require your transaction PIN (coming soon).",
+      "profileHint": "Enter your 4-digit transaction PIN to save payout bank changes.",
+      "transactionPinLabel": "Transaction PIN",
       "errors": {
         "bankRequired": "Please select a bank.",
         "accountInvalid": "Enter a valid 10-digit account number.",
         "resolveRequired": "Verify your account before continuing.",
         "resolveFailed": "Account details could not be resolved. Please try again.",
         "banksLoadFailed": "Could not load banks. Please try again.",
-        "banksUnavailable": "Bank list is not available yet. Please try again."
+        "banksUnavailable": "Bank list is not available yet. Please try again.",
+        "pinInvalid": "Enter your 4-digit transaction PIN."
       }
     },
     "bankDetailsSuccess": {
@@ -344,6 +349,14 @@
       "adminPaymentTitle": "Admin Payment & Virtual Account",
       "weekContributionTitle": "Week {{week}} Contribution",
       "myContributionStatus": "My Contribution Status",
+      "contributionAmount": "Contribution: {{amount}}",
+      "processingFee": "Processing fee: {{amount}}",
+      "transferAmount": "Transfer amount: {{amount}}",
+      "copyTransferAmount": "Copy transfer amount",
+      "transferredButton": "I've transferred",
+      "waitingForPayment": "Waiting for payment confirmation…",
+      "paymentTimedOut": "Still processing. Pull down to refresh or try again shortly.",
+      "retryPaymentCheck": "Check again",
       "weekPayment": "Week {{week}} Payment",
       "virtualAccountTitle": "Your Virtual Account",
       "bankLine": "{{bank}}: {{account}}",
@@ -358,6 +371,33 @@
       "cleared": "Cleared",
       "updates": "Updates",
       "myPayoutTime": "My Payout Time"
+    },
+    "payout": {
+      "title": "Payout",
+      "readyTitle": "READY FOR PAYOUT",
+      "positionDue": "Position {{position}} · due {{date}}",
+      "noRecipient": "No payout recipient assigned yet.",
+      "amountLabel": "Payout amount",
+      "confirmButton": "Confirm & Send Payout",
+      "processingButton": "Payout processing…",
+      "waitingForContributions": "Waiting until every member has paid for this round.",
+      "scheduleTitle": "Payout Schedule",
+      "completedTitle": "Completed",
+      "scheduleNext": "Next",
+      "scheduleUpcoming": "Upcoming",
+      "scheduleProcessing": "Processing…",
+      "scheduleCompleted": "Completed",
+      "emptySchedule": "Assign payout order to see the schedule.",
+      "pinTitle": "Confirm payout",
+      "pinBody": "Enter your 4-digit transaction PIN to send this payout.",
+      "pinLabel": "Transaction PIN",
+      "pinCancel": "Cancel",
+      "pinConfirm": "Send payout",
+      "initiatedTitle": "Payout initiated",
+      "initiatedBody": "The transfer is processing. This screen will update when the round advances.",
+      "disburseFailed": "Could not initiate payout. Check your PIN and try again.",
+      "pollTimedOut": "Still processing. Pull down to refresh or check again.",
+      "retryPoll": "Check again"
     }
   },
   "profile": {
@@ -422,6 +462,117 @@
       "permissionBody": "Please allow camera or photo library access to update your profile picture.",
       "webUnavailable": "Photo capture is not available on web in this demo.",
       "updateFailed": "Could not update your profile picture. Please try again."
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "confirmLabel": "Confirm new password",
+      "save": "Update password",
+      "errors": {
+        "currentRequired": "Enter your current password.",
+        "newInvalid": "New password must be at least 8 characters.",
+        "mismatch": "Passwords do not match.",
+        "pinInvalid": "Enter your 4-digit transaction PIN."
+      }
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "intro": "Deleting your account is permanent and cannot be undone, all data and access to features will be erased. Help us improve by sharing why you're leaving, your feedback matters.",
+      "deleteCta": "Delete Account",
+      "reasons": {
+        "notUsingApp": "I'm not using the app anymore",
+        "privacyConcerns": "I have privacy concerns",
+        "doesntMeetNeeds": "The app doesn't meet my needs",
+        "technicalIssues": "I'm experiencing technical issues",
+        "tooManyAccounts": "I have too many accounts",
+        "switchingService": "I'm switching to a different service",
+        "other": "Other"
+      },
+      "lastChance": {
+        "lead": "We have verified your account and will proceed with deletion.",
+        "body": "This is your last chance to cancel. You won't be able to recover your account once deleted and will need to create a new account if you ever wish to return.",
+        "question": "Are you sure you want to delete your account?",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "otp": {
+        "title": "Verify your identity",
+        "body": "For security purposes, please enter the 6-digit code sent to {{email}}",
+        "resendPrompt": "Didn't receive a code?",
+        "resend": "Resend",
+        "resendCountdown": "Resend code in [{{time}}]",
+        "verifyCta": "Verify and Confirm Deletion"
+      },
+      "deactivated": {
+        "title": "Account Deactivated",
+        "body": "Your AjoLedger account is scheduled for deletion. It will be permanently removed in 14 days.",
+        "footer": "If you change your mind, simply log in again before then to reactivate your account.\n\nWe hope to see you back soon.",
+        "done": "Done",
+        "reactivate": "Reactivate my Account"
+      },
+      "errors": {
+        "invalidOtp": "Enter the 6-digit verification code."
+      }
+    },
+    "reactivate": {
+      "title": "Account deactivated",
+      "body": "Your account is deactivated. Reactivate to continue using AjoLedger.",
+      "confirm": "Reactivate account"
+    }
+  },
+  "support": {
+    "hub": {
+      "title": "Contact Support",
+      "heading": "How can we help?",
+      "email": {
+        "title": "Email Support",
+        "subtitle": "Email us for assistance."
+      },
+      "phone": {
+        "title": "Phone Support",
+        "subtitle": "Monday to Friday 9:00 AM - 5:00 PM"
+      },
+      "message": {
+        "title": "Send a Message",
+        "subtitle": "We'll respond within 24 hours"
+      }
+    },
+    "email": {
+      "title": "Email Support"
+    },
+    "phone": {
+      "title": "Phone Support",
+      "supportLine": "Support Line",
+      "salesLine": "Sales Inquiries",
+      "callNow": "Call Now",
+      "callFailedTitle": "Unable to start call",
+      "callFailedBody": "Your device could not open the phone app. Try again or use email support.",
+      "hoursTitle": "Support Hours",
+      "weekdayHours": "Monday - Friday: 9:00 AM - 6:00 PM EST",
+      "weekendHours": "Saturday - Sunday: 10:00 AM - 4:00 PM EST"
+    },
+    "message": {
+      "title": "Send a Message"
+    },
+    "form": {
+      "emailLabel": "Your Email",
+      "emailPlaceholder": "you@example.com",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "Inquiry",
+      "messageLabel": "Message",
+      "messagePlaceholder": "How can we help you?",
+      "send": "Send Message",
+      "errors": {
+        "invalidEmail": "Enter a valid email address.",
+        "subjectRequired": "Enter a subject.",
+        "messageRequired": "Enter your message."
+      }
+    },
+    "confirmation": {
+      "title": "Message Sent!",
+      "body": "Thank you for reaching out. We'll get back to you at <highlight>{{email}}</highlight> within 24 hours.",
+      "done": "Done"
     }
   },
   "language": {

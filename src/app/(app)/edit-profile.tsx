@@ -79,7 +79,6 @@ export default function EditProfileScreen() {
       await photoModal.commitPendingAvatar();
       await updateProfile({
         fullName: fullName.trim(),
-        email: email.trim(),
         phoneNumber: normalizePhoneNumber(phoneNumber),
       });
       router.back();
@@ -150,6 +149,7 @@ export default function EditProfileScreen() {
             autoCapitalize="none"
             textContentType="emailAddress"
             autoComplete="email"
+            editable={false}
           />
 
           <TextField

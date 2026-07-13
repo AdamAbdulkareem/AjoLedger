@@ -87,6 +87,10 @@ export default function GroupDetailScreen() {
     router.replace("/(app)/groups");
   }, [router]);
 
+  const handlePaymentConfirmed = useCallback(() => {
+    void loadGroup();
+  }, [loadGroup]);
+
   if (!groupId) {
     return null;
   }
@@ -113,7 +117,11 @@ export default function GroupDetailScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <GroupDetailContent group={group} />
+          <GroupDetailContent
+            group={group}
+            accessToken={accessToken}
+            onPaymentConfirmed={handlePaymentConfirmed}
+          />
         </ScrollView>
       ) : null}
     </SafeAreaView>

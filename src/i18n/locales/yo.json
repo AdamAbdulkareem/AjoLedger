@@ -37,6 +37,7 @@
     "signIn": "Wọle",
     "continue": "Tẹsiwaju",
     "submittingPasscode": "N ṣayẹwo koodu iwọle…",
+    "submittingPin": "N ṣeto PIN…",
     "createAccessPasscodeTitle": "Ṣẹda koodu iwọle app oni-nọmba 6 rẹ",
     "createAccessPasscodeSubtitle": "O yoo lo koodu yii lati ṣi app naa.",
     "inputPasscodeLabel": "Tẹ koodu iwọle",
@@ -74,6 +75,8 @@
       "passcodeLockedOut": "Gbiyanju pupọ ju. Gbiyanju lẹkan si ni {{seconds}} aaya.",
       "pinLength": "PIN gbọdọ jẹ nọmba 4.",
       "pinMismatch": "Awọn PIN ko ba ara wọn mu. Jọwọ gbiyanju lẹkan si.",
+      "googleNotConfigured": "A ko tun Google sign-in to. Fi awọn ID OAuth Google si .env rẹ ki o tun app ṣe, tabi lo imeeli ati ọrọ igbaniwọle.",
+      "googleRequiresDevBuild": "Google sign-in nilo development build. Lo imeeli ati ọrọ igbaniwọle ni Expo Go, tabi tẹ s lati yi si dev client.",
       "generic": "Nkọkan kan ṣẹlẹ. Jọwọ gbiyanju lẹkan si."
     }
   },
@@ -151,14 +154,16 @@
       "cancel": "Cancel",
       "loadingBanks": "N gba awọn banki…",
       "resolving": "N ṣe idanwo akọọlẹ…",
-      "profileHint": "Imudojuiwọn alaye banki lati eto yoo nilo PIN iṣowo rẹ (nbọ laipe).",
+      "profileHint": "Enter your 4-digit transaction PIN to save payout bank changes.",
+      "transactionPinLabel": "Transaction PIN",
       "errors": {
         "bankRequired": "Please select a bank.",
         "accountInvalid": "Enter a valid 10-digit account number.",
         "resolveRequired": "Jẹrisi akọọlẹ rẹ ṣaaju títẹ̀ síwaju.",
         "resolveFailed": "Ko le ṣe idanwo alaye akọọlẹ. Gbiyanju lẹẹkansi.",
         "banksLoadFailed": "Ko le gba awọn banki. Gbiyanju lẹẹkansi.",
-        "banksUnavailable": "Atokọ banki ko si sibẹsibẹ. Gbiyanju lẹẹkansi."
+        "banksUnavailable": "Atokọ banki ko si sibẹsibẹ. Gbiyanju lẹẹkansi.",
+        "pinInvalid": "Tẹ PIN iṣowo rẹ ti o ni digiti 4."
       }
     },
     "bankDetailsSuccess": {
@@ -342,6 +347,14 @@
       "adminPaymentTitle": "Isanwo Alakoso & Akọọlẹ Afihan",
       "weekContributionTitle": "Ifiṣowopọ Ọsẹ {{week}}",
       "myContributionStatus": "Ipo Ifiṣowopọ Mi",
+      "contributionAmount": "Ifiṣowopọ: {{amount}}",
+      "processingFee": "Owo iṣẹ: {{amount}}",
+      "transferAmount": "Iye gbigbe: {{amount}}",
+      "copyTransferAmount": "Daakọ iye gbigbe",
+      "transferredButton": "Mo ti gbe",
+      "waitingForPayment": "Nduro idaniloju isanwo…",
+      "paymentTimedOut": "Tun n ṣiṣẹ. Fa silẹ lati mu titun tabi gbiyanju laipe.",
+      "retryPaymentCheck": "Ṣayẹwo lẹẹkansi",
       "weekPayment": "Isanwo Ọsẹ {{week}}",
       "virtualAccountTitle": "Akọọlẹ Afihan Rẹ",
       "bankLine": "{{bank}}: {{account}}",
@@ -356,6 +369,33 @@
       "cleared": "Ti pari",
       "updates": "Imudojuiwọn",
       "myPayoutTime": "Akoko Isanwo Mi"
+    },
+    "payout": {
+      "title": "Isanwo",
+      "readyTitle": "TÓ ṢE ISANWO",
+      "positionDue": "Ipò {{position}} · yóò dé {{date}}",
+      "noRecipient": "A kò sì yàn ẹni tí yóò gba isanwo.",
+      "amountLabel": "Iye isanwo",
+      "confirmButton": "Jẹ́risi & Fi Isanwo Ránṣẹ́",
+      "processingButton": "Isanwo ń lọ…",
+      "waitingForContributions": "Ń dúró tití gbogbo ọmọ ẹgbẹ bá sanwo fún wọ̀n yìí.",
+      "scheduleTitle": "Ètò Isanwo",
+      "completedTitle": "Parí",
+      "scheduleNext": "Tókàn",
+      "scheduleUpcoming": "Ń bọ̀",
+      "scheduleProcessing": "Ń ṣe…",
+      "scheduleCompleted": "Parí",
+      "emptySchedule": "Ṣeto ètò isanwo láti rí àtòjọ.",
+      "pinTitle": "Jẹ́risi isanwo",
+      "pinBody": "Tẹ PIN ìdúnáàdúrà rẹ (àmì 4) láti fi isanwo ránṣẹ́.",
+      "pinLabel": "PIN ìdúnáàdúrà",
+      "pinCancel": "Fagilé",
+      "pinConfirm": "Fi ránṣẹ́",
+      "initiatedTitle": "Isanwo ti bẹ̀rẹ̀",
+      "initiatedBody": "Gbigbe owó ń lọ. Ojú-ìwé yìí yóò ṣe àtúnṣe nígbà tí yíyípadà bá parí.",
+      "disburseFailed": "Kò le bẹ̀rẹ̀ isanwo. Ṣàyẹ̀wo PIN rẹ kí o gbìyànjú sí i.",
+      "pollTimedOut": "Àkọṣe sílẹ̀ lọ. Fa isalẹ láti ṣe àtúnṣe tàbí ṣàyẹ̀wò lẹ́ẹ̀kan sí i.",
+      "retryPoll": "Ṣàyẹ̀wò lẹ́ẹ̀kan sí i"
     }
   },
   "profile": {
@@ -419,6 +459,117 @@
       "permissionBody": "Jọwọ gba iraye si kamẹra tabi awọn aworan lati ṣatunkọ aworan profaili rẹ.",
       "webUnavailable": "Aworan ko si lori wẹẹbu ninu demo yii.",
       "updateFailed": "Ko le ṣatunkọ aworan profaili rẹ. Jọwọ gbiyanju lẹkan si."
+    },
+    "changePassword": {
+      "title": "Yi Password Padà",
+      "currentLabel": "Ọrọ igbaniwọle lọwọlọwọ",
+      "newLabel": "Ọrọ igbaniwọle tuntun",
+      "confirmLabel": "Jẹrisi ọrọ igbaniwọle tuntun",
+      "save": "Ṣatunkọ password",
+      "errors": {
+        "currentRequired": "Tẹ ọrọ igbaniwọle lọwọlọwọ rẹ.",
+        "newInvalid": "Ọrọ igbaniwọle tuntun gbọdọ jẹ o kere ju 8 characters.",
+        "mismatch": "Awọn password ko baamu.",
+        "pinInvalid": "Tẹ PIN iṣowo oni-nọmba 4 rẹ."
+      }
+    },
+    "deleteAccount": {
+      "title": "Pa Akọọlẹ",
+      "intro": "Piparẹ akọọlẹ rẹ jẹ titilai ati pe ko le ṣe atunṣe rẹ. Gbogbo data ati iwọle si awọn ẹya yoo parẹ. Ran wa lọwọ lati mu dara pọ nipa ṣiṣafihan idi ti o fi nkọ.",
+      "deleteCta": "Pa Akọọlẹ",
+      "reasons": {
+        "notUsingApp": "Mo ko lo app mọ",
+        "privacyConcerns": "Mo ni awọn ifiyesi ikọkọ",
+        "doesntMeetNeeds": "App ko pese fun awọn iwulo mi",
+        "technicalIssues": "Mo ni awọn iṣoro ẹrọ",
+        "tooManyAccounts": "Mo ni awọn akọọlẹ pupọ ju",
+        "switchingService": "Mo n yipada si iṣẹ miiran",
+        "other": "Miiran"
+      },
+      "lastChance": {
+        "lead": "A ti jẹrisi akọọlẹ rẹ ati pe a yoo tẹsiwaju pẹlu piparẹ.",
+        "body": "Eyi ni anṣẹ rẹ ti o kẹhin lati fagilee. O ko ni le gba akọọlẹ rẹ pada lẹhin piparẹ ati pe o yoo nilo lati ṣẹda akọọlẹ tuntun ti o ba fẹ pada.",
+        "question": "Ṣe o da ọ loju pe o fẹ pa akọọlẹ rẹ?",
+        "yes": "Bẹẹni",
+        "no": "Rara"
+      },
+      "otp": {
+        "title": "Jẹrisi idanimọ rẹ",
+        "body": "Fun aabo, jọwọ tẹ koodu oni-nọmba 6 ti a fi ranṣẹ si {{email}}",
+        "resendPrompt": "Ko gba koodu?",
+        "resend": "Fi ranṣẹ lẹẹkansi",
+        "resendCountdown": "Fi koodu ranṣẹ lẹẹkansi ni [{{time}}]",
+        "verifyCta": "Jẹrisi ati Pa Piparẹ"
+      },
+      "deactivated": {
+        "title": "Akọọlẹ Ti Dinku",
+        "body": "Akọọlẹ AjoLedger rẹ ti wa ni eto fun piparẹ. Yoo yọ kuro titilai ni ọjọ 14.",
+        "footer": "Ti o ba yi ọkan rẹ pada, kọkọ wọle lẹẹkansi ki o to reactivate akọọlẹ rẹ.\n\nA nireti lati ri ọ pada laipe.",
+        "done": "Parí",
+        "reactivate": "Tun Ṣe Atunṣe Akọọlẹ Mi"
+      },
+      "errors": {
+        "invalidOtp": "Tẹ koodu ijẹrisi oni-nọmba 6."
+      }
+    },
+    "reactivate": {
+      "title": "Akọọlẹ ti dinku",
+      "body": "Akọọlẹ rẹ ti dinku. Tun ṣe atunṣe lati tẹsiwaju pẹlu AjoLedger.",
+      "confirm": "Tun ṣe atunṣe akọọlẹ"
+    }
+  },
+  "support": {
+    "hub": {
+      "title": "Kan si Atileyin",
+      "heading": "Báwo ni a ṣe le ran ọ́ lọwọ?",
+      "email": {
+        "title": "Atileyin Imẹẹli",
+        "subtitle": "Fi imeeli ran wa lọwọ."
+      },
+      "phone": {
+        "title": "Atileyin Foonu",
+        "subtitle": "Mọnde si Friday 9:00 AM - 6:00 PM"
+      },
+      "message": {
+        "title": "Fi Ifiranṣẹ Ranṣẹ",
+        "subtitle": "A o dahun laarin wakati 24"
+      }
+    },
+    "email": {
+      "title": "Atileyin Imẹẹli"
+    },
+    "phone": {
+      "title": "Atileyin Foonu",
+      "supportLine": "Layini Atileyin",
+      "salesLine": "Awọn Ibeere Tita",
+      "callNow": "Pe Bayi",
+      "callFailedTitle": "Kò le bẹ̀rẹ̀ ipe",
+      "callFailedBody": "Ẹrọ rẹ kò le ṣí app foonu. Gbìyànjú lẹ́ẹ̀kan sí i tàbí lo atileyin imeeli.",
+      "hoursTitle": "Awọn Wakati Atileyin",
+      "weekdayHours": "Mọnde - Friday: 9:00 AM - 6:00 PM WAT",
+      "weekendHours": "Satide - Sunday: 10:00 AM - 4:00 PM WAT"
+    },
+    "message": {
+      "title": "Fi Ifiranṣẹ Ranṣẹ"
+    },
+    "form": {
+      "emailLabel": "Imẹẹli Rẹ",
+      "emailPlaceholder": "you@example.com",
+      "subjectLabel": "Akọle",
+      "subjectPlaceholder": "Ibeere",
+      "messageLabel": "Ifiranṣẹ",
+      "messagePlaceholder": "Báwo ni a ṣe le ran ọ́ lọwọ?",
+      "send": "Fi Ifiranṣẹ Ranṣẹ",
+      "errors": {
+        "invalidEmail": "Tẹ adirẹsi imeeli to tọ.",
+        "subjectRequired": "Tẹ akọle kan.",
+        "messageRequired": "Tẹ ifiranṣẹ rẹ."
+      }
+    },
+    "confirmation": {
+      "title": "Ifiranṣẹ Ti Ran!",
+      "body": "O ṣeun fun tite si wa. A o padà sí ọ ni <highlight>{{email}}</highlight> laarin wakati 24.",
+      "done": "Parí"
     }
   },
   "language": {

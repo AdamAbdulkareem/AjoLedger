@@ -73,6 +73,16 @@ export function openGroupLedger(
   router.push(href);
 }
 
+export function openGroupPayout(
+  router: Pick<AppRouter, "push">,
+  groupId: string,
+) {
+  router.push({
+    pathname: "/(app)/groups/payout" as const,
+    params: { groupId },
+  });
+}
+
 export function openGroupsTab(router: Pick<AppRouter, "replace">) {
   router.replace("/(app)/groups");
 }

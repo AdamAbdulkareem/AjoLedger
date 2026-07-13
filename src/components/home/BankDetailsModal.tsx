@@ -34,7 +34,7 @@ type BankDetailsModalProps = {
   saving: boolean;
   error?: string | null;
   onSubmit: (
-    payload: SetupBankPayload,
+    payload: SetupBankPayload & { transactionPin?: string },
     bankName: string,
   ) => Promise<"success" | "failed" | "already_configured">;
   onClearError?: () => void;
@@ -42,7 +42,7 @@ type BankDetailsModalProps = {
   dismissible?: boolean;
   onClose?: () => void;
   initialAccount?: PayoutAccount | null;
-  /** Profile edits require transaction PIN — not supported yet. */
+  /** Profile edits require transaction PIN via PATCH /users/payout-settings. */
   variant?: "onboarding" | "profile" | "required";
   onAlreadyConfigured?: () => void;
   /** Onboarding only — dismiss without saving bank details. */
@@ -79,13 +79,14 @@ export function BankDetailsModal({
   const [resolveState, setResolveState] = useState<ResolveState>("idle");
   const [resolvedName, setResolvedName] = useState<string | null>(null);
   const [resolveError, setResolveError] = useState<string>();
+  const [transactionPin, setTransactionPin] = useState("");
+  const [pinError, setPinError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const resolveRequestIdRef = useRef(0);
 
   const isProfileVariant = variant === "profile";
   const isRequiredVariant = variant === "required";
   const canResolve =
-    !isProfileVariant &&
     !!accessToken &&
     !!selectedBank &&
     isValidNuban(normalizeAccountNumber(accountNumber));
@@ -95,6 +96,13 @@ export function BankDetailsModal({
     canResolve &&
     resolveState === "success" &&
     !!resolvedName;
+
+  const canSubmitProfile =
+    isProfileVariant &&
+    canResolve &&
+    resolveState === "success" &&
+    !!resolvedName &&
+    transactionPin.length === 4;
 
   const modalTitle = isRequiredVariant
     ? t("groups.bankRequired.title")
@@ -153,6 +161,8 @@ export function BankDetailsModal({
     setBankError(undefined);
     setAccountError(undefined);
     setResolveError(undefined);
+    setTransactionPin("");
+    setPinError(undefined);
     onClearError?.();
   }, [visible, initialAccount, onClearError]);
 
@@ -171,8 +181,6 @@ export function BankDetailsModal({
   }, [visible, initialAccount, banks]);
 
   useEffect(() => {
-    if (isProfileVariant) return;
-
     if (!visible || !canResolve || !accessToken || !selectedBank) {
       if (!canResolve) {
         setResolveState("idle");
@@ -234,7 +242,7 @@ export function BankDetailsModal({
   };
 
   const handleBankPress = () => {
-    if (isProfileVariant || banksLoading || banks.length === 0) return;
+    if (banksLoading || banks.length === 0) return;
 
     showBankPicker({
       t,
@@ -249,17 +257,15 @@ export function BankDetailsModal({
   };
 
   const handleAccountChange = (text: string) => {
-    if (isProfileVariant) return;
     setAccountNumber(normalizeAccountNumber(text));
     setAccountError(undefined);
     resetResolveState();
   };
 
   const handleSubmit = async () => {
-    if (isProfileVariant) return;
-
     setBankError(undefined);
     setAccountError(undefined);
+    setPinError(undefined);
     onClearError?.();
 
     if (!selectedBank) {
@@ -278,6 +284,11 @@ export function BankDetailsModal({
       return;
     }
 
+    if (isProfileVariant && transactionPin.length !== 4) {
+      setPinError(t("home.bankDetails.errors.pinInvalid"));
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -286,6 +297,7 @@ export function BankDetailsModal({
           bankCode: selectedBank.bankCode,
           accountNumber: normalized,
           accountName: resolvedName,
+          ...(isProfileVariant ? { transactionPin } : {}),
         },
         selectedBank.bankName,
       );
@@ -330,15 +342,14 @@ export function BankDetailsModal({
         <Text style={styles.fieldLabel}>{t("home.bankDetails.bankLabel")}</Text>
         <Pressable
           onPress={handleBankPress}
-          disabled={isProfileVariant || banksLoading || banks.length === 0}
+          disabled={banksLoading || banks.length === 0}
           accessibilityRole="button"
           accessibilityLabel={t("home.bankDetails.bankLabel")}
           style={({ pressed }) => [
             styles.bankRow,
             bankError && styles.fieldError,
-            pressed && !isProfileVariant && styles.pressed,
-            (isProfileVariant || banksLoading || banks.length === 0) &&
-              styles.disabled,
+            pressed && styles.pressed,
+            (banksLoading || banks.length === 0) && styles.disabled,
           ]}
         >
           <Text
@@ -363,10 +374,9 @@ export function BankDetailsModal({
         keyboardType="number-pad"
         autoComplete="off"
         textContentType="none"
-        editable={!isProfileVariant}
       />
 
-      {!isProfileVariant && resolveState === "loading" ? (
+      {resolveState === "loading" ? (
         <View style={styles.inlineStatus}>
           <ActivityIndicator size="small" color={theme.colors.brand} />
           <Text style={styles.inlineStatusText}>
@@ -375,7 +385,7 @@ export function BankDetailsModal({
         </View>
       ) : null}
 
-      {!isProfileVariant && resolveState === "success" && resolvedName ? (
+      {resolveState === "success" && resolvedName ? (
         <View style={styles.resolveSuccess} accessibilityLiveRegion="polite">
           <Ionicons
             name="checkmark-circle"
@@ -386,7 +396,7 @@ export function BankDetailsModal({
         </View>
       ) : null}
 
-      {!isProfileVariant && resolveState === "error" && resolveError ? (
+      {resolveState === "error" && resolveError ? (
         <View style={styles.resolveError} accessibilityLiveRegion="polite">
           <Ionicons
             name="close-circle"
@@ -398,7 +408,22 @@ export function BankDetailsModal({
       ) : null}
 
       {isProfileVariant ? (
-        <Text style={styles.profileHint}>{t("home.bankDetails.profileHint")}</Text>
+        <>
+          <Text style={styles.profileHint}>{t("home.bankDetails.profileHint")}</Text>
+          <TextField
+            label={t("home.bankDetails.transactionPinLabel")}
+            value={transactionPin}
+            onChangeText={(text) => {
+              setTransactionPin(text.replace(/\D/g, "").slice(0, 4));
+              setPinError(undefined);
+            }}
+            placeholder="••••"
+            error={pinError}
+            keyboardType="number-pad"
+            secureTextEntry
+            maxLength={4}
+          />
+        </>
       ) : null}
 
       {error ? <Text style={styles.formError}>{error}</Text> : null}
@@ -408,6 +433,20 @@ export function BankDetailsModal({
           label={t("home.bankDetails.next")}
           onPress={() => void handleSubmit()}
           disabled={!canSubmit || isSubmitting}
+          loading={saving || isSubmitting}
+          size="compact"
+          style={[
+            styles.submitButton,
+            { backgroundColor: theme.colors.activityPayoutBg },
+          ]}
+        />
+      ) : null}
+
+      {isProfileVariant ? (
+        <Button
+          label={t("profile.edit.saveChanges")}
+          onPress={() => void handleSubmit()}
+          disabled={!canSubmitProfile || isSubmitting}
           loading={saving || isSubmitting}
           size="compact"
           style={[

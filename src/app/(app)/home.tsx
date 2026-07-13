@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 import { AmountRemainsCard } from "../../components/home/AmountRemainsCard";
@@ -68,6 +68,16 @@ export default function HomeScreen() {
     error: activityError,
     refresh: refreshActivity,
   } = useRecentActivity(accessToken, isAuthenticated && hasGroups);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isAuthenticated || !accessToken) return;
+      void refreshGroups();
+      if (hasGroups) {
+        void refreshActivity();
+      }
+    }, [accessToken, hasGroups, isAuthenticated, refreshActivity, refreshGroups]),
+  );
 
   const {
     hasPayoutAccount,
@@ -234,7 +244,7 @@ export default function HomeScreen() {
           <QuickActionsSection
             onJoinGroupPress={handleJoinGroupPress}
             onCreateGroupPress={handleCreateGroupPress}
-            onContactSupportPress={showComingSoon}
+            onContactSupportPress={() => router.push("/(app)/contact-support")}
             actionsLoading={payoutLoading}
           />
         </>

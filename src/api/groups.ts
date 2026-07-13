@@ -13,7 +13,6 @@ import {
   isGroupAdminForCurrentUser,
   type CurrentUserIdentity,
 } from "../lib/groupApiNormalize";
-import { nairaToKobo } from "../lib/money";
 import { syncCreatorBadge } from "../lib/creatorGroupsStorage";
 import { getAllGroupMetadata, getStoredGroupMetadata } from "../lib/groupMetadataStorage";
 import { getJoinedMembers } from "../lib/groupMembers";
@@ -109,10 +108,9 @@ export async function createGroup(
 ): Promise<CreatedGroup> {
   const envelope = await apiRequest<CreatedGroup>("/groups", {
     method: "POST",
-    body: {
-      ...payload,
-      contributionAmount: nairaToKobo(payload.contributionAmount),
-    },
+    // POST /groups is the API exception: send contributionAmount in naira.
+    // Backend converts to kobo before persisting; GET responses return kobo.
+    body: payload,
     token,
   });
 
@@ -222,4 +220,53 @@ export async function startGroupCycle(
     method: "POST",
     token,
   });
+}
+
+export type CyclePaymentStatus = "PENDING" | "PAID";
+
+export type DisburseCycleResult = {
+  payoutId: string;
+  merchantTxRef: string;
+  amountKobo: number;
+  nombaStatus: string;
+  round: number;
+};
+
+/** Coordinator triggers async Nomba payout to the current round beneficiary. */
+export async function disburseCyclePayout(
+  token: string,
+  groupId: string,
+  cycleId: string,
+  transactionPin: string,
+): Promise<DisburseCycleResult> {
+  const envelope = await apiRequest<DisburseCycleResult>(
+    `/groups/${groupId}/cycles/${cycleId}/disburse`,
+    {
+      method: "POST",
+      body: { transactionPin },
+      token,
+    },
+  );
+
+  if (!envelope.data) {
+    throw new Error("Payout disbursement returned no data.");
+  }
+
+  return envelope.data;
+}
+
+/** Lightweight poll while waiting for Nomba inbound transfer to settle. */
+export async function getCurrentCyclePaymentStatus(
+  token: string,
+  groupId: string,
+): Promise<{ status: CyclePaymentStatus }> {
+  const envelope = await apiRequest<{ status?: string }>(
+    `/groups/${groupId}/cycles/current/payment-status`,
+    { token },
+  );
+
+  const raw = envelope.data?.status?.trim().toUpperCase();
+  return {
+    status: raw === "PAID" ? "PAID" : "PENDING",
+  };
 }

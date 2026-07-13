@@ -37,6 +37,7 @@
     "signIn": "Banye",
     "continue": "Gaa n'ihu",
     "submittingPasscode": "Na-enyocha koodu nnweta…",
+    "submittingPin": "Na-edozi PIN…",
     "createAccessPasscodeTitle": "Mepụta koodu nnweta gị nkeonụ 6",
     "createAccessPasscodeSubtitle": "Ị ga-eji koodu a mepee app.",
     "inputPasscodeLabel": "Tinye koodu nnweta",
@@ -74,6 +75,8 @@
       "passcodeLockedOut": "Ọtụtụ mbọ nke ọma. Nwaa ọzọ n'ime {{seconds}} sekọnd.",
       "pinLength": "PIN ga-abụrịrị digit 4.",
       "pinMismatch": "PINs adịghị eme otu. Biko nwaa ọzọ.",
+      "googleNotConfigured": "Agbanye Google adịghị arụ ọrụ. Tinye Google OAuth client IDs na .env gị ma mee app ọhụrụ, ma ọ bụ jiri email na password.",
+      "googleRequiresDevBuild": "Google sign-in chọrọ development build. Jiri email na password na Expo Go, ma ọ bụ pịa s ka ị gbanwee gaa dev client.",
       "generic": "Ihe mehiere mere. Biko nwaa ọzọ."
     }
   },
@@ -152,14 +155,16 @@
       "cancel": "Kagbuo",
       "loadingBanks": "Na-ebubata ụlọ akụ…",
       "resolving": "Na-enyocha akaụnt…",
-      "profileHint": "Imelite nkọwa ụlọ akụ site na ntọala ga-achọ PIN azụmahịa gị (na-abịa n'oge na-adịghị anya).",
+      "profileHint": "Tinye PIN azụmahịa nkeonụ 4 iji chekwaa mgbanwe banki ịna ọrụ ụgwọ.",
+      "transactionPinLabel": "PIN azụmahịa",
       "errors": {
         "bankRequired": "Biko họrọ ụlọ akụ.",
         "accountInvalid": "Tinye nọmba akaụnt ziri ezi nke digiti 10.",
         "resolveRequired": "Kwenye akaụnt gị tupu ịga n'ihu.",
         "resolveFailed": "Enweghị ike ịkwado nkọwa akaụnt. Gbalịa ọzọ.",
         "banksLoadFailed": "Enweghị ike ibubata ụlọ akụ. Gbalịa ọzọ.",
-        "banksUnavailable": "Ndepụta ụlọ akụ adịghị adị ugbu a. Gbalịa ọzọ."
+        "banksUnavailable": "Ndepụta ụlọ akụ adịghị adị ugbu a. Gbalịa ọzọ.",
+        "pinInvalid": "Tinye PIN azụmahịa gị nke ọnụọgụgụ 4."
       }
     },
     "bankDetailsSuccess": {
@@ -343,6 +348,14 @@
       "adminPaymentTitle": "Ịkwụ ụgwọ Admin & Akaụnt Virtual",
       "weekContributionTitle": "Onyinye Izu {{week}}",
       "myContributionStatus": "Ọnọdụ Onyinye M",
+      "contributionAmount": "Onyinye: {{amount}}",
+      "processingFee": "Ụgwọ nhazi: {{amount}}",
+      "transferAmount": "Ego nyefe: {{amount}}",
+      "copyTransferAmount": "Detuo ego nyefe",
+      "transferredButton": "E nyefelam",
+      "waitingForPayment": "Na-eche nkwenye ịkwụ ụgwọ…",
+      "paymentTimedOut": "Ka na-arụ ọrụ. Dọkpụta ala ka ị megharịa ma ọ bụ nwaa ọzọ.",
+      "retryPaymentCheck": "Lelee ọzọ",
       "weekPayment": "Ịkwụ ụgwọ Izu {{week}}",
       "virtualAccountTitle": "Akaụnt Virtual Gị",
       "bankLine": "{{bank}}: {{account}}",
@@ -357,6 +370,33 @@
       "cleared": "E dochiela",
       "updates": "Mmelite",
       "myPayoutTime": "Oge ịkwụ ụgwọ m"
+    },
+    "payout": {
+      "title": "Ịkwụ ụgwọ",
+      "readyTitle": "NJIKERE Maka Ịkwụ ụgwọ",
+      "positionDue": "Ọnọdụ {{position}} · na-egwusi {{date}}",
+      "noRecipient": "Enweghị onye a họpụtara iji nata ịkwụ ụgwọ.",
+      "amountLabel": "Ego ịkwụ ụgwọ",
+      "confirmButton": "Kwenye & Zipu Ịkwụ ụgwọ",
+      "processingButton": "A na-ahazi ịkwụ ụgwọ…",
+      "waitingForContributions": "Na-eche ruo mgbe onye ọbụla kwụrụ ụgwọ maka ngwugwu a.",
+      "scheduleTitle": "Usoro Ịkwụ ụgwọ",
+      "completedTitle": "Emechara",
+      "scheduleNext": "Na-esote",
+      "scheduleUpcoming": "Na-abịa",
+      "scheduleProcessing": "Na-ahazi…",
+      "scheduleCompleted": "Emechara",
+      "emptySchedule": "Hazie usoro ịkwụ ụgwọ iji hụ ndepụta.",
+      "pinTitle": "Kwenye ịkwụ ụgwọ",
+      "pinBody": "Tinye PIN azụmahịa gị nọmba anọ iji zipu ịkwụ ụgwọ a.",
+      "pinLabel": "PIN azụmahịa",
+      "pinCancel": "Kagbuo",
+      "pinConfirm": "Zipu ịkwụ ụgwọ",
+      "initiatedTitle": "Amalitela ịkwụ ụgwọ",
+      "initiatedBody": "A na-ahazi nyefe ego. Ihuenyo a ga-emelite mgbe ngwugwu gafere.",
+      "disburseFailed": "Enweghị ike ịmalite ịkwụ ụgwọ. Lelee PIN gị ma nwaa ọzọ.",
+      "pollTimedOut": "Ka a na-ahazi ya. Dọrọ ala ka ọ dị ọhụrụ ma ọ bụ lelee ọzọ.",
+      "retryPoll": "Lelee ọzọ"
     }
   },
   "profile": {
@@ -420,6 +460,117 @@
       "permissionBody": "Biko nye ikike igwefoto ma ọ bụ ngalaba foto iji melite foto profaịlụ gị.",
       "webUnavailable": "Inweta foto adịghị na weebụ na demo a.",
       "updateFailed": "Enweghị ike imelite foto profaịlụ gị. Biko nwaa ọzọ."
+    },
+    "changePassword": {
+      "title": "Gbanwee Paswọọd",
+      "currentLabel": "Paswọọd ugbu a",
+      "newLabel": "Paswọọd ọhụrụ",
+      "confirmLabel": "Kwenye paswọọd ọhụrụ",
+      "save": "Melite paswọọd",
+      "errors": {
+        "currentRequired": "Tinye paswọọd gị ugbu a.",
+        "newInvalid": "Paswọọd ọhụrụ ga-abụrịrị opekata mpe mkpụrụedemede 8.",
+        "mismatch": "Paswọọd adịghị egosi.",
+        "pinInvalid": "Tinye PIN azụmahịa nkeonụ 4 gị."
+      }
+    },
+    "deleteAccount": {
+      "title": "Hichapụ Akaụnt",
+      "intro": "Ihichapụ akaụnt gị bụ nke na-adịgide adịgide ma enweghị ike ịgbanwe ya. Data niile na ohere ịnweta atụmatụ ga-ahapụ. Nyere anyị aka melite site n'ịkọwa ihe kpatara ịhapụ.",
+      "deleteCta": "Hichapụ Akaụnt",
+      "reasons": {
+        "notUsingApp": "Anaghị m eji app ahụ ọzọ",
+        "privacyConcerns": "Enwere m nchegbu banyere nzuzo",
+        "doesntMeetNeeds": "App ahụ anaghị eme mkpa m",
+        "technicalIssues": "Enwere m nsogbu teknụzụ",
+        "tooManyAccounts": "Enwere m akaụnt ndị ọtụtụ",
+        "switchingService": "Ana m agbanwe gaa na ọrụ ọzọ",
+        "other": "Ndị ọzọ"
+      },
+      "lastChance": {
+        "lead": "Anyị kwadoro akaụnt gị ma ga-aga n'ihu na nhichapụ.",
+        "body": "Nke a bụ ohere gị ikpeazụ ịkagbuo. Ị gaghị enwe ike ịnweta akaụnt gị azụ mgbe ehichapụchara ma ị ga-achọ imepụta akaụnt ọhụrụ ma ị chọrọ ịlaghachi.",
+        "question": "Ị ji n'aka na ị chọrọ ihichapụ akaụnt gị?",
+        "yes": "Ee",
+        "no": "Mba"
+      },
+      "otp": {
+        "title": "Kwado njirimara gị",
+        "body": "Maka nchekwa, biko tinye koodu nọmba 6 e zigara na {{email}}",
+        "resendPrompt": "Ị nataghị koodu?",
+        "resend": "Ziga ọzọ",
+        "resendCountdown": "Ziga koodu ọzọ na [{{time}}]",
+        "verifyCta": "Kwado ma Kwenye Nhichapụ"
+      },
+      "deactivated": {
+        "title": "Emeghị ka Akaụnt Rụọ Ọrụ",
+        "body": "Akaụnt AjoLedger gị haziri maka nhichapụ. A ga-ewepụ ya kpamkpam na ụbọchị 14.",
+        "footer": "Ọ bụrụ na ị gbanwee echiche, banye ọzọ tupu oge ahụ iji megharị akaụnt gị.\n\nAnyị na-atụ anya ịhụ gị ọzọ.",
+        "done": "Mechaa",
+        "reactivate": "Megharịa Akaụnt M"
+      },
+      "errors": {
+        "invalidOtp": "Tinye koodu nkwenye nọmba 6."
+      }
+    },
+    "reactivate": {
+      "title": "Emeghị ka akaụnt rụọ ọrụ",
+      "body": "Emeghị ka akaụnt gị rụọ ọrụ. Megharịa ya iji gaa n'ihu na AjoLedger.",
+      "confirm": "Megharịa akaụnt"
+    }
+  },
+  "support": {
+    "hub": {
+      "title": "Kpọtụrụ Nkwado",
+      "heading": "Kedu ka anyị ga-esi nyere gị aka?",
+      "email": {
+        "title": "Nkwado Email",
+        "subtitle": "Zitere anyị email maka enyemaka."
+      },
+      "phone": {
+        "title": "Nkwado Ekwentị",
+        "subtitle": "Mọnde ruo Fraịde 9:00 AM - 5:00 PM"
+      },
+      "message": {
+        "title": "Ziga Ozi",
+        "subtitle": "Anyị ga-aza n'ime awa 24"
+      }
+    },
+    "email": {
+      "title": "Nkwado Email"
+    },
+    "phone": {
+      "title": "Nkwado Ekwentị",
+      "supportLine": "Layini Nkwado",
+      "salesLine": "Ajụjụ Ire",
+      "callNow": "Kpọọ Ugbu A",
+      "callFailedTitle": "Enweghị ike ịmalite oku",
+      "callFailedBody": "Ngwaọrụ gị enweghị ike imepe ngwa ekwentị. Gbalịa ọzọ ma ọ bụ jiri nkwado email.",
+      "hoursTitle": "Oge Nkwado",
+      "weekdayHours": "Mọnde - Fraịde: 9:00 AM - 6:00 PM EST",
+      "weekendHours": "Satọde - Ụka: 10:00 AM - 4:00 PM EST"
+    },
+    "message": {
+      "title": "Ziga Ozi"
+    },
+    "form": {
+      "emailLabel": "Email Gị",
+      "emailPlaceholder": "you@example.com",
+      "subjectLabel": "Isiokwu",
+      "subjectPlaceholder": "Ajụjụ",
+      "messageLabel": "Ozi",
+      "messagePlaceholder": "Kedu ka anyị ga-esi nyere gị aka?",
+      "send": "Ziga Ozi",
+      "errors": {
+        "invalidEmail": "Tinye adreesị email ziri ezi.",
+        "subjectRequired": "Tinye isiokwu.",
+        "messageRequired": "Tinye ozi gị."
+      }
+    },
+    "confirmation": {
+      "title": "Ezigala Ozi!",
+      "body": "Daalụ maka ịkpọtụrụ anyị. Anyị ga-azaghachi gị na <highlight>{{email}}</highlight> n'ime awa 24.",
+      "done": "Mechaa"
     }
   },
   "language": {

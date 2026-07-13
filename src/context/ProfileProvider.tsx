@@ -15,6 +15,7 @@ import {
   userProfileFromMe,
 } from "../api/profile";
 import { ApiError } from "../api/client";
+import { getStoredProfile } from "../lib/profileStorage";
 import { useAuth } from "./AuthProvider";
 import { useCurrentUser } from "./CurrentUserProvider";
 import type { UpdateProfilePayload, UserProfile } from "../models/profile";
@@ -34,7 +35,7 @@ type ProfileContextValue = {
 const ProfileContext = createContext<ProfileContextValue | null>(null);
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
-  const { user, accessToken, status, updateSessionUser } = useAuth();
+  const { user, accessToken, status } = useAuth();
   const { currentUser, loading: userLoading, refresh: refreshCurrentUser } =
     useCurrentUser();
 
@@ -47,13 +48,27 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   }, [refreshCurrentUser]);
 
   useEffect(() => {
-    if (status !== "authenticated" || !currentUser) {
+    if (status !== "authenticated" || !currentUser || !user) {
       setProfile(null);
       return;
     }
 
-    setProfile((prev) => userProfileFromMe(currentUser, prev ?? undefined));
-  }, [currentUser, status]);
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const stored = await getStoredProfile(user.id);
+        if (cancelled) return;
+        setProfile(userProfileFromMe(currentUser, stored ?? undefined));
+      } catch {
+        // Storage read failed — keep profile unset until a successful refresh.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUser, status, user]);
 
   const updateProfile = useCallback(
     async (payload: UpdateProfilePayload) => {
@@ -70,18 +85,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           payload,
         );
         setProfile(result.profile);
-
-        if (result.email !== user.email) {
-          await updateSessionUser({ ...user, email: result.email });
-        }
-
         await refreshCurrentUser();
         setPendingUpdateSuccess(true);
       } finally {
         setSaving(false);
       }
     },
-    [accessToken, user, updateSessionUser, refreshCurrentUser],
+    [accessToken, user, refreshCurrentUser],
   );
 
   const setAvatarUri = useCallback(

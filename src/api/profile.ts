@@ -6,6 +6,12 @@ import type {
 import type { UserWithPayout } from "../models/bank";
 import { getCurrentUser } from "./banks";
 import { apiRequest } from "./client";
+import { joinFullName, splitFullName } from "../lib/nameUtils";
+import { normalizeUserWithPayoutFromApi } from "../lib/userApiNormalize";
+import {
+  getStoredProfile,
+  setStoredProfile,
+} from "../lib/profileStorage";
 
 export type UserIdentity = {
   profile: UserProfile;
@@ -16,24 +22,29 @@ export function userProfileFromMe(
   user: UserWithPayout,
   fallback?: Partial<UserProfile>,
 ): UserProfile {
+  const fullName =
+    joinFullName(user.firstName, user.lastName, user.name) ||
+    fallback?.fullName ||
+    "";
+
   return {
-    fullName: user.name?.trim() || fallback?.fullName || "",
-    phoneNumber: fallback?.phoneNumber ?? "",
+    fullName,
+    phoneNumber: user.phoneNumber?.trim() || fallback?.phoneNumber || "",
     avatarUri: fallback?.avatarUri ?? null,
   };
 }
 
 export async function getUserIdentity(
   token: string,
-  _userId: string,
+  userId: string,
   _email: string,
 ): Promise<UserIdentity> {
-  void _userId;
   void _email;
 
   const user = await getCurrentUser(token);
+  const stored = await getStoredProfile(userId);
   return {
-    profile: userProfileFromMe(user),
+    profile: userProfileFromMe(user, stored ?? undefined),
     email: user.email,
   };
 }
@@ -50,58 +61,123 @@ export async function getUserProfile(
 
 export async function updateUserProfile(
   token: string,
-  _userId: string,
+  userId: string,
   _currentEmail: string,
   payload: UpdateProfilePayload,
 ): Promise<UpdateProfileResult> {
-  void _userId;
   void _currentEmail;
 
-  const envelope = await apiRequest<UpdateProfileResult>("/users/me/profile", {
-    method: "PUT",
-    body: payload,
+  const { firstName, lastName } = splitFullName(payload.fullName);
+
+  const envelope = await apiRequest<unknown>("/users/me", {
+    method: "PATCH",
+    body: {
+      firstName,
+      lastName,
+      phoneNumber: payload.phoneNumber.trim() || undefined,
+    },
     token,
   });
-  if (!envelope.data) {
-    throw new Error("Profile update returned no data.");
-  }
-  return envelope.data;
+
+  const patchedUser = envelope.data
+    ? normalizeUserWithPayoutFromApi(envelope.data)
+    : await getCurrentUser(token);
+
+  const stored = await getStoredProfile(userId);
+  const profile: UserProfile = {
+    ...userProfileFromMe(patchedUser, {
+      fullName: payload.fullName,
+      phoneNumber: payload.phoneNumber,
+      avatarUri: stored?.avatarUri ?? null,
+    }),
+    avatarUri: stored?.avatarUri ?? null,
+  };
+  await setStoredProfile(userId, profile);
+
+  return {
+    profile,
+    email: patchedUser.email,
+  };
 }
 
+/** Avatar is stored on-device until the API ships an upload endpoint. */
 export async function updateUserAvatar(
   token: string,
-  _userId: string,
-  _email: string,
+  userId: string,
+  email: string,
   avatarUri: string | null,
 ): Promise<UserProfile> {
-  void _userId;
-  void _email;
+  void token;
+  void email;
 
-  const envelope = await apiRequest<UserProfile>("/users/me/profile/avatar", {
-    method: "PUT",
-    body: { avatarUri },
-    token,
-  });
-  if (!envelope.data) {
-    throw new Error("Avatar update returned no data.");
-  }
-  return envelope.data;
+  const user = await getStoredProfile(userId);
+  const profile: UserProfile = {
+    fullName: user?.fullName ?? "",
+    phoneNumber: user?.phoneNumber ?? "",
+    avatarUri,
+  };
+  await setStoredProfile(userId, profile);
+  return profile;
 }
 
 export async function deleteUserAvatar(
   token: string,
-  _userId: string,
-  _email: string,
+  userId: string,
+  email: string,
 ): Promise<UserProfile> {
-  void _userId;
-  void _email;
+  return updateUserAvatar(token, userId, email, null);
+}
 
-  const envelope = await apiRequest<UserProfile>("/users/me/profile/avatar", {
-    method: "DELETE",
+export type ChangePasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export async function changePassword(
+  token: string,
+  payload: ChangePasswordPayload,
+): Promise<void> {
+  await apiRequest("/auth/password", {
+    method: "PATCH",
+    body: payload,
     token,
   });
-  if (!envelope.data) {
-    throw new Error("Avatar delete returned no data.");
-  }
-  return envelope.data;
+}
+
+export type DeleteAccountInitiateResult = {
+  otp?: string;
+};
+
+export async function initiateAccountDeletion(
+  token: string,
+  reason?: string,
+): Promise<DeleteAccountInitiateResult> {
+  const envelope = await apiRequest<{ otp?: string }>(
+    "/users/me/delete/initiate",
+    {
+      method: "POST",
+      body: reason ? { reason } : {},
+      token,
+    },
+  );
+
+  return { otp: envelope.data?.otp };
+}
+
+export async function verifyAccountDeletion(
+  token: string,
+  otp: string,
+): Promise<void> {
+  await apiRequest("/users/me/delete/verify", {
+    method: "POST",
+    body: { otp },
+    token,
+  });
+}
+
+export async function reactivateAccount(token: string): Promise<void> {
+  await apiRequest("/users/me/reactivate", {
+    method: "POST",
+    token,
+  });
 }

@@ -37,6 +37,7 @@
     "signIn": "Sign In",
     "continue": "Continue",
     "submittingPasscode": "Dey verify passcode…",
+    "submittingPin": "Dey set PIN…",
     "createAccessPasscodeTitle": "Make your 6-digit access passcode",
     "createAccessPasscodeSubtitle": "You go use this passcode open the app.",
     "inputPasscodeLabel": "Input Passcode",
@@ -74,6 +75,8 @@
       "passcodeLockedOut": "Too many tries. Try again in {{seconds}} seconds.",
       "pinLength": "PIN must be 4 digits.",
       "pinMismatch": "PINs no match. Try again.",
+      "googleNotConfigured": "Google sign-in never configure yet. Add Google OAuth client IDs to your .env and rebuild the app, or use email and password.",
+      "googleRequiresDevBuild": "Google sign-in need development build. Use email and password for Expo Go, or press s for dev client.",
       "generic": "Something go wrong. Try again."
     }
   },
@@ -151,14 +154,16 @@
       "cancel": "Cancel",
       "loadingBanks": "Dey load banks…",
       "resolving": "Dey verify account…",
-      "profileHint": "To update bank details from settings go need transaction PIN (dey come soon).",
+      "profileHint": "Enter your 4-digit transaction PIN to save payout bank changes.",
+      "transactionPinLabel": "Transaction PIN",
       "errors": {
         "bankRequired": "Abeg choose bank.",
         "accountInvalid": "Enter correct 10-digit account number.",
         "resolveRequired": "Verify your account before you continue.",
         "resolveFailed": "Account details no fit resolve. Try again.",
         "banksLoadFailed": "No fit load banks. Try again.",
-        "banksUnavailable": "Bank list no dey available yet. Try again."
+        "banksUnavailable": "Bank list no dey available yet. Try again.",
+        "pinInvalid": "Enter your 4-digit transaction PIN."
       }
     },
     "bankDetailsSuccess": {
@@ -342,6 +347,14 @@
       "adminPaymentTitle": "Admin Payment & Virtual Account",
       "weekContributionTitle": "Week {{week}} Contribution",
       "myContributionStatus": "My Contribution Status",
+      "contributionAmount": "Contribution: {{amount}}",
+      "processingFee": "Processing fee: {{amount}}",
+      "transferAmount": "Transfer amount: {{amount}}",
+      "copyTransferAmount": "Copy transfer amount",
+      "transferredButton": "I don transfer",
+      "waitingForPayment": "Dey wait make dem confirm payment…",
+      "paymentTimedOut": "Still dey process. Pull down refresh or try again later.",
+      "retryPaymentCheck": "Check again",
       "weekPayment": "Week {{week}} Payment",
       "virtualAccountTitle": "Your Virtual Account",
       "bankLine": "{{bank}}: {{account}}",
@@ -356,6 +369,33 @@
       "cleared": "Done pay",
       "updates": "Updates",
       "myPayoutTime": "My Payout Time"
+    },
+    "payout": {
+      "title": "Payout",
+      "readyTitle": "READY FOR PAYOUT",
+      "positionDue": "Position {{position}} · due {{date}}",
+      "noRecipient": "Nobody don dey assigned to collect payout yet.",
+      "amountLabel": "Payout amount",
+      "confirmButton": "Confirm & Send Payout",
+      "processingButton": "Payout dey process…",
+      "waitingForContributions": "We dey wait make every member pay for dis round.",
+      "scheduleTitle": "Payout Schedule",
+      "completedTitle": "Completed",
+      "scheduleNext": "Next",
+      "scheduleUpcoming": "Upcoming",
+      "scheduleProcessing": "Processing…",
+      "scheduleCompleted": "Completed",
+      "emptySchedule": "Set payout order to see di schedule.",
+      "pinTitle": "Confirm payout",
+      "pinBody": "Enter your 4-digit transaction PIN to send dis payout.",
+      "pinLabel": "Transaction PIN",
+      "pinCancel": "Cancel",
+      "pinConfirm": "Send payout",
+      "initiatedTitle": "Payout don start",
+      "initiatedBody": "Transfer dey process. Dis screen go update when di round move.",
+      "disburseFailed": "We no fit start payout. Check your PIN and try again.",
+      "pollTimedOut": "E still dey process. Pull down to refresh or check again.",
+      "retryPoll": "Check again"
     }
   },
   "profile": {
@@ -419,6 +459,117 @@
       "permissionBody": "Allow camera or photo library access make you fit update your profile picture.",
       "webUnavailable": "Photo capture no dey work for web for this demo.",
       "updateFailed": "We no fit update your profile picture. Try again."
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "confirmLabel": "Confirm new password",
+      "save": "Update password",
+      "errors": {
+        "currentRequired": "Enter your current password.",
+        "newInvalid": "New password must reach 8 characters.",
+        "mismatch": "Passwords no match.",
+        "pinInvalid": "Enter your 4-digit transaction PIN."
+      }
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "intro": "If you delete your account, e go permanent and you no fit undo am. All your data and access go disappear. Help us improve — tell us why you dey leave.",
+      "deleteCta": "Delete Account",
+      "reasons": {
+        "notUsingApp": "I no dey use the app again",
+        "privacyConcerns": "I get privacy concerns",
+        "doesntMeetNeeds": "The app no meet my needs",
+        "technicalIssues": "I dey get technical issues",
+        "tooManyAccounts": "I get too many accounts",
+        "switchingService": "I dey switch to another service",
+        "other": "Other"
+      },
+      "lastChance": {
+        "lead": "We don verify your account and we go proceed with deletion.",
+        "body": "This na your last chance to cancel. You no go fit recover your account once e delete, and you go need create new account if you wan come back.",
+        "question": "You sure say you wan delete your account?",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "otp": {
+        "title": "Verify your identity",
+        "body": "For security, enter the 6-digit code we send to {{email}}",
+        "resendPrompt": "You no receive code?",
+        "resend": "Resend",
+        "resendCountdown": "Resend code in [{{time}}]",
+        "verifyCta": "Verify and Confirm Deletion"
+      },
+      "deactivated": {
+        "title": "Account Deactivated",
+        "body": "Your AjoLedger account don schedule for deletion. E go permanently remove in 14 days.",
+        "footer": "If you change your mind, just log in again before then to reactivate your account.\n\nWe hope to see you back soon.",
+        "done": "Done",
+        "reactivate": "Reactivate my Account"
+      },
+      "errors": {
+        "invalidOtp": "Enter the 6-digit verification code."
+      }
+    },
+    "reactivate": {
+      "title": "Account deactivated",
+      "body": "Your account don deactivate. Reactivate to continue with AjoLedger.",
+      "confirm": "Reactivate account"
+    }
+  },
+  "support": {
+    "hub": {
+      "title": "Contact Support",
+      "heading": "How we fit help?",
+      "email": {
+        "title": "Email Support",
+        "subtitle": "Email us for assistance."
+      },
+      "phone": {
+        "title": "Phone Support",
+        "subtitle": "Monday to Friday 9:00 AM - 6:00 PM"
+      },
+      "message": {
+        "title": "Send a Message",
+        "subtitle": "We go respond within 24 hours"
+      }
+    },
+    "email": {
+      "title": "Email Support"
+    },
+    "phone": {
+      "title": "Phone Support",
+      "supportLine": "Support Line",
+      "salesLine": "Sales Inquiries",
+      "callNow": "Call Now",
+      "callFailedTitle": "No fit start call",
+      "callFailedBody": "Your device no fit open phone app. Try again or use email support.",
+      "hoursTitle": "Support Hours",
+      "weekdayHours": "Monday - Friday: 9:00 AM - 6:00 PM WAT",
+      "weekendHours": "Saturday - Sunday: 10:00 AM - 4:00 PM WAT"
+    },
+    "message": {
+      "title": "Send a Message"
+    },
+    "form": {
+      "emailLabel": "Your Email",
+      "emailPlaceholder": "you@example.com",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "Inquiry",
+      "messageLabel": "Message",
+      "messagePlaceholder": "How we fit help you?",
+      "send": "Send Message",
+      "errors": {
+        "invalidEmail": "Enter valid email address.",
+        "subjectRequired": "Enter subject.",
+        "messageRequired": "Enter your message."
+      }
+    },
+    "confirmation": {
+      "title": "Message Sent!",
+      "body": "Thank you for reaching out. We go get back to you at <highlight>{{email}}</highlight> within 24 hours.",
+      "done": "Done"
     }
   },
   "language": {

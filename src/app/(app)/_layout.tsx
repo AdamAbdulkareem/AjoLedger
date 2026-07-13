@@ -2,8 +2,20 @@ import { Redirect, Stack } from "expo-router";
 
 import { useAuth } from "../../context/AuthProvider";
 
+const SLIDE_FROM_RIGHT_SCREENS = [
+  "edit-profile",
+  "change-password",
+  "delete-account",
+  "contact-support",
+  "support-email",
+  "support-phone",
+  "support-message",
+  "support-confirmation",
+  "setup-transaction-pin",
+] as const;
+
 export default function AppLayout() {
-  const { status } = useAuth();
+  const { status, accountDeactivated } = useAuth();
 
   if (status === "booting") {
     return null;
@@ -21,6 +33,10 @@ export default function AppLayout() {
     return <Redirect href="/enter-access-passcode" />;
   }
 
+  if (accountDeactivated) {
+    return <Redirect href="/reactivate-account" />;
+  }
+
   return (
     <Stack
       screenOptions={{
@@ -29,10 +45,13 @@ export default function AppLayout() {
         animationDuration: 200,
       }}
     >
-      <Stack.Screen
-        name="edit-profile"
-        options={{ animation: "slide_from_right" }}
-      />
+      {SLIDE_FROM_RIGHT_SCREENS.map((name) => (
+        <Stack.Screen
+          key={name}
+          name={name}
+          options={{ animation: "slide_from_right" }}
+        />
+      ))}
     </Stack>
   );
 }
