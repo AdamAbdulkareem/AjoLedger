@@ -147,6 +147,8 @@
       "subtitle": "Wannan asusun ne za ku karɓa biyan kuɗin ajiyar ku",
       "bankLabel": "Banki",
       "bankPlaceholder": "Zaɓi bankin ku",
+      "searchPlaceholder": "Nemo banki",
+      "searchEmpty": "Babu bankin da ya dace da bincikenku.",
       "accountLabel": "Asusu",
       "accountPlaceholder": "Shigar da lambar asusun ku",
       "continue": "Ci gaba",

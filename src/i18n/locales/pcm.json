@@ -146,6 +146,8 @@
       "subtitle": "This account go be where you go receive your contribution payout",
       "bankLabel": "Bank",
       "bankPlaceholder": "Choose your bank",
+      "searchPlaceholder": "Search banks",
+      "searchEmpty": "No bank match your search.",
       "accountLabel": "Account",
       "accountPlaceholder": "Enter your Account number",
       "continue": "Continue",

@@ -148,6 +148,8 @@
       "subtitle": "This account will be where you will receive your contribution payout",
       "bankLabel": "Bank",
       "bankPlaceholder": "Select your bank",
+      "searchPlaceholder": "Search banks",
+      "searchEmpty": "No banks match your search.",
       "accountLabel": "Account",
       "accountPlaceholder": "Enter your Account number",
       "continue": "Continue",

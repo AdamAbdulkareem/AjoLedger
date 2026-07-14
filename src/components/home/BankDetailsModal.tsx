@@ -16,12 +16,13 @@ import { useTranslation } from "react-i18next";
 import { getBanks, resolveAccount } from "../../api/banks";
 import { ApiError } from "../../api/client";
 import { Button } from "../Button";
+import { OptionsPickerSheet } from "../OptionsPickerSheet";
 import { TextField } from "../TextField";
 import {
   isValidNuban,
   normalizeAccountNumber,
 } from "../../lib/payoutAccountValidation";
-import { findBankByCode, showBankPicker } from "../../lib/showBankPicker";
+import { findBankByCode } from "../../lib/showBankPicker";
 import type { Bank } from "../../models/bank";
 import type { PayoutAccount, SetupBankPayload } from "../../models/payoutAccount";
 import { useTheme, useThemedStyles, type Theme } from "../../theme";
@@ -72,6 +73,7 @@ export function BankDetailsModal({
   const [banksError, setBanksError] = useState<string>();
 
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
+  const [bankPickerVisible, setBankPickerVisible] = useState(false);
   const [accountNumber, setAccountNumber] = useState("");
   const [bankError, setBankError] = useState<string>();
   const [accountError, setAccountError] = useState<string>();
@@ -110,6 +112,12 @@ export function BankDetailsModal({
   const modalSubtitle = isRequiredVariant
     ? t("groups.bankRequired.body")
     : t("home.bankDetails.subtitle");
+
+  useEffect(() => {
+    if (!visible) {
+      setBankPickerVisible(false);
+    }
+  }, [visible]);
 
   useEffect(() => {
     if (!visible || !accessToken) return;
@@ -243,17 +251,7 @@ export function BankDetailsModal({
 
   const handleBankPress = () => {
     if (banksLoading || banks.length === 0) return;
-
-    showBankPicker({
-      t,
-      banks,
-      selectedBankCode: selectedBank?.bankCode,
-      onSelect: (bank) => {
-        setSelectedBank(bank);
-        setBankError(undefined);
-        resetResolveState();
-      },
-    });
+    setBankPickerVisible(true);
   };
 
   const handleAccountChange = (text: string) => {
@@ -484,32 +482,56 @@ export function BankDetailsModal({
   );
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={dismissible ? handleClose : undefined}
-    >
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoid}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <>
+      <Modal
+        visible={visible}
+        transparent
+        animationType="fade"
+        onRequestClose={dismissible ? handleClose : undefined}
       >
-        {dismissible ? (
-          <Pressable style={styles.overlay} onPress={handleClose}>
-            <Pressable
-              style={styles.card}
-              onPress={(event) => event.stopPropagation()}
-            >
-              {form}
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoid}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          {dismissible ? (
+            <Pressable style={styles.overlay} onPress={handleClose}>
+              <Pressable
+                style={styles.card}
+                onPress={(event) => event.stopPropagation()}
+              >
+                {form}
+              </Pressable>
             </Pressable>
-          </Pressable>
-        ) : (
-          <View style={styles.overlay}>
-            <View style={styles.card}>{form}</View>
-          </View>
-        )}
-      </KeyboardAvoidingView>
-    </Modal>
+          ) : (
+            <View style={styles.overlay}>
+              <View style={styles.card}>{form}</View>
+            </View>
+          )}
+        </KeyboardAvoidingView>
+      </Modal>
+
+      <OptionsPickerSheet
+        visible={visible && bankPickerVisible}
+        title={t("home.bankDetails.bankLabel")}
+        options={banks.map((bank) => ({
+          id: bank.bankCode,
+          label: bank.bankName,
+        }))}
+        selectedId={selectedBank?.bankCode}
+        cancelLabel={t("home.bankDetails.cancel")}
+        searchPlaceholder={t("home.bankDetails.searchPlaceholder")}
+        emptyLabel={t("home.bankDetails.searchEmpty")}
+        onClose={() => setBankPickerVisible(false)}
+        onSelect={(bankCode) => {
+          const bank = findBankByCode(banks, bankCode);
+          if (!bank) return;
+          setSelectedBank(bank);
+          setBankError(undefined);
+          resetResolveState();
+          setBankPickerVisible(false);
+        }}
+      />
+    </>
   );
 }
 
