@@ -231,3 +231,4 @@ Alias: `@/*` → `src/*`
 
 - Expo SDK 56: https://docs.expo.dev/versions/v56.0.0/
 - Live API docs: https://ajoledger-backend.onrender.com/api/docs
+- Our website: https://adamabdulkareem.github.io/AjoLedger/
