@@ -146,6 +146,8 @@
       "subtitle": "This account will be where you will receive your contribution payout",
       "bankLabel": "Bank",
       "bankPlaceholder": "Select your bank",
+      "searchPlaceholder": "Wa awọn banki",
+      "searchEmpty": "Ko si banki ti o baramu wiwa rẹ.",
       "accountLabel": "Account",
       "accountPlaceholder": "Enter your Account number",
       "continue": "Continue",

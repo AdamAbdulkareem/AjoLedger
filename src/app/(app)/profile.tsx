@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 
 import { BankDetailsModal } from "../../components/home/BankDetailsModal";
 import { HomeTabBar } from "../../components/home/HomeTabBar";
+import { OptionsPickerSheet } from "../../components/OptionsPickerSheet";
 import { ProfileAvatarSection } from "../../components/profile/ProfileAvatarSection";
 import { ProfileMenuRow } from "../../components/profile/ProfileMenuRow";
 import { ProfileScreenHeader } from "../../components/profile/ProfileScreenHeader";
@@ -26,8 +27,12 @@ import { useProfile } from "../../context/ProfileProvider";
 import { usePayoutAccountGate } from "../../hooks/usePayoutAccountGate";
 import { useEditProfilePictureModal } from "../../hooks/useEditProfilePictureModal";
 import { setStoredLanguage } from "../../i18n/languageStorage";
-import { getLanguageLabel } from "../../i18n/languages";
-import { showLanguagePicker } from "../../lib/showLanguagePicker";
+import {
+  getLanguageLabel,
+  resolveLanguageCode,
+  SUPPORTED_LANGUAGES,
+  type LanguageCode,
+} from "../../i18n/languages";
 import { consumePendingOpenBankModal } from "../../lib/pendingBankModal";
 import { resolveHasTransactionPin } from "../../lib/transactionPinStorage";
 import {
@@ -61,6 +66,7 @@ export default function ProfileScreen() {
   const [biometricsLoading, setBiometricsLoading] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(true);
   const [bankModalVisible, setBankModalVisible] = useState(false);
+  const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
 
   const {
     account,
@@ -178,14 +184,13 @@ export default function ProfileScreen() {
     Platform.OS !== "web" && biometricCaps?.available === true;
 
   const handleLanguagePress = () => {
-    showLanguagePicker({
-      t,
-      currentLanguage: i18n.language,
-      onSelect: (code) => {
-        void setStoredLanguage(code);
-        void i18n.changeLanguage(code);
-      },
-    });
+    setLanguagePickerVisible(true);
+  };
+
+  const handleLanguageSelect = (code: LanguageCode) => {
+    setLanguagePickerVisible(false);
+    void setStoredLanguage(code);
+    void i18n.changeLanguage(code);
   };
 
   const handleLogout = () => {
@@ -365,6 +370,19 @@ export default function ProfileScreen() {
         onClose={() => setBankModalVisible(false)}
         initialAccount={account}
         variant="profile"
+      />
+
+      <OptionsPickerSheet
+        visible={languagePickerVisible}
+        title={t("language.label")}
+        options={SUPPORTED_LANGUAGES.map((language) => ({
+          id: language.code,
+          label: language.label,
+        }))}
+        selectedId={resolveLanguageCode(i18n.language)}
+        cancelLabel={t("language.cancel")}
+        onClose={() => setLanguagePickerVisible(false)}
+        onSelect={(id) => handleLanguageSelect(id as LanguageCode)}
       />
 
       {photoModal.modal}
